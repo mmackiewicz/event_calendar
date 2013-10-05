@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% extends "base_template.html" %}
+
+{% block content %}
+    <script>
+        $(document).ready(function(){
+            $('body').on('click', '.vehicle_edit_button', function() {
+                window.location.replace($(this).attr('action'));
+            });
+
+            $('body').on('click', '.add_vehicle_button', function() {
+                window.location.replace('/vehicles/create/');
+            });
+        });
+    </script>
+    <div class="row">
+        <div class="pull-right">
+            <button class="btn btn-primary add_vehicle_button">add vehicle</button>
+        </div>
+    </div>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>vehicle code</th>
+            <th>model</th>
+            <th>registration</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for vehicle in vehicles %}
+        <tr>
+            <td>{{ vehicle.vehicle_code }}</td>
+            <td>{{ vehicle.model }}</td>
+            <td>{{ vehicle.registration }}</td>
+            <td>
+                <button type="button" class="btn btn-primary vehicle_edit_button" action="{{ vehicle.get_absolute_url }}">edit</button>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

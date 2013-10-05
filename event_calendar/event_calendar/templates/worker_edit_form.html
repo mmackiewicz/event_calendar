@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form action="/workers/update/" method="POST">
+        {% csrf_token %}
+        <!--
+        first_name: <input type="text" name="first_name"/>
+        last_name: <input type="text" name="last_name"/>
+        username: <input type="text" name="username"/>
+        password: <input type="password" name="password"/>
+        role: <select name="role">
+                <option value="D">kierowca</option>
+                <option value="DI">dyspozytor</option>
+                <option value="A">administrator</option>
+              </select>
+        pesel: <input type="text" name="pesel"/>
+        email: <input type="text" name="email"/>
+        <input type="submit" name="OK"/>
+        -->
+        {{ form.as_p }}
+        <input type="submit" name="OK"/>
+    </form>
+</body>
+</html>

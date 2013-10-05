@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+{% extends "base_template.html" %}
+
+{% block content %}
+    <form action="/vehicles/create/" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" name="OK"/>
+    </form>
+{% endblock %}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title></title>
+    <script type="text/javascript" src="create_files/jquery-1.js"></script>
+    <script type="text/javascript" src="create_files/bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css" href="create_files/bootstrap.css">
+
+    <script>
+        $(document).ready(function() {
+
+            var product_button_clicked = undefined;
+
+            function serialize_product(product_div) {
+                return {
+                    'product_id': $(product_div).children('[name="product_id"]:first').val(),
+                    'quantity': $(product_div).children('[name="quantity"]:first').val()
+                };
+            }
+
+            function serialize_products(vehicle_div) {
+                var result = [];
+                $(vehicle_div).children(".product_div").each(function() {
+                    result.push(serialize_product($(this)));
+                });
+                return result;
+            }
+
+            function serialize_vehicles() {
+                var result = [];
+                $('#vehicles_div.vehicles_div').each(function() {
+                    result.push(serialize_products($(this)));
+                });
+                return result;
+            }
+
+
+            $("body div#vehicles_div").on('click', '.add_prod_button', function() {
+                product_button_clicked = $(this);
+                $('#productModal').modal('show');
+            });
+
+            $("#save_vehicle_button").click(function() {
+                var outHTML = "<div class='vehicle_div'>";
+                outHTML+="vehicle: "+$("#vehicles_list :selected").text()+"<br/>";
+                outHTML+="<input type='hidden' name='vehicle_id' value="+$('#vehicles_list').val()+"><br/>";
+                outHTML+="driver: "+$("#drivers_list :selected").text()+"<br/>";
+                outHTML+="<input type='hidden' name='driver_id' value="+$('#drivers_list').val()+"><br/>";
+                outHTML+="<a class='btn btn-primary btn-lg add_prod_button'>add product</a><br/>"
+                outHTML+="<div class='products_div'></div>";
+                outHTML+="</div>";
+                $('#vehicles_div').append(outHTML);
+                $('#vehicleModal').modal('hide');
+            });
+
+            $("#save_product_button").click(function() {
+                var outHTML = "<div class='product_div'>";
+                outHTML+="product: "+$("#products_list :selected").text()+"<br/>";
+                outHTML+="<input type='hidden' name='product_id' value="+$('#products_list').val()+"><br/>";
+                outHTML+="quantity: "+$("#quantity").val()+"<br/>";
+                outHTML+="<input type='hidden' name='quantity' value="+$('#quantity').val()+"><br/>";
+                outHTML+="<a class='btn btn-sm rm_product' >remove</a><br/>"
+                outHTML+="</div>";
+                $(product_button_clicked).parent().children('.products_div').append(outHTML);
+                product_button_clicked = undefined;
+                $('#productModal').modal('hide');
+            });
+
+            $('#create_button').click(function() {
+                var result = {
+                    'start_loc': $('#start_loc').val(),
+                    'end_loc': $('#end_loc').val(),
+                    'start_time': $('#start_time').val(),
+                    'end_time': $('#end_time').val(),
+                    'vehicles': serialize_vehicles()
+                }
+                console.log(JSON.stringify(result));
+                //return result;
+            });
+
+            $("body").on('click', '.rm_product', function() {
+                $(this).parent().remove();
+            });
+        });
+    </script>
+</head>
+<body>
+    <!--<form action="/events/create/" method="POST">-->
+        
+        start location: <input name="start_loc" id="start_loc" type="text"><br>
+        end location: <input name="end_loc" id="end_loc" type="text"><br>
+        start time: <input name="start_time" id="start_time" type="text"><br>
+        end time: <input name="end_time" id="end_time" type="text"><br>
+
+        <div id="vehicles_div">
+        </div>
+
+
+
+    <!--</form>-->
+    <a data-toggle="modal" href="#vehicleModal" class="btn btn-primary btn-lg">add vehicle</a>
+
+    <a class="btn btn-primary btn-lg" id="create_button">create</a>
+
+    <!-- MODALS -->
+    <div class="modal fade" id="vehicleModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">Add Vehicle</h4>
+          </div>
+          <div class="modal-body">
+            vehicle: <select id="vehicles_list">
+                
+                <option selected="selected" value="1">aaa</option>
+                
+            </select><br>
+            driver: <select id="drivers_list">
+                
+                <option selected="selected" value="1"> </option>
+                
+                <option value="2"> </option>
+                
+                <option value="3"> </option>
+                
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="save_vehicle_button">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="productModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">Add Product</h4>
+          </div>
+          <div class="modal-body">
+            <select id="products_list">
+                
+                <option selected="selected" value="1">palety (test-1)</option>
+                
+                <option value="2">skrzynka (test-2)</option>
+                
+            </select><br>
+            <input id="quantity" type="text">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="save_product_button">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- MODALS -->
+
+</body></html>

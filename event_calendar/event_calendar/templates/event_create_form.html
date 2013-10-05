@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="/static/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap.min.css" />
+
+    <script>
+        $(document).ready(function() {
+
+            var product_button_clicked = undefined;
+
+            function serialize_product(product_div) {
+                return {
+                    'product_id': $(product_div).children('[name="product_id"]:first').val(),
+                    'quantity': $(product_div).children('[name="quantity"]:first').val()
+                };
+            }
+
+            function serialize_products(products_div) {
+                var result = [];
+                $(products_div).children(".product_div").each(function() {
+                    result.push(serialize_product($(this)));
+                });
+                return result;
+            }
+
+            function serialize_vehicle(vehicle_div) {
+                return {
+                    'vehicle_id': $(vehicle_div).children('[name="vehicle_id"]').val(),
+                    'driver_id': $(vehicle_div).children('[name="driver_id"]').val(),
+                    'products': serialize_products($(vehicle_div).children('.products_div'))
+                };
+            }
+
+            function serialize_vehicles() {
+                var result = [];
+                $('div#vehicles_div .vehicle_div').each(function() {
+                    result.push(serialize_vehicle($(this)));
+                });
+                return result;
+            }
+
+
+            $("body div#vehicles_div").on('click', '.add_prod_button', function() {
+                product_button_clicked = $(this);
+                $('#productModal').modal('show');
+            });
+
+            $("#save_vehicle_button").click(function() {
+                var outHTML = "<div class='vehicle_div'>";
+                outHTML+="vehicle: "+$("#vehicles_list :selected").text()+"<br/>";
+                outHTML+="<input type='hidden' name='vehicle_id' value="+$('#vehicles_list').val()+"><br/>";
+                outHTML+="driver: "+$("#drivers_list :selected").text()+"<br/>";
+                outHTML+="<input type='hidden' name='driver_id' value="+$('#drivers_list').val()+"><br/>";
+                outHTML+="<a class='btn btn-primary btn-lg add_prod_button'>add product</a><br/>"
+                outHTML+="<div class='products_div'></div>";
+                outHTML+="</div>";
+                $('#vehicles_div').append(outHTML);
+                $('#vehicleModal').modal('hide');
+            });
+
+            $("#save_product_button").click(function() {
+                var outHTML = "<div class='product_div'>";
+                outHTML+="product: "+$("#products_list :selected").text()+"<br/>";
+                outHTML+="<input type='hidden' name='product_id' value="+$('#products_list').val()+"><br/>";
+                outHTML+="quantity: "+$("#quantity").val()+"<br/>";
+                outHTML+="<input type='hidden' name='quantity' value="+$('#quantity').val()+"><br/>";
+                outHTML+="<a class='btn btn-sm rm_product' >remove</a><br/>"
+                outHTML+="</div>";
+                $(product_button_clicked).parent().children('.products_div').append(outHTML);
+                product_button_clicked = undefined;
+                $('#productModal').modal('hide');
+            });
+
+            $('#create_button').click(function() {
+                var result = {
+                    'start_loc': $('#start_loc').val(),
+                    'end_loc': $('#end_loc').val(),
+                    'start_time': $('#start_time').val(),
+                    'end_time': $('#end_time').val(),
+                    'vehicles': serialize_vehicles()
+                }
+                //console.log(JSON.stringify(result));
+                //return result;
+
+                $.post(
+                    '/events/create/',
+                    JSON.stringify(result)
+                ).done(function(data) {
+                    alert(data);
+                }).fail(function(data) {
+                    $('#erorrs_div').html(data).show();
+                })
+            });
+
+            $("body").on('click', '.rm_product', function() {
+                $(this).parent().remove();
+            });
+        });
+    </script>
+</head>
+<body>
+    <!--<form action="/events/create/" method="POST">-->
+    <div style="display: none;" id="errors_div"></div>
+    start location: <input type="text" name="start_loc" id="start_loc"/><br/>
+    end location: <input type="text" name="end_loc" id="end_loc"/><br/>
+    start time: <input type="text" name="start_time" id="start_time"/><br/>
+    end time: <input type="text" name="end_time" id="end_time"/><br/>
+
+    <div id="vehicles_div">
+    </div>
+
+
+
+    <!--</form>-->
+    <a data-toggle="modal" href="#vehicleModal" class="btn btn-primary btn-lg">add vehicle</a>
+
+    <a class="btn btn-primary btn-lg" id="create_button">create</a>
+
+    <!-- MODALS -->
+    <div class="modal fade" id="vehicleModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Vehicle</h4>
+          </div>
+          <div class="modal-body">
+            vehicle: <select id="vehicles_list">
+                {% for vehicle in vehicles %}
+                <option value="{{ vehicle.id }}">{{ vehicle.vehicle_code }}</option>
+                {% endfor %}
+            </select><br/>
+            driver: <select id="drivers_list">
+                {% for driver in drivers %}
+                <option value="{{ driver.id }}">{{ driver.user.first_name }} {{ driver.user.last_name }}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="save_vehicle_button">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="productModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Product</h4>
+          </div>
+          <div class="modal-body">
+            <select id="products_list">
+                {% for product in products %}
+                <option value="{{ product.id }}">{{ product.name }} ({{ product.product_code }})</option>
+                {% endfor %}
+            </select><br/>
+            <input type="text" id="quantity"/>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="save_product_button">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- MODALS -->
+</body>
+</html>

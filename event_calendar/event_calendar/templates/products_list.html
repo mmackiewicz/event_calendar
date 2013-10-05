@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% extends "base_template.html" %}
+
+{% block content %}
+    <script>
+        $(document).ready(function(){
+            $('body').on('click', '.product_edit_button', function() {
+                window.location.replace($(this).attr('action'));
+            });
+
+            $('body').on('click', '.add_product_button', function() {
+                window.location.replace('/products/create/');
+            });
+        });
+    </script>
+    <div class="row">
+        <div class="pull-right">
+            <button class="btn btn-primary add_product_button">add product</button>
+        </div>
+    </div>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>product code</th>
+            <th>name</th>
+            <th>units</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for product in products %}
+        <tr>
+            <td>{{ product.product_code }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.units }}</td>
+            <td>
+                <button type="button" class="btn btn-primary product_edit_button" action="{{ product.get_absolute_url }}">edit</button>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

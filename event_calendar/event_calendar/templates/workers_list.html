@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% extends "base_template.html" %}
+
+{% block content %}
+    <script>
+        $(document).ready(function(){
+            $('body').on('click', '.status_toggle_button', function() {
+                var id = $(this).attr('id').replace('toggle_status_', '');
+                var that = $(this);
+                $.post(
+                    '/workers/status/'+id+'/',
+                    {},
+                    function(response) {
+                        if('status' in response && response.status == 'OK') {
+                            if($(that).text() == 'activate') {
+                                $(that).text('deactivate');
+                            } else {
+                                $(that).text('activate');
+                            }
+                        }
+                    },
+                    'json'
+                );
+            });
+
+            $('body').on('click', '.worker_edit_button', function() {
+                window.location.replace($(this).attr('action'));
+            });
+
+            $('body').on('click', '.add_worker_button', function() {
+                window.location.replace('/workers/create/');
+            });
+        });
+    </script>
+    <div class="row">
+        <div class="pull-right">
+            <button class="btn btn-primary add_worker_button">add worker</button>
+        </div>
+    </div>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>username</th>
+            <th>first name</th>
+            <th>last name</th>
+            <th>role</th>
+            <th>active</th>
+            <th></th>
+        </tr>
+    </thead>
+    {% for worker in workers %}
+        <tr>
+            <td>{{ worker.user.username }}</td>
+            <td>{{ worker.user.first_name }}</td>
+            <td>{{ worker.user.last_name }}</td>
+            <td>{{ worker.role }}</td>
+            <td>{{ worker.user.active }}</td>
+            <td>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-primary worker_edit_button" action="{{ worker.get_absolute_url }}">edit</button>
+                  {% if worker.user.is_active %}
+                    <button type="button" class="btn btn-danger status_toggle_button" id="toggle_status_{{ worker.id }}">deactivate</button>
+                  {% else %}
+                    <button type="button" class="btn btn-danger status_toggle_button" id="toggle_status_{{ worker.id }}">activate</button>
+                  {% endif %}
+
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}
