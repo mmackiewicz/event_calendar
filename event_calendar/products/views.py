@@ -19,16 +19,15 @@ def create_product_view(request):
         if form.is_valid():
             product_code = form.cleaned_data['product_code']
             name = form.cleaned_data['name']
-            units = form.cleaned_data['units']
-            product = create_product(product_code=product_code, name=name, units=units)
+            product = create_product(product_code=product_code, name=name)
             return JsonResponse(product.id)
     else:
         form = ProductForm()
     return render(request, 'product_create_form.html', {'form': form})
 
 
-def create_product(product_code, name, units):
-    product = Product(product_code=product_code, name=name, units=units)
+def create_product(product_code, name):
+    product = Product(product_code=product_code, name=name)
     product.save()
     return product
 
@@ -42,19 +41,16 @@ def update_product_view(request, product_id):
         if form.is_valid():
             product_code = form.cleaned_data['product_code']
             name = form.cleaned_data['name']
-            units = form.cleaned_data['units']
-            product = update_product(product, product_code=product_code, name=name, units=units)
+            product = update_product(product, product_code=product_code, name=name)
             return JsonResponse(product.id)
     else:
         form = ProductForm(initial={'product_code': product.product_code,
-                                    'name': product.name,
-                                    'units': product.units})
+                                    'name': product.name,})
     return render(request, 'product_create_form.html', {'form': form})
 
-def update_product(product, product_code, name, units):
+def update_product(product, product_code, name):
     product.product_code = product_code
     product.name = name
-    product.units = units
     product.save()
     return product
 

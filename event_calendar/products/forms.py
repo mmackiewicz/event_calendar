@@ -5,5 +5,4 @@ import models
 
 class ProductForm(forms.Form):
     product_code = forms.CharField(min_length=3, max_length=50)
-    name = forms.CharField(min_length=3, max_length=50)
-    units = forms.ChoiceField(choices=models.UNIT_TYPES)
+    name = forms.CharField(min_length=3, max_length=75)

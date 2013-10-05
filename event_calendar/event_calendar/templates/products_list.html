@@ -23,7 +23,6 @@
         <tr>
             <th>product code</th>
             <th>name</th>
-            <th>units</th>
             <th></th>
         </tr>
     </thead>
@@ -31,7 +30,6 @@
         <tr>
             <td>{{ product.product_code }}</td>
             <td>{{ product.name }}</td>
-            <td>{{ product.units }}</td>
             <td>
                 <button type="button" class="btn btn-primary product_edit_button" action="{{ product.get_absolute_url }}">edit</button>
             </td>
