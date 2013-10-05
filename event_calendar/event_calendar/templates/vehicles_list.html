@@ -21,16 +21,12 @@
     <table class="table">
     <thead>
         <tr>
-            <th>vehicle code</th>
-            <th>model</th>
             <th>registration</th>
             <th></th>
         </tr>
     </thead>
     {% for vehicle in vehicles %}
         <tr>
-            <td>{{ vehicle.vehicle_code }}</td>
-            <td>{{ vehicle.model }}</td>
             <td>{{ vehicle.registration }}</td>
             <td>
                 <button type="button" class="btn btn-primary vehicle_edit_button" action="{{ vehicle.get_absolute_url }}">edit</button>

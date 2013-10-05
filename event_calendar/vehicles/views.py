@@ -14,16 +14,14 @@ def create_vehicle_view(request):
     if request.method == 'POST':
         form = VehicleForm(request.POST)
         if form.is_valid():
-            vehicle_code = form.cleaned_data['vehicle_code']
-            model = form.cleaned_data['vehicle_code']
             registration = form.cleaned_data['registration']
-            return JsonResponse(create_vehicle(vehicle_code=vehicle_code, model=model, registration=registration).id)
+            return JsonResponse(create_vehicle(registration=registration).id)
     else:
         form = VehicleForm()
     return render(request, 'vehicle_create_form.html', {'form': form})
 
-def create_vehicle(vehicle_code, model, registration):
-    vehicle = Vehicle(vehicle_code=vehicle_code, model=model, registration=registration)
+def create_vehicle(registration):
+    vehicle = Vehicle(registration=registration)
     vehicle.save()
     return vehicle
 
@@ -35,23 +33,17 @@ def update_vehicle_view(request, vehicle_id):
     if request.method == 'POST':
         form = VehicleForm(request.POST)
         if form.is_valid():
-            vehicle_code = form.cleaned_data['vehicle_code']
-            model = form.cleaned_data['model']
             registration = form.cleaned_data['registration']
-            return JsonResponse(create_vehicle(vehicle_code=vehicle_code, model=model, registration=registration).id)
+            return JsonResponse(create_vehicle(registration=registration).id)
     else:
         vehicle_dict = {}
-        vehicle_dict['vehicle_code'] = vehicle.vehicle_code
-        vehicle_dict['model'] = vehicle.model
         vehicle_dict['registration'] = vehicle.registration
         form = VehicleForm(initial=vehicle_dict)
         #populate form
     return render(request, 'vehicle_create_form.html', {'form': form})
 
 
-def update_vehicle(vehicle, vehicle_code, model, registration):
-    vehicle.vehicle_code = vehicle_code
-    vehicle.model = model
+def update_vehicle(vehicle, registration):
     vehicle.registration = registration
     vehicle.save()
     return vehicle
