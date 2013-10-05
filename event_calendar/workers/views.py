@@ -10,21 +10,15 @@ from forms import WorkerCreateForm, WorkerUpdateForm
 
 
 @require_http_methods(['GET', 'POST'])
-#@is_admin()
-@is_authenticated()
+@is_admin()
 def create_worker_view(request):
     if request.method == 'POST':
         form = WorkerCreateForm(request.POST)
         if form.is_valid():
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
             username = form.cleaned_data['username']
-            #password = User.objects.make_random_password()
             password = form.cleaned_data['password']
             role = form.cleaned_data['role']
-            pesel = form.cleaned_data['pesel']
-            email = form.cleaned_data['email']
-            return JsonResponse(create_worker(first_name, last_name, username, password, role, pesel, email))
+            return JsonResponse(create_worker(username, password, role,))
 
     else:
         form = WorkerCreateForm()
@@ -32,14 +26,24 @@ def create_worker_view(request):
     return render(request,'worker_create_form.html', {'form': form})
 
 
-def create_worker(first_name, last_name, username, password, role, pesel, email):
-    user = User.objects.create_user(username, email, password)
-    user.first_name = first_name
-    user.last_name = last_name
+def create_worker(username, password, role,):
+    user = User.objects.create_user(username, password=None)
+    user.set_password(password)
     user.save()
 
-    worker = Worker(pesel=pesel, role=role, user=user)
+    worker = Worker(role=role, user=user)
     worker.save()
+
+    return worker.id
+
+def update_worker(worker, username, password, role):
+    worker.role = role
+    worker.save()
+
+    user = worker.get_profile()
+    user.username = username
+    user.set_password(password)
+    user.save()
 
     return worker.id
 
@@ -47,21 +51,23 @@ def create_worker(first_name, last_name, username, password, role, pesel, email)
 @require_http_methods(['GET', 'POST'])
 @is_admin()
 def update_worker_view(request, worker_id):
-    if request.method == 'GET':
-        worker = get_object_or_404(User, pk=worker_id)
+    worker = get_object_or_404(User, pk=worker_id)
 
+    if request.method == 'GET':
         worker_dict = {}
-        worker_dict['email'] = worker.email
-        worker_dict['first_name'] = worker.first_name
-        worker_dict['last_name'] = worker.last_name
-        worker_dict['pesel'] = worker.get_profile().pesel
         worker_dict['role'] = worker.get_profile().role
         worker_dict['username'] = worker.username
         form = WorkerUpdateForm(initial=worker_dict)
 
     else:
         form = WorkerUpdateForm(request.POST)
-        form.username = 'updated'
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['new_password1']
+            role = form.cleaned_data['role']
+        update_worker(worker, username, password, role)
+
+
     return render(request, 'worker_edit_form.html', {'form': form})
 
 
@@ -70,14 +76,20 @@ def get_worker_view(request, worker_id):
     worker = get_object_or_404(Worker, pk=worker_id)
     return JsonResponse(data=worker)
 
-
 @require_GET
 @is_admin()
 def get_all_workers_view(request):
     workers = Worker.objects.all()
-    #return JsonResponse(data=Worker.objects.all())
     return render(request, 'workers_list.html', {'workers': workers})
 
+@require_POST
+@is_admin()
+def delete_worker_view(request, worker_id):
+    worker = get_object_or_404(Worker, pk=worker_id)
+    worker.delete()
+    return JsonResponse(data={'status': 'OK'})
+
+"""
 @require_POST
 @is_admin()
 @csrf_exempt
@@ -86,3 +98,4 @@ def toggle_worker_status(request, worker_id):
     worker.user.is_active = not worker.user.is_active
     worker.user.save()
     return JsonResponse(data={'status': 'OK'})
+"""
