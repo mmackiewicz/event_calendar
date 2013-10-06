@@ -26,6 +26,7 @@
                 return result;
             }
 
+            /*
             function serialize_vehicle(vehicle_div) {
                 return {
                     'vehicle_id': $(vehicle_div).children('[name="vehicle_id"]').val(),
@@ -48,6 +49,7 @@
                 $('#productModal').modal('show');
             });
 
+
             $("#save_vehicle_button").click(function() {
                 var outHTML = "<div class='vehicle_div'>";
                 outHTML+="vehicle: "+$("#vehicles_list :selected").text()+"<br/>";
@@ -59,7 +61,7 @@
                 outHTML+="</div>";
                 $('#vehicles_div').append(outHTML);
                 $('#vehicleModal').modal('hide');
-            });
+            });*/
 
             $("#save_product_button").click(function() {
                 var outHTML = "<div class='product_div'>";
@@ -69,18 +71,20 @@
                 outHTML+="<input type='hidden' name='quantity' value="+$('#quantity').val()+"><br/>";
                 outHTML+="<a class='btn btn-sm rm_product' >remove</a><br/>"
                 outHTML+="</div>";
-                $(product_button_clicked).parent().children('.products_div').append(outHTML);
+                //$(product_button_clicked).parent().children('.products_div').append(outHTML);
+                $('#products_div').append(outHTML);
                 product_button_clicked = undefined;
                 $('#productModal').modal('hide');
             });
 
+
             $('#create_button').click(function() {
                 var result = {
-                    'start_loc': $('#start_loc').val(),
-                    'end_loc': $('#end_loc').val(),
-                    'start_time': $('#start_time').val(),
-                    'end_time': $('#end_time').val(),
-                    'vehicles': serialize_vehicles()
+                    'producer': $('#producer').val(),
+                    'recipient': $('#recipient').val(),
+                    'producer_date': $('#producer_date').val(),
+                    'recipients_date': $('#recipients_date').val(),
+                    'products': serialize_products()
                 }
                 //console.log(JSON.stringify(result));
                 //return result;
@@ -104,48 +108,22 @@
 <body>
     <!--<form action="/events/create/" method="POST">-->
     <div style="display: none;" id="errors_div"></div>
-    start location: <input type="text" name="start_loc" id="start_loc"/><br/>
-    end location: <input type="text" name="end_loc" id="end_loc"/><br/>
-    start time: <input type="text" name="start_time" id="start_time"/><br/>
-    end time: <input type="text" name="end_time" id="end_time"/><br/>
+    producer: <input type="text" name="producer" id="producer"/><br/>
+    recipient: <input type="text" name="recipient" id="recipient"/><br/>
+    production date: <input type="text" name="production_date" id="production_date"/><br/>
+    recipient's date: <input type="text" name="recipients_date" id="recipients_date"/><br/>
 
-    <div id="vehicles_div">
+    <div id="products_div">
     </div>
 
 
 
     <!--</form>-->
-    <a data-toggle="modal" href="#vehicleModal" class="btn btn-primary btn-lg">add vehicle</a>
+    <a data-toggle="modal" href="#productModal" class="btn btn-primary btn-lg">add product</a>
 
     <a class="btn btn-primary btn-lg" id="create_button">create</a>
 
     <!-- MODALS -->
-    <div class="modal fade" id="vehicleModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Add Vehicle</h4>
-          </div>
-          <div class="modal-body">
-            vehicle: <select id="vehicles_list">
-                {% for vehicle in vehicles %}
-                <option value="{{ vehicle.id }}">{{ vehicle.vehicle_code }}</option>
-                {% endfor %}
-            </select><br/>
-            driver: <select id="drivers_list">
-                {% for driver in drivers %}
-                <option value="{{ driver.id }}">{{ driver.user.first_name }} {{ driver.user.last_name }}</option>
-                {% endfor %}
-            </select>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="save_vehicle_button">Save changes</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
 
     <div class="modal fade" id="productModal">
       <div class="modal-dialog">

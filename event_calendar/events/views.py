@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 import json
 import datetime
 
-from models import Event, EVENT_STATUS_WAITING
+from models import Event
 from tools.http import JsonResponse
 from loads import models as l_models
 from vehicles import models as v_models
@@ -24,6 +24,7 @@ def get_event_view(request, event_id):
 def get_events_view(request):
     return JsonResponse(data='multiple events')
 
+"""
 @require_GET
 def get_week_events_view(request, year, week):
     year_date = datetime.datetime.strptime(year+'-01-01', '%Y-%m-%d')
@@ -41,6 +42,7 @@ def get_week_events_view(request, year, week):
 
 
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
+"""
 
 @csrf_exempt
 @require_http_methods(['GET', 'POST'])
@@ -65,20 +67,20 @@ def create_event_from_json(json_string):
     try:
         event_obj = json.loads(json_string)
 
-        transports = []
-        for transport_obj in event_obj['vehicles']:
-            loads = []
-            for load_obj in transport_obj['products']:
-                load = l_models.Load.objects.create(amount=load_obj['quantity'],
-                                                    product_id=load_obj['product_id'])
-                loads.append(load)
-            transport = t_models.Transport.objects.create(vehicle_id=transport_obj['vehicle_id'],
-                                           driver_id=transport_obj['driver_id'])
-            for load in loads:
-                transport.loads.add(load)
-            transport.save()
+        #transports = []
+        #for transport_obj in event_obj['vehicles']:
+        loads = []
+        for load_obj in transport_obj['products']:
+            load = l_models.Load.objects.create(amount=load_obj['quantity'],
+                                                product_id=load_obj['product_id'])
+            loads.append(load)
+        transport = t_models.Transport.objects.create(vehicle_id=transport_obj['vehicle_id'],
+                                       driver_id=transport_obj['driver_id'])
+        for load in loads:
+            transport.loads.add(load)
+        transport.save()
 
-            transports.append(transport)
+        #transports.append(transport)
 
         event = Event.objects.create(status=EVENT_STATUS_WAITING,
                       start_location=event_obj['start_loc'],

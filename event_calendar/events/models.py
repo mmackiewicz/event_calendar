@@ -1,35 +1,27 @@
 from django.db import models
 from transports import models as t_models
+from vehicles import models as v_models
 
 from time import strftime
 
-EVENT_STATUS_WAITING = 'WAITING'
-EVENT_STATUS_STARTED = 'STARTED'
-EVENT_STATUS_DONE = 'DONE'
-EVENT_STATUS_CANCELED = 'CANCELED'
 
+class ReturnEvent(models.Model):
+    vehicle = models.ForeignKey(v_models.Vehicle)
+    return_date = models.DateField()
+    transports = models.ManyToManyField(t_models.ReturnTransport)
 
-EVENT_STATUSES = (
-    (EVENT_STATUS_WAITING, 'waiting'),
-    (EVENT_STATUS_STARTED, 'started'),
-    (EVENT_STATUS_DONE, 'done'),
-    (EVENT_STATUS_CANCELED, 'canceled'),
-)
 
 class Event(models.Model):
-    status = models.CharField(max_length=10, choices=EVENT_STATUSES)
-    start_location = models.CharField(max_length=250)
-    end_location = models.CharField(max_length=250)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    transports = models.ManyToManyField(t_models.Transport)
+    producer = models.CharField(max_length=250)
+    recipient = models.CharField(max_length=250)
+    production_date = models.DateField()
+    recipients_date = models.DateField()
+    transport = models.OneToOneField(t_models.Transport)
+    return_event = models.ForeignKey(ReturnEvent, null=True)
 
     def serialize_to_json(self):
-        return {'status': self.status,
-                'start_location': self.start_location,
-                'end_location': self.end_location,
-                'start_time': self.start_time.strftime('%Y-%m-%d %H:%M'),
-                'end_time': self.end_time.strftime('%Y-%m-%d %H:%M'),
-                #'start_time': str(self.start_time),
-                #'end_time': str(self.end_time),
-                'transports': [transport.serialize_to_json() for transport in self.transports.all()]}
+        return {'producer': self.producer,
+                'recipient': self.recipient,
+                'production_date': self.production_date.strftime('%Y-%m-%d'),
+                'recipients_date': self.recipients_date.strftime('%Y-%m-%d'),
+                'transport': self.transport.serialize_to_json()}

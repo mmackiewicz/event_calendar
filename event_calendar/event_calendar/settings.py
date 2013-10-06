@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'loads',
     'transports',
     'events',
+    'invoices',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -174,3 +175,10 @@ LOGGING = {
         },
     }
 }
+
+
+OWN_COMPANIES = (
+    ('POLWOOD', 'POLWOOD'),
+    ('POLWOOD S.C', 'POLWOOD S.C'),
+    ('POLWOOD S.C+', 'POLWOOD S.C+'),
+)

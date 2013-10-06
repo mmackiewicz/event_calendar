@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^loads/', include('loads.urls')),
     url(r'^transports/', include('transports.urls')),
     url(r'^workers/', include('workers.urls')),
+    url(r'^invoices/', include('invoices.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
