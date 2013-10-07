@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-    <script type="text/javascript" src="/static/jquery-1.10.1.min.js"></script>
-    <script type="text/javascript" src="/static/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/bootstrap.min.css" />
+{% extends "base_template.html" %}
+
+{% block content %}
 
     <script>
         $(document).ready(function() {
 
-            var product_button_clicked = undefined;
+            $('#production_date').datepicker({format: 'dd-mm-yyyy', weekStart: 1});
+            $('#recipients_date').datepicker({format: 'dd-mm-yyyy', weekStart: 1});
 
             function serialize_product(product_div) {
                 return {
@@ -26,42 +24,6 @@
                 return result;
             }
 
-            /*
-            function serialize_vehicle(vehicle_div) {
-                return {
-                    'vehicle_id': $(vehicle_div).children('[name="vehicle_id"]').val(),
-                    'driver_id': $(vehicle_div).children('[name="driver_id"]').val(),
-                    'products': serialize_products($(vehicle_div).children('.products_div'))
-                };
-            }
-
-            function serialize_vehicles() {
-                var result = [];
-                $('div#vehicles_div .vehicle_div').each(function() {
-                    result.push(serialize_vehicle($(this)));
-                });
-                return result;
-            }
-
-
-            $("body div#vehicles_div").on('click', '.add_prod_button', function() {
-                product_button_clicked = $(this);
-                $('#productModal').modal('show');
-            });
-
-
-            $("#save_vehicle_button").click(function() {
-                var outHTML = "<div class='vehicle_div'>";
-                outHTML+="vehicle: "+$("#vehicles_list :selected").text()+"<br/>";
-                outHTML+="<input type='hidden' name='vehicle_id' value="+$('#vehicles_list').val()+"><br/>";
-                outHTML+="driver: "+$("#drivers_list :selected").text()+"<br/>";
-                outHTML+="<input type='hidden' name='driver_id' value="+$('#drivers_list').val()+"><br/>";
-                outHTML+="<a class='btn btn-primary btn-lg add_prod_button'>add product</a><br/>"
-                outHTML+="<div class='products_div'></div>";
-                outHTML+="</div>";
-                $('#vehicles_div').append(outHTML);
-                $('#vehicleModal').modal('hide');
-            });*/
 
             $("#save_product_button").click(function() {
                 var outHTML = "<div class='product_div'>";
@@ -71,23 +33,18 @@
                 outHTML+="<input type='hidden' name='quantity' value="+$('#quantity').val()+"><br/>";
                 outHTML+="<a class='btn btn-sm rm_product' >remove</a><br/>"
                 outHTML+="</div>";
-                //$(product_button_clicked).parent().children('.products_div').append(outHTML);
                 $('#products_div').append(outHTML);
-                product_button_clicked = undefined;
                 $('#productModal').modal('hide');
             });
-
 
             $('#create_button').click(function() {
                 var result = {
                     'producer': $('#producer').val(),
                     'recipient': $('#recipient').val(),
-                    'producer_date': $('#producer_date').val(),
-                    'recipients_date': $('#recipients_date').val(),
-                    'products': serialize_products()
+                    'production_date': $('#production_date').find('input').val(),
+                    'recipients_date': $('#recipients_date').find('input').val(),
+                    'products': serialize_products($('#products_div'))
                 }
-                //console.log(JSON.stringify(result));
-                //return result;
 
                 $.post(
                     '/events/create/',
@@ -95,7 +52,7 @@
                 ).done(function(data) {
                     alert(data);
                 }).fail(function(data) {
-                    $('#erorrs_div').html(data).show();
+                    $('#errors_div').html(data).show();
                 })
             });
 
@@ -106,25 +63,27 @@
     </script>
 </head>
 <body>
-    <!--<form action="/events/create/" method="POST">-->
     <div style="display: none;" id="errors_div"></div>
     producer: <input type="text" name="producer" id="producer"/><br/>
     recipient: <input type="text" name="recipient" id="recipient"/><br/>
-    production date: <input type="text" name="production_date" id="production_date"/><br/>
-    recipient's date: <input type="text" name="recipients_date" id="recipients_date"/><br/>
+    production date: <div id="production_date" class="input-append date" data-date="11-12-2013">
+                        <input class="span2" size="16" type="text" value="12-02-2012">
+                        <span class="add-on"><i class="icon-calendar"></i></span>
+                    </div><br/>
+    recipient's date: <div id="recipients_date" class="input-append date" data-date="11-12-2013">
+                        <input class="span2" size="16" type="text" value="12-02-2012">
+                        <span class="add-on"><i class="icon-calendar"></i></span>
+                      </div><br/>
 
     <div id="products_div">
     </div>
 
 
-
-    <!--</form>-->
     <a data-toggle="modal" href="#productModal" class="btn btn-primary btn-lg">add product</a>
-
     <a class="btn btn-primary btn-lg" id="create_button">create</a>
 
-    <!-- MODALS -->
 
+    <!-- MODALS -->
     <div class="modal fade" id="productModal">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -148,5 +107,5 @@
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
     <!-- MODALS -->
-</body>
-</html>
+
+{% endblock %}

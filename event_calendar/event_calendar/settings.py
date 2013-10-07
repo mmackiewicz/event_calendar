@@ -82,6 +82,7 @@ STATICFILES_DIRS = (
     SITE_ROOT+'/js/',
     SITE_ROOT+'/js_external/',
     SITE_ROOT+'/css/',
+    SITE_ROOT+'/img/',
 )
 
 # List of finder classes that know how to find static files in
