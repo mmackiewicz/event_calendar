@@ -2,6 +2,91 @@
 {% extends "base_template.html" %}
 
 {% block content %}
-    <div>day = {{ day }}</div>
-    <div>week = {{ week }}</div>
+    <link rel="stylesheet" type="text/css" href="/static/calendar_large.css" />
+    <script>
+        $(document).ready(function(){
+
+            function make_calendar() {
+                $('#dp1').datepicker({format: 'dd-mm-yyyy', weekStart: 1});
+                var picker = $('#dp1').data('datepicker').picker;
+
+                $('#calendar_div #calendar_table').html(picker.find('.datepicker-days .table-condensed').html());
+
+                $.each(
+                    $('#calendar_table tbody tr td'),
+                    function() {
+                        $(this).html('<div class="day_number">'+$(this).html()+'</div>');
+                    });
+
+                //$('#calendar_div').html(picker.find('.datepicker-days .table-condensed'));
+
+
+                jQuery.each($('#calendar_table thead tr'), function() { $(this).html('<th></th>'+$(this).html());});
+                jQuery.each($('#calendar_table tbody tr'), function() { $(this).html('<td></td>'+$(this).html());});
+            }
+
+            make_calendar();
+
+            // prepare date and go to event creation with it
+            $('#calendar_div .day').not('.old, .new').click(function(){
+                var day_number = $(this).text();
+                if(day_number.length==1) {
+                    day_number = "0"+day_number;
+                }
+                var date_val = day_number+$('#dp1').attr('data-date').substring(2);
+                $("#date_field").val(date_val);
+                $('#event_create_form').submit();
+            });
+
+
+        });
+    </script>
+    <div class="row">
+        <div class="span4" style="float: left; left: 5px; top: 50%; z-index:10; position: absolute;">
+            <div class="btn-group">
+              <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="#">
+                <!--
+                <h3>Choose Child</h3>
+                <img id="mainIcons" src="boyStudent.png" alt="boyStudent">
+                -->
+                <span class="right-caret right"></span>
+              </a>
+
+              <ul class="dropdown-menu rightMenu">
+                <li>
+                  opcja1
+                  <!--
+                  <div class="btn-group">
+                    <a href="parent_homepage_2.html" style="text-align:center;" class="btn btn-link operationsButtons">
+                      <h5>A</h5>
+                      <img id="mainIcons" src="boyStudent.png" alt="boyStudent">
+                    </a>
+                    <a href="parent_homepage_2.html" style="text-align:center;" class="btn btn-link operationsButtons">
+                      <h5>J</h5>
+                      <img id="mainIcons" src="girlStudent.png" alt="girlStudent">
+                    </a>
+                  </div>
+                  -->
+                </li>
+                <li>
+                    opcja2
+                </li>
+                <li>
+                    opcja3
+                </li>
+              </ul>
+            </div>
+        </div>
+        <div class="col-md-12" id="calendar_div">
+            <table id="calendar_table">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+    <div style="display: none;" id="dp1" data-date="{% now dd-m-YY %}"></div>
+    <form action="/events/create/" method="GET" id="event_create_form">
+        <input type="hidden" id="date_field" name="date"/>
+    </form>
 {% endblock %}

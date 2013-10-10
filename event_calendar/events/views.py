@@ -4,10 +4,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.shortcuts import get_object_or_404, render_to_response
 import json
-import datetime
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 from models import Event
 from tools.http import JsonResponse
+from tools.utils import validate_date
 from loads import models as l_models
 from vehicles import models as v_models
 from vehicles import views as v_views
@@ -49,51 +51,63 @@ def get_week_events_view(request, year, week):
 def create_event_view(request):
     if request.method == 'POST':
         # read json and create event
-        event = create_event_from_json(request.raw_post_data)
+        event = create_event_from_json(request.body)
 
-
-        return JsonResponse(data=event.id)
+        if event:
+            return JsonResponse(data=event.id)
+        else:
+            return JsonResponse(data={'status': 'ERROR'})
     else:
         #prepare data for form
+        date = request.GET.get('date', datetime.now().strftime('%d-%m-%Y'))
         vehicles = v_models.Vehicle.objects.all()
         products = p_models.Product.objects.all()
         drivers = w_models.Worker.objects.all()
-        return render_to_response('event_create_form.html', {'vehicles': vehicles,
-                                                             'products': products,
-                                                             'drivers': drivers,})
+        resp_dict = {'vehicles': vehicles,
+                     'products': products,
+                     'drivers': drivers}
+        #add date to response if it matches pattern dd-mm-YYYY
+        if date and validate_date(date):
+            resp_dict['date'] = date
+
+        return render_to_response('event_create_form.html',resp_dict)
 
 @transaction.commit_manually
 def create_event_from_json(json_string):
     try:
+
         event_obj = json.loads(json_string)
 
-        #transports = []
-        #for transport_obj in event_obj['vehicles']:
+        # create load objects
         loads = []
-        for load_obj in transport_obj['products']:
+        for load_obj in event_obj['products']:
             load = l_models.Load.objects.create(amount=load_obj['quantity'],
                                                 product_id=load_obj['product_id'])
             loads.append(load)
-        transport = t_models.Transport.objects.create(vehicle_id=transport_obj['vehicle_id'],
-                                       driver_id=transport_obj['driver_id'])
+
+        # create event object
+        event = Event.objects.create(producer=event_obj['producer'],
+                      recipient=event_obj['recipient'],
+                      production_date=datetime.strptime(event_obj['production_date'], '%d-%m-%Y'),
+                      recipients_date=datetime.strptime(event_obj['recipients_date'],'%d-%m-%Y'),)
+
+        # add previously created load objects to event object
         for load in loads:
-            transport.loads.add(load)
-        transport.save()
+            event.loads.add(load.id)
 
-        #transports.append(transport)
-
-        event = Event.objects.create(status=EVENT_STATUS_WAITING,
-                      start_location=event_obj['start_loc'],
-                      end_location=event_obj['end_loc'],
-                      start_time=event_obj['start_time'],
-                      end_time=event_obj['end_time'])
-        for transport in transports:
-            event.transports.add(transport)
-
-    except:
-        transaction.rollback()
-    else:
         transaction.commit()
         return event
 
-    return None
+    except:
+        transaction.rollback()
+        return None
+
+
+@require_GET
+def get_month_events_view(request, year, month):
+    start_date = datetime.strptime('-'.join((year,month,'01')), '%Y-%m-%d')
+    end_date = (start_date + relativedelta(months=1)) + relativedelta(days=-1)
+
+    events = Event.objects.filter(recipients_date__gte=start_date, recipients_date__lte=end_date)
+
+    return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})

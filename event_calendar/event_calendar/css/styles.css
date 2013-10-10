@@ -1,5 +1,6 @@
 .jumbotron {
-margin-top: 30px;
+    margin-top: 30px;
+    padding:15px;
 }
 
 .icon-calendar {
@@ -12,4 +13,28 @@ margin-top: 30px;
     vertical-align: text-top;
     width: 14px;
     background-position: -192px -120px;
+}
+
+
+.rightMenu {
+    position:relative;
+    float:right;
+    border: 1px solid grey;
+}
+.right-caret {
+
+    border-bottom: 4px solid transparent;
+    border-top: 4px solid transparent;
+    border-left: 4px solid #000000;
+    display: inline-block;
+    height: 0;
+    opacity: 1;
+    vertical-align: top;
+    width: 0;
+
+}
+.right
+{
+    position:absolute;
+
 }
