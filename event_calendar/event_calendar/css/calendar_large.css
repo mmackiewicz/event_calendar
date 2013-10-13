@@ -21,10 +21,10 @@ table {
     float: right;
     color: white;
     background-color: blue;
-    height: 30px;
-    width: 40px;
+    height: 28px;
+    width: 36px;
     text-align: center;
-    font-size: 15px;
+    font-size: 13px;
     border-radius: 0px 0px 0px 4px;
 }
 
@@ -34,4 +34,11 @@ td.old div.day_number {
 
 td.new div.day_number {
     background-color: grey;
+}
+
+.event_cal_div {
+    font-size: 11px;
+    border: 2px solid red;
+    width: 100px;
+    height: 25px;
 }

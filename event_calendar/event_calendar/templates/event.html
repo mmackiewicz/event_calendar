@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+{% extends "base_template.html" %}
+
+
+
+{% block content %}
+    <script>
+        $('body').on('click', $('.products_toggle_button'), function() {
+            $(this).parent().parent().find('.product_div').toggle();
+        });
+    </script>
+    <div class="row">
+        <div class="pull-right">
+            <button class="btn btn-primary add_event_button">add event</button>
+        </div>
+    </div>
+    {% for event in events %}
+    <div class="row">
+        <div class="row">
+            <div class="col-md-2">producer:</div>
+            <div class="col-md-3">{{ event.producer }} - {{ event.production_date }}</div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">recipient:</div>
+            <div class="col-md-3">{{ event.recipient }} - {{ event.recipients_date }}</div>
+        </div>
+        {% if event.vehicle %}
+        <div class="row">
+            <div class="col-md-2">vehicle:</div>
+            <div class="col-md-3">{{ event.vehicle.registration }} - kolor</div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-5">products:
+                {% for load in event.loads %}
+                <div class="row product_div" style="display: none;">
+                    <div class="col-md-10 col-md-offset-2">product:{{ load.product.name }} - {{ load.amount }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-1">
+                <button class="btn-sm btn-group products_toggle_button">show</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12"><br/></div>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div class="pull-right">
+            <button class="btn btn-primary add_event_button">add event</button>
+        </div>
+    </div>
+{% endblock %}

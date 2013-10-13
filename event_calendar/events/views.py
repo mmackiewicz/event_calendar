@@ -22,10 +22,6 @@ def get_event_view(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return JsonResponse(data=event)
 
-@require_GET
-def get_events_view(request):
-    return JsonResponse(data='multiple events')
-
 """
 @require_GET
 def get_week_events_view(request, year, week):
@@ -104,12 +100,18 @@ def create_event_from_json(json_string):
 
 
 @require_GET
-def get_month_events_view(request, year, month):
+def monthly_events_view(request, year, month):
     start_date = datetime.strptime('-'.join((year,month,'01')), '%Y-%m-%d')
     end_date = (start_date + relativedelta(months=1)) + relativedelta(days=-1)
 
     events = Event.objects.filter(recipients_date__gte=start_date, recipients_date__lte=end_date)
 
-
-
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
+
+@require_GET
+def daily_events_view(request, year, month, day):
+    events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
+
+    events = Event.objects.filter(recipients_date=events_date)
+
+    return render_to_response('event.html', {'events': [event.serialize_to_json() for event in events]})
