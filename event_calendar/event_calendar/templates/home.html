@@ -9,23 +9,49 @@
             function make_calendar() {
                 $('#dp1').datepicker({format: 'dd-mm-yyyy', weekStart: 1});
                 var picker = $('#dp1').data('datepicker').picker;
+                var month = $('#dp1').data('datepicker').date.getUTCMonth()+1;
+                month = month < 10 ? '0'+month : ''+month;
+                var year = ''+$('#dp1').data('datepicker').date.getUTCFullYear();
 
                 $('#calendar_div #calendar_table').html(picker.find('.datepicker-days .table-condensed').html());
 
+                // - put day numbers in divs
+                // - append div to contain events in it
                 $.each(
                     $('#calendar_table tbody tr td'),
                     function() {
-                        $(this).html('<div class="day_number">'+$(this).html()+'</div>');
+                        $(this).html('<div class="day_number">'+$(this).html()+'</div><div class="events_container"></div>');
                     });
 
-                //$('#calendar_div').html(picker.find('.datepicker-days .table-condensed'));
+                // set 'id' for days of currently viewed month
+                $.each(
+                    $('#calendar_table tbody tr td.day').not('.old, .new'),
+                    function() {
+                        var day_number = $(this).find('.day_number').text();
+                        day_number = day_number < 10 ? '0'+day_number : ''+day_number;
+                        $(this).attr('id', year+'-'+month+'-'+day_number);
+                    });
 
-
-                jQuery.each($('#calendar_table thead tr'), function() { $(this).html('<th></th>'+$(this).html());});
-                jQuery.each($('#calendar_table tbody tr'), function() { $(this).html('<td></td>'+$(this).html());});
+                $.each($('#calendar_table thead tr'), function() { $(this).html('<th></th>'+$(this).html());});
+                $.each($('#calendar_table tbody tr'), function() { $(this).html('<td></td>'+$(this).html());});
             }
 
-            make_calendar();
+            function fetch_events() {
+                var year = $('#dp1').data('datepicker').date.getUTCFullYear();
+                var month = $('#dp1').data('datepicker').date.getUTCMonth()+1;
+                jQuery.get(
+                        '/events/'+year+'/'+month+'/',
+                        function(data) {
+                            events = data['events'];
+                            $.each(events, function() {
+                                //console.log($(this)['recipients_date']);
+                                var container = $('#'+this.recipients_date+' div.events_container');
+                                container.html(container.html() + '<div id='+this.id+'>'+this.id+'</div>');
+                            });
+                        },
+                        'json'
+                )
+            }
 
             // prepare date and go to event creation with it
             $('#calendar_div .day').not('.old, .new').click(function(){
@@ -38,6 +64,9 @@
                 $('#event_create_form').submit();
             });
 
+
+            make_calendar();
+            fetch_events();
 
         });
     </script>

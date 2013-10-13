@@ -110,4 +110,6 @@ def get_month_events_view(request, year, month):
 
     events = Event.objects.filter(recipients_date__gte=start_date, recipients_date__lte=end_date)
 
+
+
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
