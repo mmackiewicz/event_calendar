@@ -11,6 +11,7 @@
     <script type="text/javascript" src="/static/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="/static/bootstrap.min.js"></script>
     <script type="text/javascript" src="/static/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="/static/jquery.colourPicker.js"></script>
     <link rel="stylesheet" type="text/css" href="/static/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/styles.css" />
     <script>
@@ -40,7 +41,16 @@
           </ul>
           <ul class="nav navbar-nav pull-right">
             <!--<li><a href="/examples/navbar/">Default</a></li>-->
-            <li class="navbar-header">zalogowany: {{ user.username }} rola: {{ user.get_profile.role }}</li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Storage<b class="caret"></b></a>
+              <ul class="dropdown-menu" id="storage_list">
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Vehicles<b class="caret"></b></a>
+              <ul class="dropdown-menu" id="vehicles_list">
+              </ul>
+            </li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions<b class="caret"></b></a>
               <ul class="dropdown-menu">

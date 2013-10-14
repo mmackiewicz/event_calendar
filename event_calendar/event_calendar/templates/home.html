@@ -53,6 +53,22 @@
                 )
             }
 
+            function fetch_vehicles() {
+                jQuery.get(
+                        '/vehicles/all_extended/',
+                        function(data) {
+                            console.log(data);
+                            vehicles = data['vehicles'];
+                            $.each(vehicles, function() {
+                                //console.log($(this)['recipients_date']);
+                                //container.html(container.html() + '<div class="event_cal_div" id='+this.id+'>'+this.recipient+'</div>');
+                                $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'</li>');
+                            });
+                        },
+                        'json'
+                )
+            }
+
             /*
             // prepare date and go to event creation with it
             $('#calendar_div .day').not('.old, .new').click(function(){
@@ -66,18 +82,27 @@
             });
             */
 
-            $('#calendar_div').on('click','.day', function(){
+            $('#calendar_div').on('click','.day .day_number', function(){
                 var day_number = $(this).text();
                 if(day_number.length==1) {
                     day_number = "0"+day_number;
                 }
-                var date_val = $(this).attr('id').replace(/-/g, "/");
+                var date_val = $(this).parent().attr('id').replace(/-/g, "/");
                 window.location.href='/events/'+date_val;
+            });
+
+            $('#calendar_div').on('mouseover', '.day_number', function() {
+                $(this).addClass('selected');
+            });
+
+            $('#calendar_div').on('mouseout', '.day_number', function() {
+                $(this).removeClass('selected');
             });
 
 
             make_calendar();
             fetch_events();
+            fetch_vehicles();
 
         });
     </script>

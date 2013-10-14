@@ -18,14 +18,21 @@ table {
 }
 
 .day_number {
-    float: right;
+    float: left;
     color: white;
     background-color: blue;
-    height: 28px;
-    width: 36px;
+    height: 100%;
+    width: 26px;
     text-align: center;
     font-size: 13px;
-    border-radius: 0px 0px 0px 4px;
+    border-radius: 0px 0px 4px 0px;
+    cursor: auto;
+}
+
+.selected {
+    font-size: 15px;
+    font-weight: bolder;
+    cursor: pointer;
 }
 
 td.old div.day_number {
