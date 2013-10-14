@@ -1,13 +1,17 @@
 from django.db import models
 
 
+RENTAL_ID = 0
+RENTAL_REGISTRATION = 'RENTAL'
+RENTAL_COLOUR = '000000'
+
 class Vehicle(models.Model):
-    vehicle_code = models.CharField(max_length=200)
     registration = models.CharField(max_length=20)
+    colour = models.CharField(max_length=6)
 
     def serialize_to_json(self):
         return {'id': self.id,
-                'vehicle_code': self.vehicle_code,
+                'colour': self.colour,
                 'registration': self.registration}
 
     def get_absolute_url(self):

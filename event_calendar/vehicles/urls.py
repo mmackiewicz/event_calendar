@@ -8,4 +8,5 @@ urlpatterns = patterns('',
     url(r'^create/$', views.create_vehicle_view),
     url(r'^update/(?P<vehicle_id>\d+)$', views.update_vehicle_view),
     url(r'^all/$', views.get_all_vehicles_view),
+    url(r'^all_extended/$', views.get_vehicles_for_select),
 )

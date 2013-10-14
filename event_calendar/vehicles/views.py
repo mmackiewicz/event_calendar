@@ -4,7 +4,7 @@ from django.shortcuts import render, render_to_response, get_object_or_404
 from tools.http import JsonResponse
 from tools.auth import is_in_roles
 from workers.models import ROLE_ADMIN, ROLE_DISPATCHER
-from models import Vehicle
+from models import RENTAL_COLOUR, RENTAL_ID, RENTAL_REGISTRATION, Vehicle
 from forms import VehicleForm
 
 
@@ -12,16 +12,13 @@ from forms import VehicleForm
 @is_in_roles([ROLE_ADMIN, ROLE_DISPATCHER])
 def create_vehicle_view(request):
     if request.method == 'POST':
-        form = VehicleForm(request.POST)
-        if form.is_valid():
-            registration = form.cleaned_data['registration']
-            return JsonResponse(create_vehicle(registration=registration).id)
-    else:
-        form = VehicleForm()
-    return render(request, 'vehicle_create_form.html', {'form': form})
+        registration = request.POST['registration']
+        colour = request.POST['colour']
+        return JsonResponse(create_vehicle(registration=registration, colour=colour).id)
+    return render(request, 'vehicle_create_form.html')
 
-def create_vehicle(registration):
-    vehicle = Vehicle(registration=registration)
+def create_vehicle(registration, colour):
+    vehicle = Vehicle(registration=registration, colour=colour)
     vehicle.save()
     return vehicle
 
@@ -31,20 +28,15 @@ def update_vehicle_view(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, pk=vehicle_id)
 
     if request.method == 'POST':
-        form = VehicleForm(request.POST)
-        if form.is_valid():
-            registration = form.cleaned_data['registration']
-            return JsonResponse(create_vehicle(registration=registration).id)
-    else:
-        vehicle_dict = {}
-        vehicle_dict['registration'] = vehicle.registration
-        form = VehicleForm(initial=vehicle_dict)
-        #populate form
-    return render(request, 'vehicle_create_form.html', {'form': form})
+        registration = request.POST['registration']
+        colour = request.POST['colour']
+        return JsonResponse(update_vehicle(vehicle, registration=registration, colour=colour).id)
+    return render(request, 'vehicle_create_form.html', {'vehicle': vehicle})
 
 
-def update_vehicle(vehicle, registration):
+def update_vehicle(vehicle, registration, colour):
     vehicle.registration = registration
+    vehicle.colour = colour
     vehicle.save()
     return vehicle
 
@@ -57,3 +49,10 @@ def get_vehicle_view(request, vehicle_id):
 @require_GET
 def get_all_vehicles_view(request):
     return render(request, 'vehicles_list.html', {'vehicles': Vehicle.objects.all()})
+
+@require_GET
+def get_vehicles_for_select(request):
+    vehicles_list = list(Vehicle.objects.all())
+    vehicles_list.append(Vehicle(id=RENTAL_ID, registration=RENTAL_REGISTRATION, colour=RENTAL_COLOUR))
+
+    return JsonResponse(data={'vehicles': [vehicle.serialize_to_json() for vehicle in vehicles_list]})
