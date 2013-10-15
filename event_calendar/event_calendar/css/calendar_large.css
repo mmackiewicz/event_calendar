@@ -29,6 +29,13 @@ table {
     cursor: auto;
 }
 
+.week_number {
+    width: 60px;
+    font-weight: bold;
+    color: grey;
+    text-align: center;
+}
+
 .selected {
     font-size: 15px;
     font-weight: bolder;
@@ -49,3 +56,9 @@ td.new div.day_number {
     width: 100px;
     height: 25px;
 }
+
+.events_row {
+    display: none;
+}
+
+

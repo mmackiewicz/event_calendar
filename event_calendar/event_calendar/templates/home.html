@@ -32,8 +32,22 @@
                         $(this).attr('id', year+'-'+month+'-'+day_number);
                     });
 
+                // add a column for week number in front of every row
                 $.each($('#calendar_table thead tr'), function() { $(this).html('<th></th>'+$(this).html());});
-                $.each($('#calendar_table tbody tr'), function() { $(this).html('<td></td>'+$(this).html());});
+                $.each($('#calendar_table tbody tr'), function() { $(this).html('<td class="week_number"></td>'+$(this).html());});
+
+                // create rows for displaying events for day
+                $.each($('#calendar_table tbody tr'), function() { $(this).after('<tr class="events_row"><td></td><td colspan=7></td></tr>');});
+
+                // put week numbers
+                $.each($('#calendar_table tbody tr').not('.events_row'), function() {
+                    week_field = $(this).find('td').first();
+                    date_str = $(this).find('.day').not('.old, .new').first().attr('id');
+                    week_number = getWeekNumber(date_str)[1];
+                    if(!isNaN(week_number)) {
+                        week_field.text(week_number);
+                    }
+                });
             }
 
             function fetch_events() {
@@ -62,7 +76,7 @@
                             $.each(vehicles, function() {
                                 //console.log($(this)['recipients_date']);
                                 //container.html(container.html() + '<div class="event_cal_div" id='+this.id+'>'+this.recipient+'</div>');
-                                $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'</li>');
+                                $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'<span style="background-color: #'+this.colour+'; width: 32px;"></span></li>');
                             });
                         },
                         'json'
