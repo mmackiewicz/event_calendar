@@ -9,9 +9,9 @@
             function make_calendar() {
                 $('#dp').datepicker({format: 'dd-mm-yyyy', weekStart: 1});
                 var picker = $('#dp').data('datepicker').picker;
-                var month = $('#dp').data('datepicker').date.getUTCMonth()+1;
+                var month = $('#dp').data('datepicker').viewDate.getMonth()+1;
                 month = month < 10 ? '0'+month : ''+month;
-                var year = ''+$('#dp').data('datepicker').date.getUTCFullYear();
+                var year = ''+$('#dp').data('datepicker').viewDate.getUTCFullYear();
 
                 $('#calendar_div #calendar_table').html(picker.find('.datepicker-days .table-condensed').html());
 
@@ -141,7 +141,6 @@
                                 $div.append($table);
 
                                 $('#'+row_id).find('td.events_details').append($div);
-                                //$('#'+row_id).find('td:nth-child(2)').append('<div class="panel panel-default" id="event_'+this.id+'">'+this.producer+' - '+this.recipient+'</div>');
                             });
                             $('#'+row_id).show(200);
                         },
@@ -149,6 +148,19 @@
                 )
             }
 
+            $('#calendar_table').on('click', '.next', function() {
+                $('#dp').data('datepicker').picker.find('.next:first').click();
+                make_calendar();
+                fetch_events();
+                fetch_vehicles();
+            });
+
+            $('#calendar_table').on('click', '.prev', function() {
+                $('#dp').data('datepicker').picker.find('.prev:first').click();
+                make_calendar();
+                fetch_events();
+                fetch_vehicles();
+            });
 
             $('#calendar_div').on('click','.day .day_number', function(){
                 fetch_daily_events($(this).parent().attr('id'));
