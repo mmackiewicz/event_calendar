@@ -55,14 +55,14 @@ def create_event_view(request):
             return JsonResponse(data={'status': 'ERROR'})
     else:
         #prepare data for form
-        date = request.GET.get('date', datetime.now().strftime('%d-%m-%Y'))
+        date = request.GET.get('date', datetime.now().strftime('%Y-%m-%d'))
         vehicles = v_models.Vehicle.objects.all()
         products = p_models.Product.objects.all()
         drivers = w_models.Worker.objects.all()
         resp_dict = {'vehicles': vehicles,
                      'products': products,
                      'drivers': drivers}
-        #add date to response if it matches pattern dd-mm-YYYY
+        #add date to response if it matches pattern YYYY-mm-dd
         if date and validate_date(date):
             resp_dict['date'] = date
 
@@ -84,8 +84,8 @@ def create_event_from_json(json_string):
         # create event object
         event = Event.objects.create(producer=event_obj['producer'],
                       recipient=event_obj['recipient'],
-                      production_date=datetime.strptime(event_obj['production_date'], '%d-%m-%Y'),
-                      recipients_date=datetime.strptime(event_obj['recipients_date'],'%d-%m-%Y'),)
+                      production_date=datetime.strptime(event_obj['production_date'], '%Y-%m-%d'),
+                      recipients_date=datetime.strptime(event_obj['recipients_date'],'%Y-%m-%d'),)
 
         # add previously created load objects to event object
         for load in loads:
@@ -115,3 +115,12 @@ def daily_events_view(request, year, month, day):
     events = Event.objects.filter(recipients_date=events_date)
 
     return render_to_response('event.html', {'events': [event.serialize_to_json() for event in events]})
+
+@require_GET
+def daily_events_view_json(request, year, month, day):
+    events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
+
+    events = Event.objects.filter(recipients_date=events_date)
+
+    return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
+

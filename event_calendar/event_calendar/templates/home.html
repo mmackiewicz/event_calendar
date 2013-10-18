@@ -7,11 +7,11 @@
         $(document).ready(function(){
 
             function make_calendar() {
-                $('#dp1').datepicker({format: 'dd-mm-yyyy', weekStart: 1});
-                var picker = $('#dp1').data('datepicker').picker;
-                var month = $('#dp1').data('datepicker').date.getUTCMonth()+1;
+                $('#dp').datepicker({format: 'dd-mm-yyyy', weekStart: 1});
+                var picker = $('#dp').data('datepicker').picker;
+                var month = $('#dp').data('datepicker').date.getUTCMonth()+1;
                 month = month < 10 ? '0'+month : ''+month;
-                var year = ''+$('#dp1').data('datepicker').date.getUTCFullYear();
+                var year = ''+$('#dp').data('datepicker').date.getUTCFullYear();
 
                 $('#calendar_div #calendar_table').html(picker.find('.datepicker-days .table-condensed').html());
 
@@ -36,11 +36,8 @@
                 $.each($('#calendar_table thead tr'), function() { $(this).html('<th></th>'+$(this).html());});
                 $.each($('#calendar_table tbody tr'), function() { $(this).html('<td class="week_number"></td>'+$(this).html());});
 
-                // create rows for displaying events for day
-                $.each($('#calendar_table tbody tr'), function() { $(this).after('<tr class="events_row"><td></td><td colspan=7></td></tr>');});
-
                 // put week numbers
-                $.each($('#calendar_table tbody tr').not('.events_row'), function() {
+                $.each($('#calendar_table tbody tr'), function() {
                     week_field = $(this).find('td').first();
                     date_str = $(this).find('.day').not('.old, .new').first().attr('id');
                     week_number = getWeekNumber(date_str)[1];
@@ -48,11 +45,16 @@
                         week_field.text(week_number);
                     }
                 });
+
+                // create rows for displaying events for day
+                $.each($('#calendar_table tbody tr'), function() {
+                    $(this).after('<tr class="events_row" id="row'+$(this).find('td.week_number').text()+'"><td></td><td class="events_details" colspan=7><div class="panel"><span class="pull-left date_span"></span><span class="pull-right icon icon_cross"></span><span class="pull-right icon icon_add"></span></div></td></tr>');
+                });
             }
 
             function fetch_events() {
-                var year = $('#dp1').data('datepicker').date.getUTCFullYear();
-                var month = $('#dp1').data('datepicker').date.getUTCMonth()+1;
+                var year = $('#dp').data('datepicker').date.getUTCFullYear();
+                var month = $('#dp').data('datepicker').date.getUTCMonth()+1;
                 jQuery.get(
                         '/events/'+year+'/'+month+'/',
                         function(data) {
@@ -60,12 +62,13 @@
                             $.each(events, function() {
                                 //console.log($(this)['recipients_date']);
                                 var container = $('#'+this.recipients_date+' div.events_container');
-                                container.html(container.html() + '<div class="event_cal_div" id='+this.id+'>'+this.recipient+'</div>');
+                                container.html(container.html() + '<div class="event_div" id='+this.id+'>'+this.recipient+'</div>');
                             });
                         },
                         'json'
                 )
             }
+
 
             function fetch_vehicles() {
                 jQuery.get(
@@ -76,7 +79,7 @@
                             $.each(vehicles, function() {
                                 //console.log($(this)['recipients_date']);
                                 //container.html(container.html() + '<div class="event_cal_div" id='+this.id+'>'+this.recipient+'</div>');
-                                $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'<span style="background-color: #'+this.colour+'; width: 32px;"></span></li>');
+                                $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'<span class="badge" style="background-color: #'+this.colour+';">aaa</span></li>');
                             });
                         },
                         'json'
@@ -84,25 +87,71 @@
             }
 
             /*
-            // prepare date and go to event creation with it
-            $('#calendar_div .day').not('.old, .new').click(function(){
-                var day_number = $(this).text();
-                if(day_number.length==1) {
-                    day_number = "0"+day_number;
+               Fetches events for given date.
+               @param date in format YYYY-MM-DD
+             */
+            function fetch_daily_events(events_date) {
+                row_id = 'row'+getWeekNumber(events_date)[1];
+                if($('#'+row_id).is(':visible')) {
+                    $('#'+row_id).hide(200);
                 }
-                var date_val = day_number+$('#dp1').attr('data-date').substring(2);
-                $("#date_field").val(date_val);
-                $('#event_create_form').submit();
-            });
-            */
+                $('#'+row_id).find('td:nth-child(2)').find('.panel-default').remove();
+                jQuery.get(
+                        '/events/json/'+events_date.replace(/-/g,'/')+'/',
+                        function(data) {
+                            events = data['events'];
+                            $('#'+row_id).find('td:nth-child(2)').find('.date_span').text(events_date);
+                            $.each(events, function() {
+                                $div = $table = $row = $td_locations = $td_load = $td_buttons = $div_buttons = '';
+
+                                $div = $('<div/>', {
+                                    class: 'panel panel-default',
+                                    id: 'event'+this.id
+                                });
+                                $table = $('<table/>');
+                                $row = $('<tr/>');
+                                //------------------------
+                                $td_locations = $('<td/>', {
+                                    text: this.producer+' - '+this.recipient
+                                });
+                                //------------------------
+                                $td_load = $('<td/>');
+                                $.each(this.loads, function() {
+                                    $td_load.append(this.product.name+' - '+this.amount+'<br/>');
+                                });
+                                //------------------------
+                                $td_buttons = $('<td/>');
+                                $div_buttons = $('<div/>', {
+                                    class: 'btn-group'
+                                });
+                                $td_buttons.append($div_buttons);
+                                if(this.return_event == '') {
+                                    $div_buttons.append('<button class="btn btn-default add_return_button">add return</button>');
+                                }
+                                event_date = new Date(events_date);
+                                current_date = new Date();
+                                if(event_date >= current_date) {
+                                    $div_buttons.append('<button class="btn btn-success edit_button">edit</button><button class="btn btn-danger cancel_button">cancel</button>');
+                                }
+                                //------------------------
+                                $table.append($row);
+                                $row.append($td_locations);
+                                $row.append($td_load);
+                                $row.append($td_buttons);
+                                $div.append($table);
+
+                                $('#'+row_id).find('td.events_details').append($div);
+                                //$('#'+row_id).find('td:nth-child(2)').append('<div class="panel panel-default" id="event_'+this.id+'">'+this.producer+' - '+this.recipient+'</div>');
+                            });
+                            $('#'+row_id).show(200);
+                        },
+                        'json'
+                )
+            }
+
 
             $('#calendar_div').on('click','.day .day_number', function(){
-                var day_number = $(this).text();
-                if(day_number.length==1) {
-                    day_number = "0"+day_number;
-                }
-                var date_val = $(this).parent().attr('id').replace(/-/g, "/");
-                window.location.href='/events/'+date_val;
+                fetch_daily_events($(this).parent().attr('id'));
             });
 
             $('#calendar_div').on('mouseover', '.day_number', function() {
@@ -113,6 +162,16 @@
                 $(this).removeClass('selected');
             });
 
+            $('#calendar_table').on('click', 'span.icon_cross', function() {
+                parent_elem = $(this).parent().parent().parent();
+                parent_elem.hide(200);
+            })
+
+            $('#calendar_table').on('click', 'span.icon_add', function() {
+                date_val = $(this).parent().find('.date_span').text();
+                $("#date_field").val(date_val);
+                $('#event_create_form').submit();
+            })
 
             make_calendar();
             fetch_events();
@@ -121,41 +180,6 @@
         });
     </script>
     <div class="row">
-        <div class="span4" style="float: left; left: 5px; top: 50%; z-index:10; position: absolute;">
-            <div class="btn-group">
-              <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="#">
-                <!--
-                <h3>Choose Child</h3>
-                <img id="mainIcons" src="boyStudent.png" alt="boyStudent">
-                -->
-                <span class="right-caret right"></span>
-              </a>
-
-              <ul class="dropdown-menu rightMenu">
-                <li>
-                  opcja1
-                  <!--
-                  <div class="btn-group">
-                    <a href="parent_homepage_2.html" style="text-align:center;" class="btn btn-link operationsButtons">
-                      <h5>A</h5>
-                      <img id="mainIcons" src="boyStudent.png" alt="boyStudent">
-                    </a>
-                    <a href="parent_homepage_2.html" style="text-align:center;" class="btn btn-link operationsButtons">
-                      <h5>J</h5>
-                      <img id="mainIcons" src="girlStudent.png" alt="girlStudent">
-                    </a>
-                  </div>
-                  -->
-                </li>
-                <li>
-                    opcja2
-                </li>
-                <li>
-                    opcja3
-                </li>
-              </ul>
-            </div>
-        </div>
         <div class="col-md-12" id="calendar_div">
             <table id="calendar_table">
                 <thead></thead>
@@ -164,7 +188,7 @@
         </div>
 
     </div>
-    <div style="display: none;" id="dp1" data-date="{% now dd-m-YY %}"></div>
+    <div style="display: none;" id="dp" data-date="{% now dd-m-YY %}"></div>
     <form action="/events/create/" method="GET" id="event_create_form">
         <input type="hidden" id="date_field" name="date"/>
     </form>

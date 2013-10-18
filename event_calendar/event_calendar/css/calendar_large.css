@@ -6,7 +6,7 @@ table {
 }
 
 .container {
-    max-width: 1020px;
+    min-width: 1000px;
 }
 
 .day {
@@ -50,15 +50,38 @@ td.new div.day_number {
     background-color: grey;
 }
 
-.event_cal_div {
+.events_container {
+    float: left;
+}
+.event_div {
     font-size: 11px;
-    border: 2px solid red;
-    width: 100px;
+    border: 2px solid #add8e6;
+    min-width: 100px;
+    width: 100%;
     height: 25px;
+    border-radius: 4px;
+}
+
+.return_div {
+    border-color: #ff4500;
 }
 
 .events_row {
     display: none;
 }
 
+.events_row span.date_span {
+    height: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    font-style: italic;
+    line-height: 1;
+    padding-top: 2px;
+}
+
+.events_row div.panel {
+    padding-left: 15px;
+    padding-right: 10px;
+    font-size: 16px;
+}
 
