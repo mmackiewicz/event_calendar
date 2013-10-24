@@ -15,5 +15,16 @@ class Transport(models.Model):
 class ReturnTransport(models.Model):
     start_location = models.CharField(max_length=50)
     end_location = models.CharField(max_length=50)
-    load = models.OneToOneField(l_models.ReturnLoad)
-    invoice = models.ManyToManyField(i_models.Invoice)
+    loads = models.ManyToManyField(l_models.ReturnLoad)
+    invoice = models.ManyToManyField(i_models.Invoice, null=True)
+
+    def serialize_to_json(self):
+        result_dict = {'start_location': self.start_location,
+                'end_location': self.end_location,
+                'loads': [return_load.serialize_to_json() for return_load in self.loads.all()],}
+        if self.invoice:
+            result_dict['invoice'] = self.invoice.serialize_to_json()
+        else:
+            result_dict['invoice'] = ''
+
+        return result_dict

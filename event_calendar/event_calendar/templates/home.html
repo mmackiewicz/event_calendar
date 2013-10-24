@@ -64,6 +64,13 @@
                                 var container = $('#'+this.recipients_date+' div.events_container');
                                 container.html(container.html() + '<div class="event_div" id='+this.id+'>'+this.recipient+'</div>');
                             });
+                            $('.event_div').droppable({
+                                drop: function( event, ui ) {
+                                    event_id = $( this).attr('id');
+                                    vehicle_id = ui.draggable.parent().attr('id');
+                                    set_vehicle_in_event(event_id, vehicle_id);
+                                }
+                            });
                         },
                         'json'
                 )
@@ -79,8 +86,9 @@
                             $.each(vehicles, function() {
                                 //console.log($(this)['recipients_date']);
                                 //container.html(container.html() + '<div class="event_cal_div" id='+this.id+'>'+this.recipient+'</div>');
-                                $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'<span class="badge" style="background-color: #'+this.colour+';">aaa</span></li>');
+                                $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'<span class="badge draggable_vehicle" style="background-color: #'+this.colour+';">aaa</span></li>');
                             });
+                            $('.draggable_vehicle').draggable();
                         },
                         'json'
                 )
@@ -134,9 +142,15 @@
                                     $div_buttons.append('<button class="btn btn-success edit_button">edit</button><button class="btn btn-danger cancel_button">cancel</button>');
                                 }
                                 //------------------------
+                                $td_vehicle = $('<td/>');
+                                if(this.vehicle) {
+                                    $td_load.append(this.vehicle.registration+' - '+this.vehicle.colour);
+                                };
+                                //------------------------
                                 $table.append($row);
                                 $row.append($td_locations);
                                 $row.append($td_load);
+                                $row.append($td_vehicle);
                                 $row.append($td_buttons);
                                 $div.append($table);
 
@@ -146,6 +160,20 @@
                         },
                         'json'
                 )
+            }
+
+            function set_vehicle_in_event(event_id, vehicle_id) {
+                $.post(
+                    '/events/set_vehicle/',
+                    {
+                        'event_id': event_id,
+                        'vehicle_id': vehicle_id
+                    }
+                ).done(function(data) {
+                    alert(data);
+                }).fail(function(data) {
+                    $('#errors_div').html(data).show();
+                })
             }
 
             $('#calendar_table').on('click', '.next', function() {

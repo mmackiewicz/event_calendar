@@ -10,3 +10,10 @@ class Invoice(models.Model):
     number = models.CharField(max_length=5)
     is_paid = models.BooleanField(default=False)
     company = models.CharField(choices=settings.OWN_COMPANIES, max_length=50)
+
+    def serialize_to_json(self):
+        return {
+            'number': self.number,
+            'is_paid': self.is_paid,
+            'company': self.company
+        }

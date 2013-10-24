@@ -12,8 +12,16 @@ class ReturnEvent(models.Model):
     transports = models.ManyToManyField(t_models.ReturnTransport)
 
     def serialize_to_json(self):
-        return {'id': self.id,
-                'return_date': self.return_date.strftime('%Y-%m-%d')}
+        result_dict = {'id': self.id,
+                    'return_date': self.return_date.strftime('%Y-%m-%d'),
+                    'transports': [transport.serialize_to_json() for transport in self.transports.all()]}
+        if self.vehicle:
+            result_dict['vehicle'] = self.vehicle.serialize_to_json()
+        else:
+            result_dict['vehicle'] = ''
+
+        return result_dict
+
 
 class Event(models.Model):
     producer = models.CharField(max_length=250)
@@ -23,6 +31,7 @@ class Event(models.Model):
     vehicle = models.OneToOneField(v_models.Vehicle, null=True)
     loads = models.ManyToManyField(l_models.Load)
     return_event = models.ForeignKey(ReturnEvent, null=True)
+    comment = models.TextField()
 
     def serialize_to_json(self):
 
@@ -31,7 +40,8 @@ class Event(models.Model):
                     'recipient': self.recipient,
                     'production_date': self.production_date.strftime('%Y-%m-%d'),
                     'recipients_date': self.recipients_date.strftime('%Y-%m-%d'),
-                    'loads': [load.serialize_to_json() for load in self.loads.all()]}
+                    'loads': [load.serialize_to_json() for load in self.loads.all()],
+                    'comment': self.comment}
         if self.vehicle:
             event_dict['vehicle'] = self.vehicle.serialize_to_json()
 

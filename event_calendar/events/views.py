@@ -22,26 +22,6 @@ def get_event_view(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return JsonResponse(data=event)
 
-"""
-@require_GET
-def get_week_events_view(request, year, week):
-    year_date = datetime.datetime.strptime(year+'-01-01', '%Y-%m-%d')
-    weeks_delta = datetime.timedelta(weeks=int(week)-1)
-    weeks_date = year_date + weeks_delta
-    weekday = weeks_date.weekday()
-
-    #get number of weekday to move to week start
-    days_delta = datetime.timedelta(days=weekday)
-    #calculate date of the week start and end
-    start_date = weeks_date - days_delta
-    end_date = start_date + datetime.timedelta(days=7)
-
-    events = Event.objects.filter(start_time__gte=start_date, end_time__lte=end_date)
-
-
-    return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
-"""
-
 @csrf_exempt
 @require_http_methods(['GET', 'POST'])
 def create_event_view(request):
@@ -85,7 +65,8 @@ def create_event_from_json(json_string):
         event = Event.objects.create(producer=event_obj['producer'],
                       recipient=event_obj['recipient'],
                       production_date=datetime.strptime(event_obj['production_date'], '%Y-%m-%d'),
-                      recipients_date=datetime.strptime(event_obj['recipients_date'],'%Y-%m-%d'),)
+                      recipients_date=datetime.strptime(event_obj['recipients_date'],'%Y-%m-%d'),
+                      comment=event_obj['comment'])
 
         # add previously created load objects to event object
         for load in loads:
@@ -124,3 +105,18 @@ def daily_events_view_json(request, year, month, day):
 
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
 
+@csrf_exempt
+@require_POST
+def set_vehicle_view(request):
+    try:
+        vehicle = get_object_or_404(v_models.Vehicle, pk=request.POST['vehicle_id'])
+        event = get_object_or_404(Event, pk=request.POST['event_id'])
+
+        event.vehicle = vehicle
+        event.save()
+
+        return JsonResponse(data={'status': 'OK'})
+    except Http404:
+        return JsonResponse(data={'status': 'Error'})
+
+#def create_return_event_view(request, )

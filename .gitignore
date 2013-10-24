@@ -6,3 +6,4 @@ local_settings.py
 event_calendar/.idea
 virtualenv-1.9.1
 palety
+event_calendar/.DS_Store
