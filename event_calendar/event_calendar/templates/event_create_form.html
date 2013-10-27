@@ -9,30 +9,31 @@
 
             function serialize_product(product_div) {
                 return {
-                    'product_id': $(product_div).children('[name="product_id"]:first').val(),
-                    'quantity': $(product_div).children('[name="quantity"]:first').val()
+                    'product_id': $(product_div).attr("id"),
+                    'amount': $(product_div).find(".product_amount").text()
                 };
             }
 
             function serialize_products(products_div) {
                 var result = [];
-                $(products_div).children(".product_div").each(function() {
+                $(products_div).find(".product_div").each(function() {
                     result.push(serialize_product($(this)));
                 });
                 return result;
             }
 
 
-            $("#save_product_button").click(function() {
-                var outHTML = "<div class='product_div'>";
-                outHTML+="product: "+$("#products_list :selected").text()+"<br/>";
-                outHTML+="<input type='hidden' name='product_id' value="+$('#products_list').val()+"><br/>";
-                outHTML+="quantity: "+$("#quantity").val()+"<br/>";
-                outHTML+="<input type='hidden' name='quantity' value="+$('#quantity').val()+"><br/>";
-                outHTML+="<a class='btn btn-sm rm_product' >remove</a><br/>"
-                outHTML+="</div>";
-                $('#products_div').append(outHTML);
-                $('#productModal').modal('hide');
+            $("#add_product_button").click(function() {
+                $product_div = $("<div/>").addClass("panel-body").addClass("product_div").addClass("row").attr("id", $("#products_list").val());
+                $product_name = $("<div/>").addClass("product_name").addClass("col-md-7").text($("#products_list :selected").text());
+                $product_amount = $("<div/>").addClass("product_amount").addClass("col-md-3").text($("#amount").val());
+                $remove_button = $("<button/>").addClass("btn").addClass("btn-default").addClass("btn-md").addClass("rm_product_button").text("remove");
+                $product_div.append($product_name);
+                $product_div.append($product_amount);
+                $product_div.append($remove_button);
+
+                $("#products_panel").append($product_div);
+
             });
 
             $('#create_button').click(function() {
@@ -42,7 +43,7 @@
                     'production_date': $('#production_date').find('input').val(),
                     'recipients_date': $('#recipients_date').find('input').val(),
                     'products': serialize_products($('#products_div')),
-                    'comment': $('#comment').val(),
+                    'comment': $('#comment').val()
                 }
 
                 $.post(
@@ -55,7 +56,7 @@
                 })
             });
 
-            $("body").on('click', '.rm_product', function() {
+            $("body").on('click', '.rm_product_button', function() {
                 $(this).parent().remove();
             });
         });
@@ -66,50 +67,51 @@
 {% endblock %}
 {% block content %}
 
-    <div style="display: none;" id="errors_div"></div>
-    producer: <input type="text" name="producer" id="producer"/><br/>
-    recipient: <input type="text" name="recipient" id="recipient"/><br/>
-    production date: <div id="production_date" class="input-append date" data-date="{{ date }}">
+    <div class="row">
+        <div class="col-md-5" style="display: none;" id="errors_div"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">producer: <input type="text" name="producer" id="producer"/></div>
+        <div class="col-md-4">production date: <div id="production_date" class="input-append date" data-date="{{ date }}">
                         <input class="span2" size="16" type="text" value="{{ date }}">
                         <span class="add-on"><i class="icon icon_calendar"></i></span>
-                    </div><br/>
-    recipient's date: <div id="recipients_date" class="input-append date" data-date="{{ date }}">
+                    </div></div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">recipient: <input type="text" name="recipient" id="recipient"/></div>
+        <div class="col-md-4">recipient's date: <div id="recipients_date" class="input-append date" data-date="{{ date }}">
                         <input class="span2" size="16" type="text" value="{{ date }}">
                         <span class="add-on"><i class="icon icon_calendar"></i></span>
-                      </div><br/>
-    comment: <textarea cols="50" rows="5" id="comment"></textarea><br/>
-
-    <div id="products_div">
+                      </div></div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">comment: <textarea cols="50" rows="5" id="comment"></textarea></div>
     </div>
 
+    <div class="row">
+        <div class="col-md-7">
+            products:
+            <div id="products_div">
+                <div id="products_panel" class="panel"></div>
+            </div>
+        </div>
+    </div>
 
-    <a data-toggle="modal" href="#productModal" class="btn btn-primary btn-lg">add product</a>
-    <a class="btn btn-primary btn-lg" id="create_button">create</a>
-
-
-    <!-- MODALS -->
-    <div class="modal fade" id="productModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Add Product</h4>
-          </div>
-          <div class="modal-body">
-            <select id="products_list">
+    <div class="row">
+        <div class="col-md-4">
+            product: <select id="products_list">
                 {% for product in products %}
                 <option value="{{ product.id }}">{{ product.name }} ({{ product.product_code }})</option>
                 {% endfor %}
-            </select><br/>
-            <input type="text" id="quantity"/>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="save_product_button">Save changes</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- MODALS -->
+            </select></div>
+        <div class="col-md-3">
+            amount: <input type="text" id="amount"/>
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-primary btn-lg" id="add_product_button">add product</button>
+        </div>
+    </div>
+
+    <a class="btn btn-primary btn-lg" id="create_button">create</a>
 
 {% endblock %}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+{% extends "base_template.html" %}
+{% block script %}
+<script>
+        $(document).ready(function() {
+
+            $('#return_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
+
+
+            function serialize_transport(transport_div) {
+                return {'from': $(transport_div).children('[name="from"]:first').val(),
+                        'to': $(transport_div).children('[name="to"]:first').val(),
+                        'products': serialize_products($(transport_div).children('.products_div:first'))}
+            }
+            function serialize_transports(transports_div) {
+                var result = [];
+                $(transports_div).children(".transport_div").each(function() {
+                    result.push(serialize_transport($(this)));
+                });
+                return result;
+            }
+            function serialize_product(product_div) {
+                return {
+                    'product_id': $(product_div).children('[name="product_id"]:first').val(),
+                    'quantity': $(product_div).children('[name="quantity"]:first').val()
+                };
+            }
+
+            function serialize_products(products_div) {
+                var result = [];
+                $(products_div).children(".product_div").each(function() {
+                    result.push(serialize_product($(this)));
+                });
+                return result;
+            }
+
+
+            $("#save_transport_button").click(function() {
+                var outHTML = "<div class='transport_div'>";
+                outHTML+="from: "+$('#transport_from').val()+"<br/>";
+                outHTML+="<input type='hidden' name='transport_from' value="+$('#transport_from').val()+"><br/>";
+                outHTML+="to: "+$('#transport_to').val()+"<br/>";
+                outHTML+="<input type='hidden' name='transport_to' value="+$('#transport_to').val()+"><br/>";
+                outHTML+="product: "+$("#products_list :selected").text()+"<br/>";
+                outHTML+="<input type='hidden' name='product_id' value="+$('#products_list').val()+"><br/>";
+                outHTML+="quantity: "+$("#quantity").val()+"<br/>";
+                outHTML+="<input type='hidden' name='quantity' value="+$('#quantity').val()+"><br/>";
+                outHTML+="<a class='btn btn-sm rm_product' >remove</a><br/>"
+                outHTML+="</div>";
+                $('#products_div').append(outHTML);
+                $('#transportModal').modal('hide');
+            });
+
+            $('#create_button').click(function() {
+                var result = {
+                    'producer': $('#producer').val(),
+                    'recipient': $('#recipient').val(),
+                    'production_date': $('#production_date').find('input').val(),
+                    'recipients_date': $('#recipients_date').find('input').val(),
+                    'products': serialize_products($('#products_div')),
+                    'comment': $('#comment').val()
+                }
+
+                $.post(
+                    '/events/create/',
+                    JSON.stringify(result)
+                ).done(function(data) {
+                    alert(data);
+                }).fail(function(data) {
+                    $('#errors_div').html(data).show();
+                })
+            });
+
+            $("body").on('click', '.rm_product', function() {
+                $(this).parent().remove();
+            });
+
+
+
+            $('#add_product_button').click(function() {
+                $product_div=$('<div/>');
+                $product_div.html($('#product_name').val()+' - '+$('#product_amount').val()+' <button class="remove_product">remove</button>');
+                $('#products_list').append($product_div);
+                $('#product_name').empty();
+                $('#product_amount').empty();
+            });
+        });
+    </script>
+{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/static/datepicker.css" />
+{% endblock %}
+{% block content %}
+
+    <div style="display: none;" id="errors_div"></div>
+    vehicle: vehicle<br/>
+    return date: <div id="return_date" class="input-append date" data-date="{{ date }}">
+                        <input class="span2" size="16" type="text" value="{{ date }}">
+                        <span class="add-on"><i class="icon icon_calendar"></i></span>
+                    </div><br/>
+    comment: <textarea cols="50" rows="5" id="comment"></textarea><br/>
+
+    <div id="transports_div">
+    </div>
+
+
+    <a data-toggle="modal" href="#transportModal" class="btn btn-primary btn-lg">add transport</a>
+    <a class="btn btn-primary btn-lg" id="create_button">create</a>
+
+
+    <!-- MODALS -->
+    <div class="modal fade" id="transportModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Transport</h4>
+          </div>
+          <div class="modal-body">
+            From: <input type="text" id="transport_from"/><br/>
+            To: <input type="text" id="transport_to"/><br/>
+            Products: <div id="products_list"></div><br/>
+            product: <input type="text" id="product_name"/> amount: <input type="text" id="product_amount"/><button class="btn btn-default btn-sm" id="add_product_button">add product</button><br/>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="save_transport_button">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- MODALS -->
+
+{% endblock %}

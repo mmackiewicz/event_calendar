@@ -57,7 +57,7 @@ def create_event_from_json(json_string):
         # create load objects
         loads = []
         for load_obj in event_obj['products']:
-            load = l_models.Load.objects.create(amount=load_obj['quantity'],
+            load = l_models.Load.objects.create(amount=load_obj['amount'],
                                                 product_id=load_obj['product_id'])
             loads.append(load)
 
