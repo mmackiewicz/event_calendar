@@ -51,8 +51,5 @@ def get_all_vehicles_view(request):
     return render(request, 'vehicles_list.html', {'vehicles': Vehicle.objects.all()})
 
 @require_GET
-def get_vehicles_for_select(request):
-    vehicles_list = list(Vehicle.objects.all())
-    vehicles_list.append(Vehicle(id=RENTAL_ID, registration=RENTAL_REGISTRATION, colour=RENTAL_COLOUR))
-
-    return JsonResponse(data={'vehicles': [vehicle.serialize_to_json() for vehicle in vehicles_list]})
+def get_vehicles_list_json(request):
+    return JsonResponse(data={'vehicles': [vehicle.serialize_to_json() for vehicle in Vehicle.objects.all()]})
