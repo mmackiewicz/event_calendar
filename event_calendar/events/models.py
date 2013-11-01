@@ -15,7 +15,7 @@ class ReturnEvent(models.Model):
     def serialize_to_json(self):
         result_dict = {'id': self.id,
                     'return_date': self.return_date.strftime('%Y-%m-%d'),
-                    'transports': [transport.serialize_to_json() for transport in self.transports.all()]}
+                    'transports': [transport.serialize_to_json() for transport in self.transports.all()],}
         if self.vehicle:
             result_dict['vehicle'] = self.vehicle.serialize_to_json()
         else:

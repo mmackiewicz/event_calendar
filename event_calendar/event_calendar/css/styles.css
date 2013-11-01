@@ -29,6 +29,16 @@
     cursor: pointer;
 }
 
+.icon_left {
+    background-position: -432px -73px;
+    cursor: pointer;
+}
+
+.icon_right {
+    background-position: -456px -73px;
+    cursor: pointer;
+}
+
 .rightMenu {
     position:relative;
     float:right;

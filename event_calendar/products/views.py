@@ -17,17 +17,16 @@ def create_product_view(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
-            product_code = form.cleaned_data['product_code']
             name = form.cleaned_data['name']
-            product = create_product(product_code=product_code, name=name)
+            product = create_product(name=name)
             return JsonResponse(product.id)
     else:
         form = ProductForm()
     return render(request, 'product_create_form.html', {'form': form})
 
 
-def create_product(product_code, name):
-    product = Product(product_code=product_code, name=name)
+def create_product(name):
+    product = Product(name=name)
     product.save()
     return product
 
@@ -39,17 +38,14 @@ def update_product_view(request, product_id):
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
-            product_code = form.cleaned_data['product_code']
             name = form.cleaned_data['name']
-            product = update_product(product, product_code=product_code, name=name)
+            product = update_product(product, name=name)
             return JsonResponse(product.id)
     else:
-        form = ProductForm(initial={'product_code': product.product_code,
-                                    'name': product.name,})
+        form = ProductForm(initial={'name': product.name,})
     return render(request, 'product_create_form.html', {'form': form})
 
-def update_product(product, product_code, name):
-    product.product_code = product_code
+def update_product(product, name):
     product.name = name
     product.save()
     return product

@@ -3,16 +3,23 @@
 
 {% block script %}
     <script>
+
+        var animation_speed = 200;
+
         $(document).ready(function(){
 
             function make_calendar() {
-                $('#dp').datepicker({format: 'dd-mm-yyyy', weekStart: 1});
-                var picker = $('#dp').data('datepicker').picker;
-                var month = $('#dp').data('datepicker').viewDate.getMonth()+1;
-                month = month < 10 ? '0'+month : ''+month;
-                var year = ''+$('#dp').data('datepicker').viewDate.getUTCFullYear();
+                $("#dp").datepicker({format: "dd-mm-yyyy", weekStart: 1});
+                var picker = $("#dp").data("datepicker").picker;
+                var month = $("#dp").data("datepicker").viewDate.getMonth()+1;
+                month = month < 10 ? "0"+month : ""+month;
+                var year = ""+$("#dp").data("datepicker").viewDate.getUTCFullYear();
 
-                $('#calendar_div #calendar_table').html(picker.find('.datepicker-days .table-condensed').html());
+                $("#calendar_table").html(picker.find(".datepicker-days .table-condensed").html());
+
+                $("#calendar_table thead tr th.prev").empty().append($("<div/>", {class: "icon icon_left"}));
+                $("#calendar_table thead tr th.switch").attr("colspan", 2);
+                $("#calendar_table thead tr th.next").empty().append($("<div/>", {class: "icon icon_right"}));
 
                 // - put day numbers in divs
                 // - append div to contain events in it
@@ -81,17 +88,8 @@
                         function(data) {
                             events = data['events'];
                             $.each(events, function() {
-                                //console.log($(this)['recipients_date']);
-                                var container = $('#'+this.recipients_date+' div.events_container');
-                                $div_event = $("<div/>", {class: "event_div", id: this.id});
-                                $div_label = $("<div/>", {class: "pull-left", text: this.recipient});
-                                $div_vehicle = $("<div/>", {class: "pull-right"});
-                                if(this.vehicle) {
-                                    $div_vehicle.text(this.vehicle.id);
-                                }
-
-                                $div_event.append($div_label).append($div_vehicle);
-                                container.append($div_event);
+                                create_event_div(this);
+                                create_return_event_div(this);
                             });
                             $('.event_div').droppable({
                                 drop: function( event, ui ) {
@@ -105,7 +103,38 @@
                 )
             }
 
+            function create_event_div(event) {
+                var container = $('#'+event.recipients_date+' div.events_container');
+                $div_event = $("<div/>", {class: "event_div", id: event.id});
+                $div_label = $("<div/>", {class: "pull-left", text: event.recipient});
+                $div_vehicle = $("<div/>", {class: "pull-right"});
+                if(event.vehicle) {
+                    $div_vehicle.text(event.vehicle.id);
+                }
 
+                $div_event.append($div_label).append($div_vehicle);
+                container.append($div_event);
+            }
+
+            function create_return_event_div(event) {
+                if(event.return_event!='') {
+                    revent = event.return_event
+                    var container = $('#'+revent.return_date+' div.events_container');
+                    $div_event = $("<div/>", {class: "event_div return_event_div", id: "return"+revent.id});
+                    $div_label = $("<div/>", {class: "pull-left", text: event.recipient});
+                    $div_vehicle = $("<div/>", {class: "pull-right"});
+                    if(event.vehicle) {
+                        $div_vehicle.text(revent.vehicle.id);
+                    }
+
+                    $div_event.append($div_label).append($div_vehicle);
+                    container.append($div_event);
+                }
+            }
+
+            /**
+             * Fetches list of vehicles and creates a dropdown list
+             */
             function fetch_vehicles() {
                 jQuery.get(
                         '/vehicles/all_extended/',
@@ -113,8 +142,6 @@
                             console.log(data);
                             vehicles = data['vehicles'];
                             $.each(vehicles, function() {
-                                //console.log($(this)['recipients_date']);
-                                //container.html(container.html() + '<div class="event_cal_div" id='+this.id+'>'+this.recipient+'</div>');
                                 $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'<span class="badge draggable_vehicle" style="background-color: #'+this.colour+';">aaa</span></li>');
                             });
                             $('.draggable_vehicle').draggable();
@@ -129,9 +156,7 @@
              */
             function fetch_daily_events(events_date) {
                 row_id = 'row'+getWeekNumber(events_date)[1];
-                if($('#'+row_id).is(':visible')) {
-                    $('#'+row_id).hide(200);
-                }
+                $(".events_row").hide(animation_speed);
                 $('#'+row_id).find('td:nth-child(2)').find('.panel-body').remove();
                 jQuery.get(
                         '/events/json/'+events_date.replace(/-/g,'/')+'/',
@@ -148,17 +173,18 @@
                                 $div_row = $("<div/>", {class: "row"});
                                 //------------------------
                                 $div_locations = $('<div/>', {
-                                    text: this.producer+' - '+this.recipient
-                                }).addClass("col-md-3");
+                                    text: this.producer+' - '+this.recipient,
+                                    class: "col-md-3"
+                                });
                                 //------------------------
-                                $div_load = $('<div/>').addClass("col-md-3");
+                                $div_load = $('<div/>', {class: "col-md-3"});
                                 $.each(this.loads, function() {
                                     $td_load.append(this.product.name+' - '+this.amount+'<br/>');
                                 });
                                 //------------------------
                                 $div_buttons = $('<div/>', {
-                                    class: 'btn-group'
-                                }).addClass("col-md-3");
+                                    class: 'btn-group col-md-3'
+                                });
                                 if(this.return_event == '') {
                                     $div_buttons.append('<button class="btn btn-sm btn-default add_return_button">add return</button>');
                                 }
@@ -168,7 +194,7 @@
                                     $div_buttons.append('<button class="btn btn-sm btn-success edit_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
                                 }
                                 //------------------------
-                                $div_vehicle = $('<div/>').addClass("col-md-3");
+                                $div_vehicle = $('<div/>', {class: "col-md-3"});
                                 if(this.vehicle) {
                                     $div_vehicle.text(this.vehicle.registration+' - '+this.vehicle.colour);
                                 };
@@ -181,12 +207,17 @@
 
                                 $('#'+row_id).find('td.events_details .panel').append($div);
                             });
-                            $('#'+row_id).show(200);
+                            $('#'+row_id).show(animation_speed);
                         },
                         'json'
                 )
             }
 
+            /**
+             * Assigns vehicle to chosen event and it's return event
+             * @param event_id
+             * @param vehicle_id
+             */
             function set_vehicle_in_event(event_id, vehicle_id) {
                 $.post(
                     '/events/set_vehicle/',
@@ -229,7 +260,7 @@
 
             $('#calendar_table').on('click', 'div.icon_cross', function() {
                 parent_elem = $(this).parents(".events_row");
-                parent_elem.hide(200);
+                parent_elem.hide(animation_speed);
             })
 
             $('#calendar_table').on('click', 'div.icon_add', function() {
@@ -242,6 +273,20 @@
                 $parent = $(this).parents("div[id^=event]");
                 $event_id = $parent.attr('id').replace("event","");
                 window.location.replace("/events/create_return/?event_id="+$event_id);
+            })
+
+            $('#calendar_table').on('mouseover', '.event_div', function() {
+                event_id = $(this).attr("id");
+                connected_id = event_id.indexOf("return") == 0 ? event_id.replace("return", "") : "return"+event_id;
+                $("#"+event_id).css("border-width", "4px");
+                $("#"+connected_id).css("border-width", "4px");
+            })
+
+            $('#calendar_table').on('mouseout', '.event_div', function() {
+                event_id = $(this).attr("id");
+                connected_id = event_id.indexOf("return") == 0 ? event_id.replace("return", "") : "return"+event_id;
+                $("#"+event_id).css("border-width", "2px");
+                $("#"+connected_id).css("border-width", "2px");
             })
 
             make_calendar();

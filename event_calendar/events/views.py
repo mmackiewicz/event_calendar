@@ -80,6 +80,13 @@ def create_event_from_json(json_string):
         return None
 
 
+def edit_event_view(request, event_id):
+    if request.method=='GET':
+        pass
+    else:
+        pass
+
+
 @require_GET
 def monthly_events_view(request, year, month):
     start_date = datetime.strptime('-'.join((year,month,'01')), '%Y-%m-%d')
@@ -88,6 +95,16 @@ def monthly_events_view(request, year, month):
     events = Event.objects.filter(recipients_date__gte=start_date, recipients_date__lte=end_date)
 
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
+
+@require_GET
+def monthly_return_events_view(request, year, month):
+    start_date = datetime.strptime('-'.join((year,month,'01')), '%Y-%m-%d')
+    end_date = (start_date + relativedelta(months=1)) + relativedelta(days=-1)
+
+    events = ReturnEvent.objects.filter(return_date__gte=start_date, return_date__lte=end_date)
+
+    return JsonResponse(data={'return_events': [event.serialize_to_json() for event in list(events)]})
+
 
 @require_GET
 def daily_events_view(request, year, month, day):
@@ -104,6 +121,22 @@ def daily_events_view_json(request, year, month, day):
     events = Event.objects.filter(recipients_date=events_date)
 
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
+
+@require_GET
+def daily_return_events_view(request, year, month, day):
+    events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
+
+    events = ReturnEvent.objects.filter(return_date=events_date)
+
+    return render_to_response('event.html', {'return_events': [event.serialize_to_json() for event in events]})
+
+@require_GET
+def daily_return_events_view_json(request, year, month, day):
+    events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
+
+    events = ReturnEvent.objects.filter(return_date=events_date)
+
+    return JsonResponse(data={'return_events': [event.serialize_to_json() for event in list(events)]})
 
 @csrf_exempt
 @require_POST

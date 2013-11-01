@@ -17,26 +17,21 @@
 
 {% block jumbo-content %}
     <div class="row">
-        <div class="col-md-2 col-md-offset-10">
+        <div class="col-md-3 col-md-offset-1">
+            name
+        </div>
+        <div class="col-md-2 col-md-offset-3">
             <button class="btn btn-primary add_product_button">add product</button>
         </div>
     </div>
-    <table class="table">
-    <thead>
-        <tr>
-            <th>product code</th>
-            <th>name</th>
-            <th></th>
-        </tr>
-    </thead>
+    <div class="row">
     {% for product in products %}
-        <tr>
-            <td>{{ product.product_code }}</td>
-            <td>{{ product.name }}</td>
-            <td>
-                <button type="button" class="btn btn-primary product_edit_button" action="{{ product.get_absolute_url }}">edit</button>
-            </td>
-        </tr>
+        <div class="col-md-3 col-md-offset-1">
+            {{ product.name }}
+        </div>
+        <div class="col-md-3 col-md-offset-3">
+            <button type="button" class="btn btn-primary btn-sm product_edit_button" action="{{ product.get_absolute_url }}">edit</button>
+        </div>
     {% endfor %}
-    </table>
+    </div>
 {% endblock %}

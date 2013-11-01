@@ -21,8 +21,8 @@ def login_view(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                data = get_home_data(user)
-                return render(request, 'home.html', data)
+                #data = get_home_data(user)
+                return render(request, 'home.html')
             else:
                 return render_to_response('login.html', {'state': 'User is not active'})
         else:
@@ -33,8 +33,8 @@ def login_view(request):
 @csrf_exempt
 @require_GET
 def home_view(request):
-    data = get_home_data(request.user)
-    return render(request, 'home.html', data)
+    #data = get_home_data(request.user)
+    return render(request, 'home.html')
 
 @require_GET
 def logout_view(request):
@@ -42,6 +42,7 @@ def logout_view(request):
     return render_to_response('logout.html')
 
 
+"""
 def get_home_data(user):
     worker = Worker.objects.get(user=user)
     if worker.role in (ROLE_ADMIN, ROLE_DISPATCHER,):
@@ -51,3 +52,4 @@ def get_home_data(user):
 
     return {'day': {'bla'},
             'week': {'bla2'},}
+"""
