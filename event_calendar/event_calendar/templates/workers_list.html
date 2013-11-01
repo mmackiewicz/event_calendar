@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-{% extends "base_template.html" %}
+{% extends "common_template.html" %}
 
-{% block content %}
+{% block script %}
     <script>
         $(document).ready(function(){
             $('body').on('click', '.worker_delete_button', function() {
@@ -28,8 +28,11 @@
             });
         });
     </script>
+{% endblock %}
+
+{% block jumbo-content %}
     <div class="row">
-        <div class="pull-right">
+        <div class="col-md-2 col-md-offset-10">
             <button class="btn btn-primary add_worker_button">add worker</button>
         </div>
     </div>

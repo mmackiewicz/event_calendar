@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from models import Event
+from models import Event, ReturnEvent
 from tools.http import JsonResponse
 from tools.utils import validate_date
 from loads import models as l_models
@@ -115,8 +115,78 @@ def set_vehicle_view(request):
         event.vehicle = vehicle
         event.save()
 
+        if event.return_event:
+            event.return_event.vehicle = vehicle
+            event.return_event.save()
+
         return JsonResponse(data={'status': 'OK'})
     except Http404:
         return JsonResponse(data={'status': 'Error'})
 
-#def create_return_event_view(request, )
+@csrf_exempt
+def create_return_event_view(request):
+    if request.method == 'GET':
+        event_id = request.GET.get('event_id', None)
+        event = get_object_or_404(Event, pk=event_id)
+        return render_to_response('return_event_create_form.html', {'event': event})
+    else:
+        return_event = create_return_event_from_json(request.body)
+
+        if return_event:
+            return JsonResponse(data=return_event.id)
+        else:
+            return JsonResponse(data={'status': 'ERROR'})
+
+
+#@transaction.commit_manually
+def create_return_event_from_json(json_string):
+    #try:
+
+    event_obj = json.loads(json_string)
+
+    event = Event.objects.get(id=event_obj['event_id'])
+
+    # create returnTransport objects
+    return_transports = []
+    for transport_obj in event_obj['transports']:
+        # create load objects
+        return_loads = []
+        for load_obj in transport_obj['products']:
+            load = l_models.ReturnLoad.objects.create(amount=load_obj['amount'],
+                                                product=load_obj['product'])
+            return_loads.append(load)
+
+        # create transport object
+        return_transport = t_models.ReturnTransport.objects.create(start_location=transport_obj['from'],
+                                                                   end_location=transport_obj['to'])
+        # add created load objects to transport
+        for load in return_loads:
+            return_transport.loads.add(load)
+
+        return_transports.append(return_transport)
+
+
+    vehicle_id = None
+    if event_obj['vehicle_id']:
+        vehicle_id = event_obj['vehicle_id']
+
+    # create event object
+    return_event = ReturnEvent.objects.create(
+                  return_date=datetime.strptime(event_obj['return_date'], '%Y-%m-%d'),
+                  comment=event_obj['comment'],
+                  vehicle_id=vehicle_id)
+
+    # add previously created transport objects to event object
+    for transport in return_transports:
+        return_event.transports.add(transport.id)
+
+    # attach created returnEvent to event
+    event.return_event = return_event
+    event.save()
+
+    #transaction.commit()
+    return return_event
+
+    #except:
+    #    transaction.rollback()
+    #    return None

@@ -16,7 +16,7 @@ class ReturnTransport(models.Model):
     start_location = models.CharField(max_length=50)
     end_location = models.CharField(max_length=50)
     loads = models.ManyToManyField(l_models.ReturnLoad)
-    invoice = models.ManyToManyField(i_models.Invoice, null=True)
+    invoice = models.ForeignKey(i_models.Invoice, null=True, unique=True)
 
     def serialize_to_json(self):
         result_dict = {'start_location': self.start_location,

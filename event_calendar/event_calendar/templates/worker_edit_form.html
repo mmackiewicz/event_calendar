@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
+{% extends "common_template.html" %}
+
+{% block jumbo-content %}
     <form action="/workers/update/" method="POST">
         {% csrf_token %}
         <!--
@@ -23,5 +21,4 @@
         {{ form.as_p }}
         <input type="submit" name="OK"/>
     </form>
-</body>
-</html>
+{% endblock %}

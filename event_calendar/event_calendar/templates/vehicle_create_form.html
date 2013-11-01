@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-{% extends "base_template.html" %}
+{% extends "common_template.html" %}
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/static/jquery.colourPicker.css" />
 {% endblock %}
-{% block content %}
+{% block script %}
     <script>
         $(document).ready(function(){
             jQuery('#vehicle-colour-picker select').colourPicker({
@@ -23,6 +23,8 @@
 
 
     </script>
+{% endblock %}
+{% block jumbo-content %}
     {% if vehicle %}
         <form action="/vehicles/update/{{ vehicle.id }}" method="POST">
     {% else %}

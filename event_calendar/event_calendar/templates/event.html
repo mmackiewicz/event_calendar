@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-{% extends "base_template.html" %}
+{% extends "common_template.html" %}
 
-
-
-{% block content %}
+{% block script %}
     <script>
         $('body').on('click', $('.products_toggle_button'), function() {
             $(this).parent().parent().find('.product_div').toggle();
         });
     </script>
+{% endblock %}
+
+{% block jumbo-content %}
     <div class="row">
         <div class="pull-right">
             <button class="btn btn-primary add_event_button">add event</button>

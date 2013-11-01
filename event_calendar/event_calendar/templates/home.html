@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 {% extends "base_template.html" %}
 
-{% block content %}
-    <link rel="stylesheet" type="text/css" href="/static/calendar_large.css" />
+{% block script %}
     <script>
         $(document).ready(function(){
 
@@ -53,8 +52,8 @@
             }
 
             function fetch_events() {
-                var year = $('#dp').data('datepicker').date.getUTCFullYear();
-                var month = $('#dp').data('datepicker').date.getUTCMonth()+1;
+                var year = $('#dp').data('datepicker').viewDate.getUTCFullYear();
+                var month = $('#dp').data('datepicker').viewDate.getMonth()+1;
                 jQuery.get(
                         '/events/'+year+'/'+month+'/',
                         function(data) {
@@ -213,12 +212,26 @@
                 $('#event_create_form').submit();
             })
 
+            $('#calendar_table').on('click', '.add_return_button', function() {
+                $parent = $(this).parents("div[id^=event]");
+                $event_id = $parent.attr('id').replace("event","");
+                window.location.replace("/events/create_return/?event_id="+$event_id);
+            })
+
             make_calendar();
             fetch_events();
             fetch_vehicles();
 
         });
     </script>
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/static/calendar_large.css" />
+{% endblock %}
+
+{% block content %}
+
     <div class="row">
         <div class="col-md-12" id="calendar_div">
             <table id="calendar_table">

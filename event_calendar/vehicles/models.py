@@ -9,6 +9,7 @@ class Vehicle(models.Model):
     registration = models.CharField(max_length=20)
     colour = models.CharField(max_length=6)
 
+
     def serialize_to_json(self):
         return {'id': self.id,
                 'colour': self.colour,

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-{% extends "base_template.html" %}
+{% extends "common_template.html" %}
 
-{% block content %}
+{% block script %}
     <script>
         $(document).ready(function(){
             $('body').on('click', '.product_edit_button', function() {
@@ -13,8 +13,11 @@
             });
         });
     </script>
+{% endblock %}
+
+{% block jumbo-content %}
     <div class="row">
-        <div class="pull-right">
+        <div class="col-md-2 col-md-offset-10">
             <button class="btn btn-primary add_product_button">add product</button>
         </div>
     </div>

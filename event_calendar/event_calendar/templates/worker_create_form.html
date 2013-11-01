@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-{% extends "base_template.html" %}
+{% extends "common_template.html" %}
 
-{% block content %}
+{% block jumbo-content %}
     <form action="/workers/create/" method="POST">
         {% csrf_token %}
         <!--

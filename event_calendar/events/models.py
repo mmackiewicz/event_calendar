@@ -7,9 +7,10 @@ from time import strftime
 
 
 class ReturnEvent(models.Model):
-    vehicle = models.ForeignKey(v_models.Vehicle)
+    vehicle = models.ForeignKey(v_models.Vehicle, unique=False, null=True)
     return_date = models.DateField()
     transports = models.ManyToManyField(t_models.ReturnTransport)
+    comment = models.TextField()
 
     def serialize_to_json(self):
         result_dict = {'id': self.id,
@@ -28,7 +29,7 @@ class Event(models.Model):
     recipient = models.CharField(max_length=250)
     production_date = models.DateField()
     recipients_date = models.DateField()
-    vehicle = models.OneToOneField(v_models.Vehicle, null=True)
+    vehicle = models.OneToOneField(v_models.Vehicle, null=True, unique=False)
     loads = models.ManyToManyField(l_models.Load)
     return_event = models.ForeignKey(ReturnEvent, null=True)
     comment = models.TextField()

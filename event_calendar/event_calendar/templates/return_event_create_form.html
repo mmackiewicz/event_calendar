@@ -1,68 +1,92 @@
 <!DOCTYPE html>
-{% extends "base_template.html" %}
+{% extends "common_template.html" %}
 {% block script %}
 <script>
         $(document).ready(function() {
 
             $('#return_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
 
-
-            function serialize_transport(transport_div) {
-                return {'from': $(transport_div).children('[name="from"]:first').val(),
-                        'to': $(transport_div).children('[name="to"]:first').val(),
-                        'products': serialize_products($(transport_div).children('.products_div:first'))}
-            }
-            function serialize_transports(transports_div) {
-                var result = [];
-                $(transports_div).children(".transport_div").each(function() {
-                    result.push(serialize_transport($(this)));
-                });
-                return result;
-            }
             function serialize_product(product_div) {
                 return {
-                    'product_id': $(product_div).children('[name="product_id"]:first').val(),
-                    'quantity': $(product_div).children('[name="quantity"]:first').val()
+                    'product': $(product_div).find(".product_name").text(),
+                    'amount': $(product_div).find(".product_amount").text()
                 };
             }
 
             function serialize_products(products_div) {
                 var result = [];
-                $(products_div).children(".product_div").each(function() {
+                $(products_div).find(".product_div").each(function() {
                     result.push(serialize_product($(this)));
                 });
                 return result;
             }
 
+            function serialize_transport(transport_div) {
+                return {
+                    'from': $(transport_div).find("input[name=from]").val(),
+                    'to': $(transport_div).find("input[name=to]").val(),
+                    'products': serialize_products($(transport_div).find('.products_div'))
+                }
+            }
 
-            $("#save_transport_button").click(function() {
-                var outHTML = "<div class='transport_div'>";
-                outHTML+="from: "+$('#transport_from').val()+"<br/>";
-                outHTML+="<input type='hidden' name='transport_from' value="+$('#transport_from').val()+"><br/>";
-                outHTML+="to: "+$('#transport_to').val()+"<br/>";
-                outHTML+="<input type='hidden' name='transport_to' value="+$('#transport_to').val()+"><br/>";
-                outHTML+="product: "+$("#products_list :selected").text()+"<br/>";
-                outHTML+="<input type='hidden' name='product_id' value="+$('#products_list').val()+"><br/>";
-                outHTML+="quantity: "+$("#quantity").val()+"<br/>";
-                outHTML+="<input type='hidden' name='quantity' value="+$('#quantity').val()+"><br/>";
-                outHTML+="<a class='btn btn-sm rm_product' >remove</a><br/>"
-                outHTML+="</div>";
-                $('#products_div').append(outHTML);
-                $('#transportModal').modal('hide');
+            function serialize_transports(transports_div) {
+                var result = [];
+                $(transports_div).find(".transport_div").each(function() {
+                    transport = serialize_transport($(this))
+                    result.push(transport);
+                });
+                return result;
+            }
+
+            $("#add_transport_button_1, #add_transport_button_2").click(function() {
+                $transport_div = $("<div/>").addClass("transport_div").addClass("panel");
+                $from_row = $("<div/>").addClass("row");
+                $from_div = $("<div/>").addClass("col-md-7").append("from: <input type='text' name='from'/>");
+                $remove_div = $("<div/>").addClass("col-md-2 col-md-offset-3").append("<button class='btn btn-default rm_transport_button'>remove</button>");
+
+                $to_row = $("<div/>").addClass("row");
+                $to_div = $("<div/>").addClass("col-md-7").append("to: <input type='text' name='to'/>");
+
+                $products_div = $("<div/>").addClass("panel").addClass("products_div").addClass("col-md-10").css("border", "0px");
+
+                $product_inputs_row = $("<div/>").addClass("row");
+                $product_inputs = $("<div/>").addClass("col-md-10").append("product: <input type='text' name='product'/> amount: <input type='text' name='amount' size=14/>");
+
+                $product_button = $("<div/>").addClass("col-md-2").append(" <button class='btn btn-primary btn-md' name='add_product_button'>add</button>");
+
+
+                $transport_div.append($from_row.append($from_div).append($remove_div));
+                $transport_div.append($to_row.append($to_div));
+                $transport_div.append($products_div);
+                $transport_div.append($product_inputs_row.append($product_inputs).append($product_button));
+
+                $("#transports_div").append($transport_div);
+            });
+
+
+            $("body").on("click", "button[name=add_product_button]", function() {
+                $product_div = $("<div/>").addClass("panel-body").addClass("product_div").addClass("row");
+                $product_name = $("<div/>").addClass("product_name").addClass("col-md-7").text($(this).parent().parent().parent().find("input[name=product]").val());
+                $product_amount = $("<div/>").addClass("product_amount").addClass("col-md-3").text($(this).parent().parent().parent().find("input[name=amount]").val());
+                $remove_button = $("<button/>").addClass("btn").addClass("btn-default").addClass("btn-md").addClass("rm_product_button").text("remove");
+                $product_div.append($product_name);
+                $product_div.append($product_amount);
+                $product_div.append($remove_button);
+
+                $(this).parent().parent().parent().find(".products_div").append($product_div).css("border", "inherit");
             });
 
             $('#create_button').click(function() {
                 var result = {
-                    'producer': $('#producer').val(),
-                    'recipient': $('#recipient').val(),
-                    'production_date': $('#production_date').find('input').val(),
-                    'recipients_date': $('#recipients_date').find('input').val(),
-                    'products': serialize_products($('#products_div')),
-                    'comment': $('#comment').val()
+                    'event_id': $('#event_id').val(),
+                    'vehicle_id': $('#vehicle_id').val(),
+                    'return_date': $('#return_date').find('input').val(),
+                    'comment': $('#comment').val(),
+                    'transports': serialize_transports($('#transports_div'))
                 }
 
                 $.post(
-                    '/events/create/',
+                    '/events/create_return/',
                     JSON.stringify(result)
                 ).done(function(data) {
                     alert(data);
@@ -71,18 +95,14 @@
                 })
             });
 
-            $("body").on('click', '.rm_product', function() {
+            $("body").on('click', '.rm_product_button', function() {
+                if($(this).parent().parent().find(".product_div").length == 1) {
+                    $(this).parent().parent().css("border", "0px");
+                }
                 $(this).parent().remove();
             });
-
-
-
-            $('#add_product_button').click(function() {
-                $product_div=$('<div/>');
-                $product_div.html($('#product_name').val()+' - '+$('#product_amount').val()+' <button class="remove_product">remove</button>');
-                $('#products_list').append($product_div);
-                $('#product_name').empty();
-                $('#product_amount').empty();
+            $("body").on('click', '.rm_transport_button', function() {
+                $(this).parent().parent().parent().remove();
             });
         });
     </script>
@@ -90,45 +110,45 @@
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/static/datepicker.css" />
 {% endblock %}
-{% block content %}
+{% block jumbo-content %}
 
-    <div style="display: none;" id="errors_div"></div>
-    vehicle: vehicle<br/>
-    return date: <div id="return_date" class="input-append date" data-date="{{ date }}">
+    <div class="row">
+        <div class="col-md-5" style="display: none;" id="errors_div"></div>
+    </div>
+    <div class="row">
+            <input type="hidden" id="event_id" value="{{ event.id }}"/>
+        {% if event.vehicle %}
+            <div class="col-md-4">vehicle: {{ event.vehicle.registration }} <span style="background-color: #{{ event.vehicle.colour }}; width: 30px;">&nbsp</span></div>
+            <input type="hidden" id="vehicle_id" value="{{ event.vehicle.id }}"/>
+        {% else %}
+            <div class="col-md-4">vehicle: no vehicle</div>
+            <input type="hidden" id="vehicle_id" value=""/>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-md-4">return date: <div id="return_date" class="input-append date" data-date="{{ date }}">
                         <input class="span2" size="16" type="text" value="{{ date }}">
                         <span class="add-on"><i class="icon icon_calendar"></i></span>
-                    </div><br/>
-    comment: <textarea cols="50" rows="5" id="comment"></textarea><br/>
-
-    <div id="transports_div">
+                      </div></div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">comment: <textarea cols="50" rows="5" id="comment"></textarea></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-md-offset-8"><button class="btn btn-primary btn-lg" id="add_transport_button_1">add transport</button></div>
     </div>
 
-
-    <a data-toggle="modal" href="#transportModal" class="btn btn-primary btn-lg">add transport</a>
-    <a class="btn btn-primary btn-lg" id="create_button">create</a>
-
-
-    <!-- MODALS -->
-    <div class="modal fade" id="transportModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Add Transport</h4>
-          </div>
-          <div class="modal-body">
-            From: <input type="text" id="transport_from"/><br/>
-            To: <input type="text" id="transport_to"/><br/>
-            Products: <div id="products_list"></div><br/>
-            product: <input type="text" id="product_name"/> amount: <input type="text" id="product_amount"/><button class="btn btn-default btn-sm" id="add_product_button">add product</button><br/>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="save_transport_button">Save changes</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- MODALS -->
+    <div class="row">
+        <div class="col-md-9">
+            <div id="transports_div">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-md-offset-8"><button class="btn btn-primary btn-lg" id="add_transport_button_2">add transport</button></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-md-offset-8"><button class="btn btn-primary btn-lg" id="create_button">create</button></div>
+    </div>
 
 {% endblock %}
