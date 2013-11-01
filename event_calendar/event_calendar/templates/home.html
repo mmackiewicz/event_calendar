@@ -83,7 +83,15 @@
                             $.each(events, function() {
                                 //console.log($(this)['recipients_date']);
                                 var container = $('#'+this.recipients_date+' div.events_container');
-                                container.html(container.html() + '<div class="event_div" id='+this.id+'>'+this.recipient+'</div>');
+                                $div_event = $("<div/>", {class: "event_div", id: this.id});
+                                $div_label = $("<div/>", {class: "pull-left", text: this.recipient});
+                                $div_vehicle = $("<div/>", {class: "pull-right"});
+                                if(this.vehicle) {
+                                    $div_vehicle.text(this.vehicle.id);
+                                }
+
+                                $div_event.append($div_label).append($div_vehicle);
+                                container.append($div_event);
                             });
                             $('.event_div').droppable({
                                 drop: function( event, ui ) {
@@ -225,7 +233,7 @@
             })
 
             $('#calendar_table').on('click', 'div.icon_add', function() {
-                date_val = $(this).parent().find('.date_span').text();
+                date_val = $(this).parents().find('.date_span').text();
                 $("#date_field").val(date_val);
                 $('#event_create_form').submit();
             })
