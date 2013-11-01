@@ -47,7 +47,29 @@
 
                 // create rows for displaying events for day
                 $.each($('#calendar_table tbody tr'), function() {
-                    $(this).after('<tr class="events_row" id="row'+$(this).find('td.week_number').text()+'"><td></td><td class="events_details" colspan=7><div class="panel"><span class="pull-left date_span"></span><span class="pull-right icon icon_cross"></span><span class="pull-right icon icon_add"></span></div></td></tr>');
+                    $events_row = $("<tr/>", {
+                                    class: "events_row",
+                                    id: "row"+$(this).find('td.week_number').text()
+                                });
+                    $td_week = $("<td/>");
+                    $td_events_details = $("<td/>", {class: "events_details", colSpan: 7});
+
+                    // ---- panel sub-elements
+                    $div_panel = $("<div/>", {class: "panel"});
+                    $div_base_row = $("<div/>", {class: "row"});
+                    $div_base_date = $("<div/>", {class: "col-md-2 date_span"});
+                    $div_base_nav = $("<div/>", {class: "col-md-1 col-md-offset-9"});
+                    $div_base_nav_add = $("<div/>", {class: "pull-right icon icon_add"});
+                    $div_base_nav_cross = $("<div/>", {class: "pull-right icon icon_cross"});
+
+                    $div_base_nav.append($div_base_nav_cross).append($div_base_nav_add);
+                    $div_base_row.append($div_base_date).append($div_base_nav);
+                    $div_panel.append($div_base_row);
+
+                    $td_events_details.append($div_panel);
+                    $events_row.append($td_week).append($td_events_details);
+                    $(this).after($events_row);
+
                 });
             }
 
@@ -102,7 +124,7 @@
                 if($('#'+row_id).is(':visible')) {
                     $('#'+row_id).hide(200);
                 }
-                $('#'+row_id).find('td:nth-child(2)').find('.panel-default').remove();
+                $('#'+row_id).find('td:nth-child(2)').find('.panel-body').remove();
                 jQuery.get(
                         '/events/json/'+events_date.replace(/-/g,'/')+'/',
                         function(data) {
@@ -111,49 +133,45 @@
                             $.each(events, function() {
                                 $div = $table = $row = $td_locations = $td_load = $td_buttons = $div_buttons = '';
 
-                                $div = $('<div/>', {
-                                    class: 'panel panel-default',
-                                    id: 'event'+this.id
+                                $div = $("<div/>", {
+                                    class: "panel-body",
+                                    id: "event"+this.id
                                 });
-                                $table = $('<table/>');
-                                $row = $('<tr/>');
+                                $div_row = $("<div/>", {class: "row"});
                                 //------------------------
-                                $td_locations = $('<td/>', {
+                                $div_locations = $('<div/>', {
                                     text: this.producer+' - '+this.recipient
-                                });
+                                }).addClass("col-md-3");
                                 //------------------------
-                                $td_load = $('<td/>');
+                                $div_load = $('<div/>').addClass("col-md-3");
                                 $.each(this.loads, function() {
                                     $td_load.append(this.product.name+' - '+this.amount+'<br/>');
                                 });
                                 //------------------------
-                                $td_buttons = $('<td/>');
                                 $div_buttons = $('<div/>', {
                                     class: 'btn-group'
-                                });
-                                $td_buttons.append($div_buttons);
+                                }).addClass("col-md-3");
                                 if(this.return_event == '') {
-                                    $div_buttons.append('<button class="btn btn-default add_return_button">add return</button>');
+                                    $div_buttons.append('<button class="btn btn-sm btn-default add_return_button">add return</button>');
                                 }
                                 event_date = new Date(events_date);
                                 current_date = new Date();
                                 if(event_date >= current_date) {
-                                    $div_buttons.append('<button class="btn btn-success edit_button">edit</button><button class="btn btn-danger cancel_button">cancel</button>');
+                                    $div_buttons.append('<button class="btn btn-sm btn-success edit_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
                                 }
                                 //------------------------
-                                $td_vehicle = $('<td/>');
+                                $div_vehicle = $('<div/>').addClass("col-md-3");
                                 if(this.vehicle) {
-                                    $td_load.append(this.vehicle.registration+' - '+this.vehicle.colour);
+                                    $div_vehicle.text(this.vehicle.registration+' - '+this.vehicle.colour);
                                 };
                                 //------------------------
-                                $table.append($row);
-                                $row.append($td_locations);
-                                $row.append($td_load);
-                                $row.append($td_vehicle);
-                                $row.append($td_buttons);
-                                $div.append($table);
+                                $div_row.append($div_locations);
+                                $div_row.append($div_load);
+                                $div_row.append($div_vehicle);
+                                $div_row.append($div_buttons);
+                                $div.append($div_row);
 
-                                $('#'+row_id).find('td.events_details').append($div);
+                                $('#'+row_id).find('td.events_details .panel').append($div);
                             });
                             $('#'+row_id).show(200);
                         },
@@ -201,12 +219,12 @@
                 $(this).removeClass('selected');
             });
 
-            $('#calendar_table').on('click', 'span.icon_cross', function() {
-                parent_elem = $(this).parent().parent().parent();
+            $('#calendar_table').on('click', 'div.icon_cross', function() {
+                parent_elem = $(this).parents(".events_row");
                 parent_elem.hide(200);
             })
 
-            $('#calendar_table').on('click', 'span.icon_add', function() {
+            $('#calendar_table').on('click', 'div.icon_add', function() {
                 date_val = $(this).parent().find('.date_span').text();
                 $("#date_field").val(date_val);
                 $('#event_create_form').submit();
