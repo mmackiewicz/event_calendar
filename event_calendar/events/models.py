@@ -29,7 +29,7 @@ class Event(models.Model):
     recipient = models.CharField(max_length=250)
     production_date = models.DateField()
     recipients_date = models.DateField()
-    vehicle = models.OneToOneField(v_models.Vehicle, null=True, unique=False)
+    vehicle = models.ForeignKey(v_models.Vehicle, null=True, unique=False)
     loads = models.ManyToManyField(l_models.Load)
     return_event = models.ForeignKey(ReturnEvent, null=True)
     comment = models.TextField()
