@@ -1,0 +1,10 @@
+[
+  {
+    "model": "vehicles.Vehicle",
+    "pk": 0,
+    "fields": {
+      "registration": "RENTAL",
+      "colour": "000000"
+    }
+  }
+]

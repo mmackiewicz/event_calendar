@@ -1,0 +1,10 @@
+[
+  {
+    "model": "workers.Worker",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "role": "ADMIN"
+    }
+  }
+]
