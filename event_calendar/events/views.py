@@ -79,13 +79,62 @@ def create_event_from_json(json_string):
         transaction.rollback()
         return None
 
-
+@csrf_exempt
+@require_http_methods(['GET', 'POST'])
 def edit_event_view(request, event_id):
     if request.method=='GET':
-        pass
+        event = get_object_or_404(Event, pk=event_id)
+        products = p_models.Product.objects.all()
+        return render_to_response('event_edit_form.html', {'event': event.serialize_to_json(),
+                                                           'products': products})
     else:
-        pass
+        #event_obj = json.loads(request.body)
+        event = get_object_or_404(Event, pk=event_id)
+        event = update_event_from_json(event, request.body)
 
+        if event:
+            return JsonResponse(data=event.id)
+        else:
+            return JsonResponse(data={'status': 'ERROR'})
+
+#@transaction.commit_manually
+def update_event_from_json(event, json_string):
+    try:
+
+        event_obj = json.loads(json_string)
+
+        # create load objects
+        new_loads = []
+        for load_obj in event_obj['products']:
+            load = l_models.Load.objects.create(amount=load_obj['amount'],
+                                                product_id=load_obj['product_id'])
+            new_loads.append(load)
+
+        # disconnect and delete loads currently assigned to the event
+        loads = event.loads.all()
+        event.loads.clear()
+        for load in loads:
+            load.delete()
+
+        # update fields with new data
+        event.producer = event_obj['producer']
+        event.recipient = event_obj['recipient']
+        event.production_date = datetime.strptime(event_obj['production_date'], '%Y-%m-%d')
+        event.recipients_date = datetime.strptime(event_obj['recipients_date'],'%Y-%m-%d')
+        event.comment=event_obj['comment']
+
+        # add previously created load objects to event object
+        for load in new_loads:
+            event.loads.add(load.id)
+
+        event.save()
+
+        transaction.commit()
+        return event
+
+    except:
+        transaction.rollback()
+        return None
 
 @require_GET
 def monthly_events_view(request, year, month):

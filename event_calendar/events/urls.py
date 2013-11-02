@@ -4,6 +4,7 @@ import views
 urlpatterns = patterns('',
     #url(r'^(?P<event_id>\d+)/$', views.get_event_view),
     url(r'^create/$', views.create_event_view),
+    url(r'^edit/(?P<event_id>\d+)/$', views.edit_event_view),
     url(r'^create_return/$', views.create_return_event_view),
     url(r'^set_vehicle/$', views.set_vehicle_view),
     url(r'^(?P<year>\d+)/(?P<month>\d+)/$', views.monthly_events_view),

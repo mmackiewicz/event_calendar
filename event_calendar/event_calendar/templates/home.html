@@ -179,7 +179,7 @@
                                 //------------------------
                                 $div_load = $('<div/>', {class: "col-md-3"});
                                 $.each(this.loads, function() {
-                                    $td_load.append(this.product.name+' - '+this.amount+'<br/>');
+                                    $div_load.append(this.product.name+' - '+this.amount+'<br/>');
                                 });
                                 //------------------------
                                 $div_buttons = $('<div/>', {
@@ -191,7 +191,7 @@
                                 event_date = new Date(events_date);
                                 current_date = new Date();
                                 if(event_date >= current_date) {
-                                    $div_buttons.append('<button class="btn btn-sm btn-success edit_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
+                                    $div_buttons.append('<button class="btn btn-sm btn-success edit_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
                                 }
                                 //------------------------
                                 $div_vehicle = $('<div/>', {class: "col-md-3"});
@@ -273,6 +273,12 @@
                 $parent = $(this).parents("div[id^=event]");
                 $event_id = $parent.attr('id').replace("event","");
                 window.location.replace("/events/create_return/?event_id="+$event_id);
+            })
+
+            $('#calendar_table').on('click', '.edit_event_button', function() {
+                $parent = $(this).parents("div[id^=event]");
+                $event_id = $parent.attr('id').replace("event","");
+                window.location.replace("/events/edit/"+$event_id);
             })
 
             $('#calendar_table').on('mouseover', '.event_div', function() {

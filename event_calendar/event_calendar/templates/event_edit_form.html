@@ -24,13 +24,11 @@
 
 
             $("#add_product_button").click(function() {
-                $product_div = $("<div/>").addClass("panel-body").addClass("product_div").addClass("row");
-                $product_name = $("<div/>").addClass("product_name").addClass("col-md-7").text($("#products_list :selected").text()).attr("product_id", "product"+$("#products_list").val());
-                $product_amount = $("<div/>").addClass("product_amount").addClass("col-md-3").text($("#amount").val());
-                $remove_button = $("<button/>").addClass("btn").addClass("btn-default").addClass("btn-md").addClass("rm_product_button").text("remove");
-                $product_div.append($product_name);
-                $product_div.append($product_amount);
-                $product_div.append($remove_button);
+                $product_div = $("<div/>", {class: "panel-body product_div row"});
+                $product_name = $("<div/>", {class: "product_name col-md-7", text: $("#products_list :selected").text(), product_id: "product"+$("#products_list").val()});
+                $product_amount = $("<div/>", {class: "product_amount col-md-3", text: $("#amount").val()});
+                $remove_button = $("<button/>", {class: "btn btn-default btn-md rm_product_button", text: "remove"});
+                $product_div.append($product_name).append($product_amount).append($remove_button);
 
                 $("#products_panel").append($product_div);
 
@@ -38,6 +36,7 @@
 
             $('#create_button').click(function() {
                 var result = {
+                    'event_id': {{ event.id }},
                     'producer': $('#producer').val(),
                     'recipient': $('#recipient').val(),
                     'production_date': $('#production_date').find('input').val(),
@@ -47,7 +46,7 @@
                 }
 
                 $.post(
-                    '/events/create/',
+                    '/events/edit/{{ event.id }}/',
                     JSON.stringify(result)
                 ).done(function(data) {
                     alert(data);
@@ -71,16 +70,16 @@
         <div class="col-md-5" style="display: none;" id="errors_div"></div>
     </div>
     <div class="row">
-        <div class="col-md-4">producer: <input type="text" name="producer" id="producer"/></div>
-        <div class="col-md-4">production date: <div id="production_date" class="input-append date" data-date="{{ date }}">
-                        <input class="span2" size="16" type="text" value="{{ date }}">
+        <div class="col-md-4">producer: <input type="text" name="producer" id="producer" value="{{ event.producer }}"/></div>
+        <div class="col-md-4">production date: <div id="production_date" class="input-append date" data-date="{{ event.recipients_date }}">
+                        <input class="span2" size="16" type="text" value="{{ event.production_date }}">
                         <span class="add-on"><i class="icon icon_calendar"></i></span>
                     </div></div>
     </div>
     <div class="row">
-        <div class="col-md-4">recipient: <input type="text" name="recipient" id="recipient"/></div>
-        <div class="col-md-4">recipient's date: <div id="recipients_date" class="input-append date" data-date="{{ date }}">
-                        <input class="span2" size="16" type="text" value="{{ date }}">
+        <div class="col-md-4">recipient: <input type="text" name="recipient" id="recipient" value="{{ event.recipient }}"/></div>
+        <div class="col-md-4">recipient's date: <div id="recipients_date" class="input-append date" data-date="{{ event.recipients_date }}">
+                        <input class="span2" size="16" type="text" value="{{ event.recipients_date }}">
                         <span class="add-on"><i class="icon icon_calendar"></i></span>
                       </div></div>
     </div>
@@ -92,7 +91,15 @@
         <div class="col-md-7">
             products:
             <div id="products_div">
-                <div id="products_panel" class="panel"></div>
+                <div id="products_panel" class="panel">
+                    {% for load in event.loads %}
+                        <div class="panel-body product_div row" id="{{ load.id }}">
+                            <div class="product_name col-md-7" product_id="{{ load.product.id }}">{{ load.product.name }}</div>
+                            <div class="product_amount col-md-3">{{ load.amount }}</div>
+                            <button class="btn btn-default btn-md rm_product_button">remove</button>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
