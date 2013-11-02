@@ -15,14 +15,12 @@ from models import Product
 @is_in_roles([ROLE_DISPATCHER, ROLE_ADMIN])
 def create_product_view(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            product = create_product(name=name)
-            return JsonResponse(product.id)
-    else:
-        form = ProductForm()
-    return render(request, 'product_create_form.html', {'form': form})
+        name = request.POST['name']
+        product = create_product(name=name)
+
+        products = Product.objects.all()
+        return render_to_response('products_list.html', {'products': products})
+    return render(request, 'product_create_form.html')
 
 
 def create_product(name):
@@ -36,14 +34,12 @@ def update_product_view(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
 
     if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            product = update_product(product, name=name)
-            return JsonResponse(product.id)
-    else:
-        form = ProductForm(initial={'name': product.name,})
-    return render(request, 'product_create_form.html', {'form': form})
+        name = request.POST['name']
+        update_product(product, name=name)
+
+        products = Product.objects.all()
+        return render_to_response('products_list.html', {'products': products})
+    return render(request, 'product_create_form.html', {'product': product})
 
 def update_product(product, name):
     product.name = name

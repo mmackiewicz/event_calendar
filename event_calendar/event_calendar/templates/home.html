@@ -93,7 +93,7 @@
                             });
                             $('.event_div').droppable({
                                 drop: function( event, ui ) {
-                                    event_id = $( this).attr('id');
+                                    event_id = $( this).attr('id').replace("vehicle", "");
                                     vehicle_id = ui.draggable.parent().attr('id');
                                     set_vehicle_in_event(event_id, vehicle_id);
                                 }
@@ -142,7 +142,7 @@
                             console.log(data);
                             vehicles = data['vehicles'];
                             $.each(vehicles, function() {
-                                $('#vehicles_list').append('<li id="'+this.id+'">'+this.registration+'<span class="badge draggable_vehicle" style="background-color: #'+this.colour+';">aaa</span></li>');
+                                $('#vehicles_list').append('<li id="vehicle'+this.id+'">'+this.registration+'<span class="badge draggable_vehicle" style="background-color: #'+this.colour+';">aaa</span></li>');
                             });
                             $('.draggable_vehicle').draggable();
                         },

@@ -14,8 +14,12 @@ def create_vehicle_view(request):
     if request.method == 'POST':
         registration = request.POST['registration']
         colour = request.POST['colour']
-        return JsonResponse(create_vehicle(registration=registration, colour=colour).id)
-    return render(request, 'vehicle_create_form.html')
+        create_vehicle(registration=registration, colour=colour)
+
+        vehicles = Vehicle.objects.all()
+        return render_to_response('vehicles_list.html', {'vehicles': vehicles})
+
+    return render_to_response('vehicle_create_form.html')
 
 def create_vehicle(registration, colour):
     vehicle = Vehicle(registration=registration, colour=colour)
@@ -30,7 +34,11 @@ def update_vehicle_view(request, vehicle_id):
     if request.method == 'POST':
         registration = request.POST['registration']
         colour = request.POST['colour']
-        return JsonResponse(update_vehicle(vehicle, registration=registration, colour=colour).id)
+        update_vehicle(vehicle, registration=registration, colour=colour)
+
+        vehicles = Vehicle.objects.all()
+        return render_to_response('vehicles_list.html', {'vehicles': vehicles})
+
     return render(request, 'vehicle_create_form.html', {'vehicle': vehicle})
 
 

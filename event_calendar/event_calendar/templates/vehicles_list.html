@@ -30,6 +30,7 @@
         </tr>
     </thead>
     {% for vehicle in vehicles %}
+        {% if vehicle.id != 0 %}
         <tr>
             <td>{{ vehicle.registration }}</td>
             <td><div style="background-color: #{{ vehicle.colour }}; width:60px;">&nbsp</div></td>
@@ -37,6 +38,7 @@
                 <button type="button" class="btn btn-primary vehicle_edit_button" action="{{ vehicle.get_absolute_url }}">edit</button>
             </td>
         </tr>
+        {% endif %}
     {% endfor %}
     </table>
 {% endblock %}

@@ -1,24 +1,52 @@
 <!DOCTYPE html>
 {% extends "common_template.html" %}
 
+{% block script %}
+    <script>
+        $(document).ready(function() {
+            $("#save_button").click(function() {
+                $("#worker_form").submit();
+            });
+
+            $("#cancel_button").click(function() {
+                window.location.href = "/workers/all/";
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block jumbo-content %}
-    <form action="/workers/update/" method="POST">
+    <form action="/workers/update/{{ user.id }}/" method="POST">
         {% csrf_token %}
-        <!--
-        first_name: <input type="text" name="first_name"/>
-        last_name: <input type="text" name="last_name"/>
-        username: <input type="text" name="username"/>
-        password: <input type="password" name="password"/>
-        role: <select name="role">
-                <option value="D">kierowca</option>
-                <option value="DI">dyspozytor</option>
-                <option value="A">administrator</option>
-              </select>
-        pesel: <input type="text" name="pesel"/>
-        email: <input type="text" name="email"/>
-        <input type="submit" name="OK"/>
-        -->
-        {{ form.as_p }}
-        <input type="submit" name="OK"/>
+        <div class="row">
+            <div class="col-md-3">username:</div>
+            <div class="col-md-5"><input type="text" name="username" value="{{ user.username }}"/></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">new password:</div>
+            <div class="col-md-5"><input type="password" name="new_password1"/></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">repeat new password:</div>
+            <div class="col-md-5"><input type="password" name="new_password2"/></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">role:</div>
+            <div class="col-md-5">
+                <select name="role">
+                    {% for role_value, role_name in roles %}
+                        {% if role_value == worker.role %}
+                            <option value="{{ role_value }}" selected=true>{{ role_name }}</option>
+                        {% else %}
+                            <option value="{{ role_value }}">{{ role_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
     </form>
+    <div class="row">
+        <div class="col-md-2"><button class="btn btn-primary" id="save_button">save</button></div>
+        <div class="col-md-2"><button class="btn btn-warning" id="cancel_button">cancel</button></div>
+    </div>
 {% endblock %}

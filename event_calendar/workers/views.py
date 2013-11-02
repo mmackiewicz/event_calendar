@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from tools.http import JsonResponse
 from tools.auth import is_admin, is_authenticated, is_in_roles
-from models import Worker
+from models import Worker, ROLES
 from forms import WorkerCreateForm, WorkerUpdateForm
 
 
@@ -23,7 +23,7 @@ def create_worker_view(request):
     else:
         form = WorkerCreateForm()
 
-    return render(request,'worker_create_form.html', {'form': form})
+    return render(request,'worker_create_form.html', {'form': form, 'roles': ROLES})
 
 
 def create_worker(username, password, role,):
@@ -36,11 +36,12 @@ def create_worker(username, password, role,):
 
     return worker.id
 
-def update_worker(worker, username, password, role):
+def update_worker(user, username, password, role):
+    worker = user.get_profile()
     worker.role = role
     worker.save()
 
-    user = worker.get_profile()
+    #user = worker.get_profile()
     user.username = username
     user.set_password(password)
     user.save()
@@ -51,24 +52,30 @@ def update_worker(worker, username, password, role):
 @require_http_methods(['GET', 'POST'])
 @is_admin()
 def update_worker_view(request, worker_id):
-    worker = get_object_or_404(User, pk=worker_id)
+    user = get_object_or_404(User, pk=worker_id)
 
     if request.method == 'GET':
-        worker_dict = {}
-        worker_dict['role'] = worker.get_profile().role
-        worker_dict['username'] = worker.username
-        form = WorkerUpdateForm(initial=worker_dict)
+        worker = user.get_profile()
+        return render(request, 'worker_edit_form.html', {'user': user,
+                                                            'roles': ROLES,
+                                                            'worker': worker})
 
     else:
+        """
         form = WorkerUpdateForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['new_password1']
             role = form.cleaned_data['role']
-        update_worker(worker, username, password, role)
+        """
+        username = request.POST['username']
+        password1 = request.POST['new_password1']
+        password2 = request.POST['new_password2']
+        role = request.POST['role']
+        update_worker(user, username, 'password', role)
 
-
-    return render(request, 'worker_edit_form.html', {'form': form})
+        workers = Worker.objects.all()
+        return render(request, "workers_list.html", {'workers': workers})
 
 
 @require_GET
