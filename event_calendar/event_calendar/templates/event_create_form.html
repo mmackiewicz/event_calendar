@@ -56,6 +56,10 @@
                 })
             });
 
+            $("#cancel_button").click(function() {
+                window.location.href = "/home/";
+            })
+
             $("body").on('click', '.rm_product_button', function() {
                 $(this).parent().remove();
             });
@@ -112,6 +116,9 @@
         </div>
     </div>
 
-    <a class="btn btn-primary btn-lg" id="create_button">create</a>
+    <div class="row">
+        <div class="col-md-1"><button class="btn btn-primary btn-lg" id="create_button">create</button></div>
+        <div class="col-md-1 col-md-offset-1"><button class="btn btn-warning btn-lg" id="cancel_button">cancel</button></div>
+    </div>
 
 {% endblock %}
