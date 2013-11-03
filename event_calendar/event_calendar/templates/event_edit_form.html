@@ -1,73 +1,14 @@
 <!DOCTYPE html>
 {% extends "common_template.html" %}
+
 {% block script %}
-<script>
-        $(document).ready(function() {
-
-            $('#production_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
-            $('#recipients_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
-
-            function serialize_product(product_div) {
-                return {
-                    'product_id': $(product_div).find(".product_name").attr("product_id").replace("product",""),
-                    'amount': $(product_div).find(".product_amount").text()
-                };
-            }
-
-            function serialize_products(products_div) {
-                var result = [];
-                $(products_div).find(".product_div").each(function() {
-                    result.push(serialize_product($(this)));
-                });
-                return result;
-            }
-
-
-            $("#add_product_button").click(function() {
-                $product_div = $("<div/>", {class: "panel-body product_div row"});
-                $product_name = $("<div/>", {class: "product_name col-md-7", text: $("#products_list :selected").text(), product_id: "product"+$("#products_list").val()});
-                $product_amount = $("<div/>", {class: "product_amount col-md-3", text: $("#amount").val()});
-                $remove_button = $("<button/>", {class: "btn btn-default btn-md rm_product_button", text: "remove"});
-                $product_div.append($product_name).append($product_amount).append($remove_button);
-
-                $("#products_panel").append($product_div);
-
-            });
-
-            $('#save_button').click(function() {
-                var result = {
-                    'event_id': {{ event.id }},
-                    'producer': $('#producer').val(),
-                    'recipient': $('#recipient').val(),
-                    'production_date': $('#production_date').find('input').val(),
-                    'recipients_date': $('#recipients_date').find('input').val(),
-                    'products': serialize_products($('#products_div')),
-                    'comment': $('#comment').val()
-                }
-
-                $.post(
-                    '/events/edit/{{ event.id }}/',
-                    JSON.stringify(result)
-                ).done(function(data) {
-                    alert(data);
-                }).fail(function(data) {
-                    $('#errors_div').html(data).show();
-                })
-            });
-
-            $("#cancel_button").click(function() {
-                window.location.href = "/home/";
-            })
-
-            $("body").on('click', '.rm_product_button', function() {
-                $(this).parent().remove();
-            });
-        });
-    </script>
+    <script type="text/javascript" src="/static/return_events.js"></script>
 {% endblock %}
+
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/static/datepicker.css" />
 {% endblock %}
+
 {% block jumbo-content %}
 
     <div class="row">
@@ -106,7 +47,7 @@
     <div class="row">
         <div class="col-md-4">
             <div class="col-md-5">comment:</div>
-            <div class="col-md-6"><textarea cols="50" rows="5" id="comment"></textarea></div>
+            <div class="col-md-6"><textarea cols="50" rows="5" id="comment">{{ event.comment }}</textarea></div>
         </div>
     </div>
 

@@ -93,8 +93,8 @@
                             });
                             $('.event_div').droppable({
                                 drop: function( event, ui ) {
-                                    event_id = $( this).attr('id').replace("vehicle", "");
-                                    vehicle_id = ui.draggable.parent().attr('id');
+                                    event_id = $( this).attr('id');
+                                    vehicle_id = ui.draggable.parent().attr('id').replace("vehicle", "");
                                     set_vehicle_in_event(event_id, vehicle_id);
                                 }
                             });

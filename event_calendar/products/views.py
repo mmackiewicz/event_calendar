@@ -1,7 +1,7 @@
 __author__ = 'Marek Mackiewicz'
 
 from django.http import Http404, HttpResponse
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from tools.http import JsonResponse
@@ -19,7 +19,7 @@ def create_product_view(request):
         product = create_product(name=name)
 
         products = Product.objects.all()
-        return render_to_response('products_list.html', {'products': products})
+        return render(request, 'products_list.html', {'products': products})
     return render(request, 'product_create_form.html')
 
 
@@ -38,7 +38,7 @@ def update_product_view(request, product_id):
         update_product(product, name=name)
 
         products = Product.objects.all()
-        return render_to_response('products_list.html', {'products': products})
+        return render(request, 'products_list.html', {'products': products})
     return render(request, 'product_create_form.html', {'product': product})
 
 def update_product(product, name):

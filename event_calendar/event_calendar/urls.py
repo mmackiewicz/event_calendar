@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'event_calendar.views.home', name='home'),
     # url(r'^event_calendar/', include('event_calendar.foo.urls')),
-    url(r'^home/', views.home_view),
+    url(r'^home/', views.home_view, name='home'),
     url(r'^login/', views.login_view),
     url(r'^logout/', views.logout_view),
     url(r'^events/', include('events.urls')),

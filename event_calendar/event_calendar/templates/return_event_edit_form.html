@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 {% extends "common_template.html" %}
-
 {% block script %}
     <script type="text/javascript" src="/static/return_events.js"></script>
 {% endblock %}
-
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/static/datepicker.css" />
 {% endblock %}
-
 {% block jumbo-content %}
 
     <div class="row">
@@ -34,8 +31,8 @@
         <div class="col-md-4">
             <div class="col-md-5">return date:</div>
             <div class="col-md-6">
-                <div id="return_date" class="input-append date" data-date="{{ date }}">
-                    <input class="span2" size="16" type="text" value="{{ date }}">
+                <div id="return_date" class="input-append date" data-date="{{ event.return_date }}">
+                    <input class="span2" size="16" type="text" value="{{ event.return_date }}">
                     <span class="add-on"><i class="icon icon_calendar"></i></span>
                 </div>
             </div>
@@ -44,7 +41,7 @@
     <div class="row">
         <div class="col-md-4">
             <div class="col-md-5">comment:</div>
-            <div class="col-md-6"><textarea cols="50" rows="5" id="comment"></textarea></div>
+            <div class="col-md-6"><textarea cols="50" rows="5" id="comment">{{ event.comment }}</textarea></div>
         </div>
     </div>
     <div class="row">
@@ -54,6 +51,30 @@
     <div class="row">
         <div class="col-md-9">
             <div id="transports_div">
+                {% for transport in event.transports %}
+                    <div class="transport_div panel">
+                        <div class="row">
+                            <div class="col-md-7">from: <input type="text" name="from" value="{{ transport.start_location }}"></div>
+                            <div class="col-md-2 col-md-offset-3"><button class="btn btn-sm btn-default rm_transport_button">remove</button></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-7">to: <input type="text" name="to" value="{{ transport.end_location }}"></div>
+                        </div>
+                        <div class="panel products_div col-md-10" style="border: inherit;">
+                            {% for load in transport.loads %}
+                            <div class="panel-body product_div row">
+                                <div class="product_name col-md-7">{{ load.product }}</div>
+                                <div class="product_amount col-md-3">{{ load.amount }}</div>
+                                <button class="btn btn-default btn-md rm_product_button">remove</button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-10">product: <input type="text" name="product"> amount: <input type="text" size="14" name="amount"></div>
+                            <div class="col-md-2"><button name="add_product_button" class="btn btn-primary btn-md">add</button></div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -61,7 +82,7 @@
         <div class="col-md-2 col-md-offset-8"><button class="btn btn-primary btn-lg" id="add_transport_button_2">add transport</button></div>
     </div>
     <div class="row">
-        <div class="col-md-1 col-md-offset-1"><button class="btn btn-primary btn-lg" id="create_button">create</button></div>
+        <div class="col-md-1 col-md-offset-1"><button class="btn btn-primary btn-lg" id="save_button">save</button></div>
         <div class="col-md-2"><button class="btn btn-warning btn-lg" id="cancel_button">cancel</button></div>
     </div>
 

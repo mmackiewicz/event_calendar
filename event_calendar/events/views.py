@@ -12,7 +12,6 @@ from tools.http import JsonResponse
 from tools.utils import validate_date
 from loads import models as l_models
 from vehicles import models as v_models
-from vehicles import views as v_views
 from products import models as p_models
 from transports import models as t_models
 from workers import models as w_models
@@ -82,22 +81,20 @@ def create_event_from_json(json_string):
 @csrf_exempt
 @require_http_methods(['GET', 'POST'])
 def edit_event_view(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
     if request.method=='GET':
-        event = get_object_or_404(Event, pk=event_id)
         products = p_models.Product.objects.all()
         return render(request, 'event_edit_form.html', {'event': event.serialize_to_json(),
                                                            'products': products})
     else:
-        #event_obj = json.loads(request.body)
-        event = get_object_or_404(Event, pk=event_id)
         event = update_event_from_json(event, request.body)
 
         if event:
-            return JsonResponse(data=event.id)
+            return JsonResponse(data={'status': 'OK', 'event_id': event.id})
         else:
             return JsonResponse(data={'status': 'ERROR'})
 
-#@transaction.commit_manually
+@transaction.commit_manually
 def update_event_from_json(event, json_string):
     try:
 
@@ -112,9 +109,9 @@ def update_event_from_json(event, json_string):
 
         # disconnect and delete loads currently assigned to the event
         loads = event.loads.all()
-        event.loads.clear()
         for load in loads:
             load.delete()
+        event.loads.clear()
 
         # update fields with new data
         event.producer = event_obj['producer']
@@ -135,6 +132,7 @@ def update_event_from_json(event, json_string):
     except:
         transaction.rollback()
         return None
+
 
 @require_GET
 def monthly_events_view(request, year, month):
@@ -269,6 +267,80 @@ def create_return_event_from_json(json_string):
         # attach created returnEvent to event
         event.return_event = return_event
         event.save()
+
+        transaction.commit()
+        return return_event
+
+    except:
+        transaction.rollback()
+        return None
+
+
+@csrf_exempt
+@require_http_methods(['GET', 'POST'])
+def edit_return_event_view(request, event_id):
+    revent = get_object_or_404(ReturnEvent, pk=event_id)
+    if request.method=='GET':
+        return render(request, 'return_event_edit_form.html', {'event': revent.serialize_to_json()})
+    else:
+        revent = update_return_event_from_json(revent, request.body)
+        if revent:
+            return JsonResponse(data={'status': 'OK', 'event_id': revent.id})
+        else:
+            return JsonResponse(data={'status': 'ERROR'})
+
+@transaction.commit_manually
+def update_return_event_from_json(return_event, json_string):
+    try:
+
+        event_obj = json.loads(json_string)
+
+        #return_event = ReturnEvent.objects.get(id=event_obj['event_id'])
+
+        # create new returnTransport objects
+        new_return_transports = []
+        for transport_obj in event_obj['transports']:
+            # create load objects
+            return_loads = []
+            for load_obj in transport_obj['products']:
+                load = l_models.ReturnLoad.objects.create(amount=load_obj['amount'],
+                                                    product=load_obj['product'])
+                return_loads.append(load)
+
+            # create transport object
+            return_transport = t_models.ReturnTransport.objects.create(start_location=transport_obj['from'],
+                                                                       end_location=transport_obj['to'])
+
+            # add created load objects to transport
+            for load in return_loads:
+                return_transport.loads.add(load)
+
+            new_return_transports.append(return_transport)
+
+
+        vehicle_id = None
+        if event_obj['vehicle_id']:
+            vehicle_id = event_obj['vehicle_id']
+
+        # update return event object
+        return_event.return_date = datetime.strptime(event_obj['return_date'], '%Y-%m-%d')
+        return_event.comment = event_obj['comment']
+        return_event.vehicle_id = vehicle_id
+
+        # disconnect and delete all previous transports and loads
+        old_transports = return_event.transports.all()
+        for transport in old_transports:
+            loads = transport.loads.all()
+            loads.delete()
+            transport.loads.clear()
+        old_transports.delete()
+
+        # add previously created transport objects to event object
+        for transport in new_return_transports:
+            return_event.transports.add(transport.id)
+
+
+        return_event.save()
 
         transaction.commit()
         return return_event

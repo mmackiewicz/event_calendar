@@ -156,6 +156,11 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -166,7 +171,12 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        #'console': {
+        #    'level': 'DEBUG',
+        #    'class': 'logging.StreamHandler',
+        #    'formatter': 'simple'
+        #}
     },
     'loggers': {
         'django.request': {
@@ -174,7 +184,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        #'django.db.backends': {
+        #    'handlers': ['console'],
+        #    'level': 'DEBUG',
+        #    'propagate': True,
+        #},
     }
+
 }
 
 
