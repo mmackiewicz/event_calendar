@@ -1,29 +1,26 @@
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponse
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from tools.http import JsonResponse
-from tools.auth import is_admin, is_authenticated, is_in_roles
+from tools.auth import is_admin
 from models import Worker, ROLES
-from forms import WorkerCreateForm, WorkerUpdateForm
 
 
 @require_http_methods(['GET', 'POST'])
 @is_admin()
 def create_worker_view(request):
     if request.method == 'POST':
-        form = WorkerCreateForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            role = form.cleaned_data['role']
-            return JsonResponse(create_worker(username, password, role,))
+        username = request.POST['username']
+        password = request.POST['password']
+        role = request.POST['role']
+        create_worker(username, password, role,)
 
-    else:
-        form = WorkerCreateForm()
+        workers = Worker.objects.all()
+        return render(request, 'workers_list.html', {'workers': workers})
 
-    return render(request,'worker_create_form.html', {'form': form, 'roles': ROLES})
+    return render(request,'worker_create_form.html', {'roles': ROLES})
 
 
 def create_worker(username, password, role,):
@@ -41,7 +38,6 @@ def update_worker(user, username, password, role):
     worker.role = role
     worker.save()
 
-    #user = worker.get_profile()
     user.username = username
     user.set_password(password)
     user.save()
@@ -57,28 +53,22 @@ def update_worker_view(request, worker_id):
     if request.method == 'GET':
         worker = user.get_profile()
         return render(request, 'worker_edit_form.html', {'user': user,
-                                                            'roles': ROLES,
-                                                            'worker': worker})
+                                                         'roles': ROLES,
+                                                         'worker': worker})
 
     else:
-        """
-        form = WorkerUpdateForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['new_password1']
-            role = form.cleaned_data['role']
-        """
         username = request.POST['username']
         password1 = request.POST['new_password1']
         password2 = request.POST['new_password2']
         role = request.POST['role']
-        update_worker(user, username, 'password', role)
+        update_worker(user, username, password1, role)
 
         workers = Worker.objects.all()
         return render(request, "workers_list.html", {'workers': workers})
 
 
 @require_GET
+@is_admin()
 def get_worker_view(request, worker_id):
     worker = get_object_or_404(Worker, pk=worker_id)
     return JsonResponse(data=worker)
@@ -89,6 +79,7 @@ def get_all_workers_view(request):
     workers = Worker.objects.all()
     return render(request, 'workers_list.html', {'workers': workers})
 
+@csrf_exempt
 @require_POST
 @is_admin()
 def delete_worker_view(request, worker_id):

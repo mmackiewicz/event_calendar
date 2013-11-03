@@ -3,12 +3,14 @@ __author__ = 'Marek Mackiewicz'
 from django.http import Http404, HttpResponse
 from django.views.decorators.http import require_GET, require_POST
 
+from tools.auth import is_in_roles
 from tools.http import JsonResponse
 from models import Invoice
 from products.models import Product
-
+from workers.models import ROLE_ADMIN, ROLE_SECRETARY
 
 @require_POST
+@is_in_roles([ROLE_ADMIN, ROLE_SECRETARY])
 def create_invoice_view(request):
     number = request.POST['number']
     company = request.POST['company']
@@ -21,6 +23,7 @@ def create_invoice(number, company, is_paid=False):
 
 
 @require_GET
+@is_in_roles([ROLE_ADMIN, ROLE_SECRETARY])
 def get_invoice_view(request, invoice_id):
     try:
         invoice = Invoice.objects.get(pk=invoice_id)
@@ -29,8 +32,14 @@ def get_invoice_view(request, invoice_id):
         return Http404
 
 @require_GET
+@is_in_roles([ROLE_ADMIN, ROLE_SECRETARY])
 def get_invoices_list(request, year, month):
     try:
+        events_date = datetime.strptime('-'.join((year,month, '01')), '%Y-%m-%d')
+        # find last day of month
+        # fetch invoices for period
+
+        events = Event.objects.filter(recipients_date=events_date)
         invoice = Invoice.objects.get()
         return JsonResponse(data=invoice)
     except Product.DoesNotExist:

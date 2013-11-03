@@ -53,6 +53,7 @@ def get_product_view(request, product_id):
 
 
 @require_GET
+@is_in_roles([ROLE_DISPATCHER, ROLE_ADMIN])
 def get_all_products_view(request):
     products = Product.objects.all()
     return render(request, 'products_list.html', {'products': products})

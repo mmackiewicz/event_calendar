@@ -1,11 +1,10 @@
 from django.http import Http404, HttpResponse
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from tools.http import JsonResponse
 from tools.auth import is_in_roles
 from workers.models import ROLE_ADMIN, ROLE_DISPATCHER
 from models import RENTAL_COLOUR, RENTAL_ID, RENTAL_REGISTRATION, Vehicle
-from forms import VehicleForm
 
 
 @require_http_methods(['GET', 'POST'])
@@ -17,9 +16,9 @@ def create_vehicle_view(request):
         create_vehicle(registration=registration, colour=colour)
 
         vehicles = Vehicle.objects.all()
-        return render_to_response('vehicles_list.html', {'vehicles': vehicles})
+        return render(request, 'vehicles_list.html', {'vehicles': vehicles})
 
-    return render_to_response('vehicle_create_form.html')
+    return render(request, 'vehicle_create_form.html')
 
 def create_vehicle(registration, colour):
     vehicle = Vehicle(registration=registration, colour=colour)
@@ -37,7 +36,7 @@ def update_vehicle_view(request, vehicle_id):
         update_vehicle(vehicle, registration=registration, colour=colour)
 
         vehicles = Vehicle.objects.all()
-        return render_to_response('vehicles_list.html', {'vehicles': vehicles})
+        return render(request, 'vehicles_list.html', {'vehicles': vehicles})
 
     return render(request, 'vehicle_create_form.html', {'vehicle': vehicle})
 
@@ -55,6 +54,7 @@ def get_vehicle_view(request, vehicle_id):
 
 
 @require_GET
+@is_in_roles([ROLE_ADMIN, ROLE_DISPATCHER])
 def get_all_vehicles_view(request):
     return render(request, 'vehicles_list.html', {'vehicles': Vehicle.objects.all()})
 

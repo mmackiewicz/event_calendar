@@ -2,11 +2,12 @@ __author__ = 'Marek Mackiewicz'
 
 from django.shortcuts import render, render_to_response
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
-
+from tools import auth
 from workers.models import Worker, ROLE_ADMIN, ROLE_DISPATCHER
 
 @csrf_exempt
@@ -21,7 +22,6 @@ def login_view(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                #data = get_home_data(user)
                 return render(request, 'home.html')
             else:
                 return render_to_response('login.html', {'state': 'User is not active'})
@@ -32,8 +32,8 @@ def login_view(request):
 
 @csrf_exempt
 @require_GET
+@login_required
 def home_view(request):
-    #data = get_home_data(request.user)
     return render(request, 'home.html')
 
 @require_GET
@@ -41,15 +41,3 @@ def logout_view(request):
     logout(request)
     return render_to_response('logout.html')
 
-
-"""
-def get_home_data(user):
-    worker = Worker.objects.get(user=user)
-    if worker.role in (ROLE_ADMIN, ROLE_DISPATCHER,):
-        pass
-    else:
-        pass
-
-    return {'day': {'bla'},
-            'week': {'bla2'},}
-"""

@@ -2,7 +2,7 @@ from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 import json
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -46,7 +46,7 @@ def create_event_view(request):
         if date and validate_date(date):
             resp_dict['date'] = date
 
-        return render_to_response('event_create_form.html',resp_dict)
+        return render(request, 'event_create_form.html',resp_dict)
 
 @transaction.commit_manually
 def create_event_from_json(json_string):
@@ -85,7 +85,7 @@ def edit_event_view(request, event_id):
     if request.method=='GET':
         event = get_object_or_404(Event, pk=event_id)
         products = p_models.Product.objects.all()
-        return render_to_response('event_edit_form.html', {'event': event.serialize_to_json(),
+        return render(request, 'event_edit_form.html', {'event': event.serialize_to_json(),
                                                            'products': products})
     else:
         #event_obj = json.loads(request.body)
@@ -155,6 +155,7 @@ def monthly_return_events_view(request, year, month):
     return JsonResponse(data={'return_events': [event.serialize_to_json() for event in list(events)]})
 
 
+"""
 @require_GET
 def daily_events_view(request, year, month, day):
     events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
@@ -162,6 +163,7 @@ def daily_events_view(request, year, month, day):
     events = Event.objects.filter(recipients_date=events_date)
 
     return render_to_response('event.html', {'events': [event.serialize_to_json() for event in events]})
+"""
 
 @require_GET
 def daily_events_view_json(request, year, month, day):
@@ -171,6 +173,7 @@ def daily_events_view_json(request, year, month, day):
 
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
 
+"""
 @require_GET
 def daily_return_events_view(request, year, month, day):
     events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
@@ -178,6 +181,7 @@ def daily_return_events_view(request, year, month, day):
     events = ReturnEvent.objects.filter(return_date=events_date)
 
     return render_to_response('event.html', {'return_events': [event.serialize_to_json() for event in events]})
+"""
 
 @require_GET
 def daily_return_events_view_json(request, year, month, day):
@@ -210,7 +214,7 @@ def create_return_event_view(request):
     if request.method == 'GET':
         event_id = request.GET.get('event_id', None)
         event = get_object_or_404(Event, pk=event_id)
-        return render_to_response('return_event_create_form.html', {'event': event})
+        return render(request, 'return_event_create_form.html', {'event': event})
     else:
         return_event = create_return_event_from_json(request.body)
 
@@ -220,55 +224,55 @@ def create_return_event_view(request):
             return JsonResponse(data={'status': 'ERROR'})
 
 
-#@transaction.commit_manually
+@transaction.commit_manually
 def create_return_event_from_json(json_string):
-    #try:
+    try:
 
-    event_obj = json.loads(json_string)
+        event_obj = json.loads(json_string)
 
-    event = Event.objects.get(id=event_obj['event_id'])
+        event = Event.objects.get(id=event_obj['event_id'])
 
-    # create returnTransport objects
-    return_transports = []
-    for transport_obj in event_obj['transports']:
-        # create load objects
-        return_loads = []
-        for load_obj in transport_obj['products']:
-            load = l_models.ReturnLoad.objects.create(amount=load_obj['amount'],
-                                                product=load_obj['product'])
-            return_loads.append(load)
+        # create returnTransport objects
+        return_transports = []
+        for transport_obj in event_obj['transports']:
+            # create load objects
+            return_loads = []
+            for load_obj in transport_obj['products']:
+                load = l_models.ReturnLoad.objects.create(amount=load_obj['amount'],
+                                                    product=load_obj['product'])
+                return_loads.append(load)
 
-        # create transport object
-        return_transport = t_models.ReturnTransport.objects.create(start_location=transport_obj['from'],
-                                                                   end_location=transport_obj['to'])
-        # add created load objects to transport
-        for load in return_loads:
-            return_transport.loads.add(load)
+            # create transport object
+            return_transport = t_models.ReturnTransport.objects.create(start_location=transport_obj['from'],
+                                                                       end_location=transport_obj['to'])
+            # add created load objects to transport
+            for load in return_loads:
+                return_transport.loads.add(load)
 
-        return_transports.append(return_transport)
+            return_transports.append(return_transport)
 
 
-    vehicle_id = None
-    if event_obj['vehicle_id']:
-        vehicle_id = event_obj['vehicle_id']
+        vehicle_id = None
+        if event_obj['vehicle_id']:
+            vehicle_id = event_obj['vehicle_id']
 
-    # create event object
-    return_event = ReturnEvent.objects.create(
-                  return_date=datetime.strptime(event_obj['return_date'], '%Y-%m-%d'),
-                  comment=event_obj['comment'],
-                  vehicle_id=vehicle_id)
+        # create event object
+        return_event = ReturnEvent.objects.create(
+                      return_date=datetime.strptime(event_obj['return_date'], '%Y-%m-%d'),
+                      comment=event_obj['comment'],
+                      vehicle_id=vehicle_id)
 
-    # add previously created transport objects to event object
-    for transport in return_transports:
-        return_event.transports.add(transport.id)
+        # add previously created transport objects to event object
+        for transport in return_transports:
+            return_event.transports.add(transport.id)
 
-    # attach created returnEvent to event
-    event.return_event = return_event
-    event.save()
+        # attach created returnEvent to event
+        event.return_event = return_event
+        event.save()
 
-    #transaction.commit()
-    return return_event
+        transaction.commit()
+        return return_event
 
-    #except:
-    #    transaction.rollback()
-    #    return None
+    except:
+        transaction.rollback()
+        return None
