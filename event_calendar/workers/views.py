@@ -52,7 +52,7 @@ def update_worker_view(request, worker_id):
 
     if request.method == 'GET':
         worker = user.get_profile()
-        return render(request, 'worker_edit_form.html', {'user': user,
+        return render(request, 'worker_edit_form.html', {'user_entity': user,
                                                          'roles': ROLES,
                                                          'worker': worker})
 

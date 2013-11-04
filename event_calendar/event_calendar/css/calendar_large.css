@@ -13,8 +13,8 @@ table {
     border-width: 1px;
     border-color: #DDDDDD;
     border-style: solid;
-    height: 70px;
-    min-width: 100px;
+    height: 90px;
+    width: 100px;
 }
 
 .day_number {
@@ -50,9 +50,13 @@ td.new div.day_number {
     background-color: grey;
 }
 
+td.holiday div.day_number {
+    background-color: #ff4500;
+}
+
 .events_container {
     float: left;
-    min-width: 86%;
+    min-width: 85%;
     max-width: 89%;
 }
 .event_div {
@@ -62,11 +66,12 @@ td.new div.day_number {
     width: 100%;
     height: 25px;
     border-radius: 4px;
-
+    background-color: #CFFAFE;
 }
 
 .return_event_div {
     border: 2px solid #CCA6AC;
+    background-color: #DDCECE;
 }
 
 .return_div {

@@ -212,7 +212,7 @@ def create_return_event_view(request):
     if request.method == 'GET':
         event_id = request.GET.get('event_id', None)
         event = get_object_or_404(Event, pk=event_id)
-        return render(request, 'return_event_create_form.html', {'event': event})
+        return render(request, 'return_event_create_form.html', {'event': event.serialize_to_json()})
     else:
         return_event = create_return_event_from_json(request.body)
 
@@ -294,8 +294,6 @@ def update_return_event_from_json(return_event, json_string):
     try:
 
         event_obj = json.loads(json_string)
-
-        #return_event = ReturnEvent.objects.get(id=event_obj['event_id'])
 
         # create new returnTransport objects
         new_return_transports = []

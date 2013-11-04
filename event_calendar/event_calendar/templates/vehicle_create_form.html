@@ -36,7 +36,7 @@
     {% if vehicle %}
         <form action="/vehicles/update/{{ vehicle.id }}" method="POST" id="vehicle_form">
     {% else %}
-        <form action="/vehicles/create/" method="POST">
+        <form action="/vehicles/create/" method="POST" id="vehicle_form">
     {% endif %}
         {% csrf_token %}
     <div class="row">

@@ -31,11 +31,11 @@
         {% endif %}
     </div>
     <div class="row">
-        <div class="col-md-4">
-            <div class="col-md-5">return date:</div>
+        <div class="col-md-5">
+            <div class="col-md-4">return date:</div>
             <div class="col-md-6">
-                <div id="return_date" class="input-append date" data-date="{{ date }}">
-                    <input class="span2" size="16" type="text" value="{{ date }}">
+                <div id="return_date" class="input-append date" data-date="{{ event.recipients_date }}">
+                    <input class="span2" size="16" type="text" value="{{ event.recipients_date }}">
                     <span class="add-on"><i class="icon icon_calendar"></i></span>
                 </div>
             </div>
@@ -47,9 +47,6 @@
             <div class="col-md-6"><textarea cols="50" rows="5" id="comment"></textarea></div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-2 col-md-offset-8"><button class="btn btn-primary btn-lg" id="add_transport_button_1">add transport</button></div>
-    </div>
 
     <div class="row">
         <div class="col-md-9">
@@ -58,7 +55,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-2 col-md-offset-8"><button class="btn btn-primary btn-lg" id="add_transport_button_2">add transport</button></div>
+        <div class="col-md-2 col-md-offset-8"><button class="btn btn-primary btn-lg" id="add_transport_button">add transport</button></div>
     </div>
     <div class="row">
         <div class="col-md-1 col-md-offset-1"><button class="btn btn-primary btn-lg" id="create_button">create</button></div>

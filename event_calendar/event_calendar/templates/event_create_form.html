@@ -1,71 +1,71 @@
 <!DOCTYPE html>
 {% extends "common_template.html" %}
 {% block script %}
-<script>
-        $(document).ready(function() {
+    <script>
+    $(document).ready(function() {
 
-            $('#production_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
-            $('#recipients_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
+        $('#production_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
+        $('#recipients_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
 
-            function serialize_product(product_div) {
-                return {
-                    'product_id': $(product_div).find(".product_name").attr("product_id").replace("product",""),
-                    'amount': $(product_div).find(".product_amount").text()
-                };
-            }
+        function serialize_product(product_div) {
+            return {
+                'product_id': $(product_div).find(".product_name").attr("product_id").replace("product",""),
+                'amount': $(product_div).find(".product_amount").text()
+            };
+        }
 
-            function serialize_products(products_div) {
-                var result = [];
-                $(products_div).find(".product_div").each(function() {
-                    result.push(serialize_product($(this)));
-                });
-                return result;
-            }
-
-
-            $("#add_product_button").click(function() {
-                $product_div = $("<div/>").addClass("panel-body").addClass("product_div").addClass("row");
-                $product_name = $("<div/>").addClass("product_name").addClass("col-md-7").text($("#products_list :selected").text()).attr("product_id", "product"+$("#products_list").val());
-                $product_amount = $("<div/>").addClass("product_amount").addClass("col-md-3").text($("#amount").val());
-                $remove_button = $("<button/>").addClass("btn").addClass("btn-default").addClass("btn-md").addClass("rm_product_button").text("remove");
-                $product_div.append($product_name);
-                $product_div.append($product_amount);
-                $product_div.append($remove_button);
-
-                $("#amount").val("");
-
-                $("#products_panel").append($product_div);
-
+        function serialize_products(products_div) {
+            var result = [];
+            $(products_div).find(".product_div").each(function() {
+                result.push(serialize_product($(this)));
             });
+            return result;
+        }
 
-            $('#create_button').click(function() {
-                var result = {
-                    'producer': $('#producer').val(),
-                    'recipient': $('#recipient').val(),
-                    'production_date': $('#production_date').find('input').val(),
-                    'recipients_date': $('#recipients_date').find('input').val(),
-                    'products': serialize_products($('#products_div')),
-                    'comment': $('#comment').val()
-                }
 
-                $.post(
-                    '/events/create/',
-                    JSON.stringify(result)
-                ).done(function(data) {
-                    alert(data);
-                }).fail(function(data) {
-                    $('#errors_div').html(data).show();
-                })
-            });
+        $("#add_product_button").click(function() {
+            $product_div = $("<div/>").addClass("panel-body").addClass("product_div").addClass("row");
+            $product_name = $("<div/>").addClass("product_name").addClass("col-md-7").text($("#products_list :selected").text()).attr("product_id", "product"+$("#products_list").val());
+            $product_amount = $("<div/>").addClass("product_amount").addClass("col-md-3").text($("#amount").val());
+            $remove_button = $("<button/>").addClass("btn").addClass("btn-default").addClass("btn-md").addClass("rm_product_button").text("remove");
+            $product_div.append($product_name);
+            $product_div.append($product_amount);
+            $product_div.append($remove_button);
 
-            $("#cancel_button").click(function() {
-                window.location.href = "/home/";
-            })
+            $("#amount").val("");
 
-            $("body").on('click', '.rm_product_button', function() {
-                $(this).parent().remove();
-            });
+            $("#products_panel").append($product_div);
+
         });
+
+        $('#create_button').click(function() {
+            var result = {
+                'producer': $('#producer').val(),
+                'recipient': $('#recipient').val(),
+                'production_date': $('#production_date').find('input').val(),
+                'recipients_date': $('#recipients_date').find('input').val(),
+                'products': serialize_products($('#products_div')),
+                'comment': $('#comment').val()
+            }
+
+            $.post(
+                '/events/create/',
+                JSON.stringify(result)
+            ).done(function(data) {
+                alert(data);
+            }).fail(function(data) {
+                $('#errors_div').html(data).show();
+            })
+        });
+
+        $("#cancel_button").click(function() {
+            window.location.href = "/home/";
+        })
+
+        $("body").on('click', '.rm_product_button', function() {
+            $(this).parent().remove();
+        });
+    });
     </script>
 {% endblock %}
 {% block styles %}
@@ -81,8 +81,8 @@
             <div class="col-md-5">producer: </div>
             <div class="col-md-6"><input type="text" name="producer" id="producer"/></div>
         </div>
-        <div class="col-md-4">
-            <div class="col-md-5">production date: </div>
+        <div class="col-md-5">
+            <div class="col-md-6">production date: </div>
             <div class="col-md-6">
                 <div id="production_date" class="input-append date" data-date="{{ date }}">
                     <input class="span2" size="16" type="text" value="{{ date }}">
@@ -96,7 +96,7 @@
             <div class="col-md-5">recipient:</div>
             <div class="col-md-6"><input type="text" name="recipient" id="recipient"/></div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-5">
             <div class="col-md-6">recipient's date:</div>
             <div class="col-md-6">
                 <div id="recipients_date" class="input-append date" data-date="{{ date }}">

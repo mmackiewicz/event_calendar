@@ -2,6 +2,7 @@ $(document).ready(function() {
 
     $('#return_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
 
+
     function serialize_product(product_div) {
         return {
             'product': $(product_div).find(".product_name").text(),
@@ -34,7 +35,7 @@ $(document).ready(function() {
         return result;
     }
 
-    $("#add_transport_button_1, #add_transport_button_2").click(function() {
+    $("#add_transport_button").click(function() {
         $transport_div = $("<div/>", {class: "transport_div panel"});
         $from_row = $("<div/>", {class: "row"});
         $from_div = $("<div/>", {class: "col-md-5"});

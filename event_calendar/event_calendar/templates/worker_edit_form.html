@@ -16,11 +16,11 @@
 {% endblock %}
 
 {% block jumbo-content %}
-    <form action="/workers/update/{{ user.id }}/" method="POST">
+    <form action="/workers/update/{{ user_entity.id }}/" method="POST">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-3">username:</div>
-            <div class="col-md-5"><input type="text" name="username" value="{{ user.username }}"/></div>
+            <div class="col-md-5"><input type="text" name="username" value="{{ user_entity.username }}"/></div>
         </div>
         <div class="row">
             <div class="col-md-3">new password:</div>

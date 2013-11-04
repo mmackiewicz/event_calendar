@@ -6,6 +6,45 @@
 
         var animation_speed = 200;
 
+        $.extend($.fn.datepicker.defaults, {
+            onRender: function(date) {
+                if(date.getDay() == 6 || date.getDay() == 0) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 1 && date.getDate() == 1) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 1 && date.getDate() == 6) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 5 && date.getDate() == 1) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 5 && date.getDate() == 3) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 5 && date.getDate() == 19) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 8 && date.getDate() == 15) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 11 && date.getDate() == 1) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 11 && date.getDate() == 11) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 12 && date.getDate() == 25) {
+                    return 'holiday';
+                }
+                if(date.getMonth()+1 == 12 && date.getDate() == 26) {
+                    return 'holiday';
+                }
+                return '';
+            }
+        });
+
         $(document).ready(function(){
 
             function make_calendar() {
@@ -17,9 +56,11 @@
 
                 $("#calendar_table").html(picker.find(".datepicker-days .table-condensed").html());
 
+                $("#calendar_table thead tr th.prev").before("<th colspan=2><button class='btn btn-sm btn-default' id='today_button'>today</button></th>");
                 $("#calendar_table thead tr th.prev").empty().append($("<div/>", {class: "icon icon_left"}));
                 $("#calendar_table thead tr th.switch").attr("colspan", 2);
                 $("#calendar_table thead tr th.next").empty().append($("<div/>", {class: "icon icon_right"}));
+
 
                 // - put day numbers in divs
                 // - append div to contain events in it
@@ -112,6 +153,15 @@
                     $div_vehicle.text(event.vehicle.id);
                 }
 
+                /*
+                var text = event.recipient + " [";
+                $.each(event.loads, function() {
+                    text = text + this.product.name+",";
+                });
+                text = text + "]";
+                $div_label.text(text);
+                */
+
                 $div_event.append($div_label).append($div_vehicle);
                 container.append($div_event);
             }
@@ -144,7 +194,7 @@
                             $.each(vehicles, function() {
                                 $('#vehicles_list').append('<li id="vehicle'+this.id+'">'+this.registration+'<span class="badge draggable_vehicle" style="background-color: #'+this.colour+';">aaa</span></li>');
                             });
-                            $('.draggable_vehicle').draggable();
+                            $('.draggable_vehicle').draggable({revert: true});
                         },
                         'json'
                 )
@@ -152,7 +202,7 @@
 
             /*
                Fetches events for given date.
-               @param date in format YYYY-MM-DD
+               @param date string in format YYYY-MM-DD
              */
             function fetch_daily_events(events_date) {
                 row_id = 'row'+getWeekNumber(events_date)[1];
@@ -169,8 +219,8 @@
                                 $div = $("<div/>", {
                                     class: "panel-body",
                                     id: "event"+this.id
-                                });
-                                $div_row = $("<div/>", {class: "row"});
+                                }).css("background-color", "#F8F8F8");
+                                $div_row = $("<div/>", {class: "row"}).css("borderTop", "1px solid #dddddd");
                                 //------------------------
                                 $div_locations = $('<div/>', {
                                     text: this.producer+' - '+this.recipient,
@@ -192,6 +242,74 @@
                                 current_date = new Date();
                                 if(event_date >= current_date) {
                                     $div_buttons.append('<button class="btn btn-sm btn-success edit_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
+                                }
+                                //------------------------
+                                $div_vehicle = $('<div/>', {class: "col-md-3"});
+                                if(this.vehicle) {
+                                    $div_registration = $("<div/>", {class: "col-md-6", text: this.vehicle.registration});
+                                    $div_icon = $("<div/>", {class: "col-md-3", text: "_"}).css("background-color", "#"+this.vehicle_colour);
+                                    //$div_vehicle.text(this.vehicle.registration+' - '+this.vehicle.colour);
+                                    $div_vehicle.append($div_registration).append($div_icon);
+                                };
+                                //------------------------
+                                $div_row.append($div_locations);
+                                $div_row.append($div_load);
+                                $div_row.append($div_vehicle);
+                                $div_row.append($div_buttons);
+                                $div.append($div_row);
+
+                                $('#'+row_id).find('td.events_details .panel').append($div);
+                            });
+                            $('#'+row_id).show(animation_speed);
+                        },
+                        'json'
+                )
+            }
+
+            /*
+               Fetches return events for given date.
+               @param date string in format YYYY-MM-DD
+             */
+            function fetch_daily_return_events(events_date) {
+                row_id = 'row'+getWeekNumber(events_date)[1];
+                $(".events_row").hide(animation_speed);
+                $('#'+row_id).find('td:nth-child(2)').find('.panel-body').remove();
+                jQuery.get(
+                        '/events/return/json/'+events_date.replace(/-/g,'/')+'/',
+                        function(data) {
+                            events = data['return_events'];
+                            $('#'+row_id).find('td:nth-child(2)').find('.date_span').text(events_date);
+                            $.each(events, function() {
+
+                                $div = $("<div/>", {
+                                    class: "panel-body",
+                                    id: "return_event"+this.id
+                                }).css("background-color", "#ffe8e8");
+                                $div_row = $("<div/>", {class: "row"});
+                                //------------------------
+                                $div_locations = $('<div/>', {
+                                //    text: this.producer+' - '+this.recipient,
+                                    class: "col-md-3"
+                                });
+                                $.each(this.transports, function() {
+                                    $div_locations.append(this.start_location+' - '+this.end_location+'<br/>');
+                                });
+                                //------------------------
+                                $div_load = $('<div/>', {class: "col-md-3"});
+                                //$.each(this.loads, function() {
+                                //    $div_load.append(this.product.name+' - '+this.amount+'<br/>');
+                                //});
+                                //------------------------
+                                $div_buttons = $('<div/>', {
+                                    class: 'btn-group col-md-3'
+                                });
+                                //if(this.return_event == '') {
+                                //    $div_buttons.append('<button class="btn btn-sm btn-default add_return_button">add return</button>');
+                                //}
+                                event_date = new Date(events_date);
+                                current_date = new Date();
+                                if(event_date >= current_date) {
+                                    $div_buttons.append('<button class="btn btn-sm btn-success edit_return_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
                                 }
                                 //------------------------
                                 $div_vehicle = $('<div/>', {class: "col-md-3"});
@@ -227,6 +345,8 @@
                     }
                 ).done(function(data) {
                     alert(data);
+                    make_calendar();
+                    fetch_events();
                 }).fail(function(data) {
                     $('#errors_div').html(data).show();
                 })
@@ -248,6 +368,7 @@
 
             $('#calendar_div').on('click','.day .day_number', function(){
                 fetch_daily_events($(this).parent().attr('id'));
+                fetch_daily_return_events($(this).parent().attr('id'));
             });
 
             $('#calendar_div').on('mouseover', '.day_number', function() {
@@ -264,7 +385,7 @@
             })
 
             $('#calendar_table').on('click', 'div.icon_add', function() {
-                date_val = $(this).parents().find('.date_span').text();
+                date_val = $(this).parents(".row").find('.date_span').text();
                 $("#date_field").val(date_val);
                 $('#event_create_form').submit();
             })
@@ -281,6 +402,12 @@
                 window.location.replace("/events/edit/"+$event_id);
             })
 
+            $('#calendar_table').on('click', '.edit_return_event_button', function() {
+                $parent = $(this).parents("div[id^=return_event]");
+                $event_id = $parent.attr('id').replace("return_event","");
+                window.location.replace("/events/edit_return/"+$event_id);
+            })
+
             $('#calendar_table').on('mouseover', '.event_div', function() {
                 event_id = $(this).attr("id");
                 connected_id = event_id.indexOf("return") == 0 ? event_id.replace("return", "") : "return"+event_id;
@@ -293,6 +420,10 @@
                 connected_id = event_id.indexOf("return") == 0 ? event_id.replace("return", "") : "return"+event_id;
                 $("#"+event_id).css("border-width", "2px");
                 $("#"+connected_id).css("border-width", "2px");
+            })
+
+            $('#calendar_table').on('click', '#today_button', function() {
+                alert('today!');
             })
 
             make_calendar();

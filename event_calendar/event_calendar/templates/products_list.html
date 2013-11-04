@@ -17,7 +17,7 @@
 
 {% block jumbo-content %}
     <div class="row">
-        <div class="col-md-2 col-md-offset-6">
+        <div class="col-md-2 col-md-offset-10">
             <button class="btn btn-primary add_product_button">add product</button>
         </div>
     </div>
@@ -32,7 +32,7 @@
         {% for product in products %}
             <tr>
                 <td>{{ product.name }}</td>
-                <td><button type="button" class="btn btn-primary btn-sm product_edit_button" action="{{ product.get_absolute_url }}">edit</button></td>
+                <td><button type="button" class="btn btn-warning btn-sm product_edit_button" action="{{ product.get_absolute_url }}">edit</button></td>
             </tr>
         {% endfor %}
         </tbody>
