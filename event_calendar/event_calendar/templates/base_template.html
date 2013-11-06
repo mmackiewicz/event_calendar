@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Static Top Navbar Example for Bootstrap</title>
+    <title>Polwood organizer</title>
 
     <script type="text/javascript" src="/static/jquery-1.10.1.min.js"></script>
     <script type="text/javascript" src="/static/bootstrap.min.js"></script>
@@ -64,6 +64,9 @@
                 <li><a href="/vehicles/all/">vehicles</a></li>
                 <li><a href="/products/all/">products</a></li>
                 {% endif %}
+                {% if user.get_profile.role == 'ADMIN' or user.get_profile.role == 'SECRETARY' %}
+                <li><a href="/invoices/list/{% now 'Y/m/' %}">invoices</a></li>
+                {% endif %}
                 <li><a href="/logout/">Logout</a></li>
               </ul>
             </li>
@@ -77,7 +80,8 @@
 
       {% block content %}{% endblock %}
 
-    </div> <!-- /container -->
+    </div>
 
+      {% block modals %}{% endblock %}
   </body>
 </html>

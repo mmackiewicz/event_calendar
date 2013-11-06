@@ -1,14 +1,13 @@
 __author__ = 'Marek Mackiewicz'
 
 from django.shortcuts import render, render_to_response
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
-from tools import auth
-from workers.models import Worker, ROLE_ADMIN, ROLE_DISPATCHER
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -34,7 +33,7 @@ def login_view(request):
 @require_GET
 @login_required
 def home_view(request):
-    return render(request, 'home.html')
+    return render(request, 'home.html', {'invoice_companies': settings.OWN_COMPANIES})
 
 @require_GET
 def logout_view(request):

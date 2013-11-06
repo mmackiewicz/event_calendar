@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% extends "common_template.html" %}
+
+{% block script %}
+    <script>
+        $(document).ready(function(){
+            $("table").on("click", ".mark_paid_button", function() {
+                invoice_id = $(this).attr("id");
+                alert("paying for invoice "+invoice_id);
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block jumbo-content %}
+    <!--<div class="row">
+        <div class="col-md-2 col-md-offset-10">
+            <button class="btn btn-primary add_product_button">add product</button>
+        </div>
+    </div>-->
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>number</th>
+                        <th>status</th>
+                        <th>action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ invoice.number }}</td>
+                        <td>{{ invoice.is_paid }}</td>
+                        <td><button id="{{ invoice.id }}" type="button" class="btn btn-warning btn-sm mark_paid_button">paid</button></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

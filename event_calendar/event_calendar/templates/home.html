@@ -170,7 +170,7 @@
                 if(event.return_event!='') {
                     revent = event.return_event
                     var container = $('#'+revent.return_date+' div.events_container');
-                    $div_event = $("<div/>", {class: "event_div return_event_div", id: "return"+revent.id});
+                    $div_event = $("<div/>", {class: "event_div return_event_div", id: "return"+event.id});
                     $div_label = $("<div/>", {class: "pull-left", text: event.recipient});
                     $div_vehicle = $("<div/>", {class: "pull-right"});
                     if(event.vehicle) {
@@ -219,8 +219,8 @@
                                 $div = $("<div/>", {
                                     class: "panel-body",
                                     id: "event"+this.id
-                                }).css("background-color", "#F8F8F8");
-                                $div_row = $("<div/>", {class: "row"}).css("borderTop", "1px solid #dddddd");
+                                }).css("background-color", "#F8F8F8").css("borderTop", "1px solid #dddddd");
+                                $div_row = $("<div/>", {class: "row"});
                                 //------------------------
                                 $div_locations = $('<div/>', {
                                     text: this.producer+' - '+this.recipient,
@@ -274,6 +274,9 @@
                 row_id = 'row'+getWeekNumber(events_date)[1];
                 $(".events_row").hide(animation_speed);
                 $('#'+row_id).find('td:nth-child(2)').find('.panel-body').remove();
+
+                event_date = new Date(events_date);
+                current_date = new Date();
                 jQuery.get(
                         '/events/return/json/'+events_date.replace(/-/g,'/')+'/',
                         function(data) {
@@ -281,47 +284,84 @@
                             $('#'+row_id).find('td:nth-child(2)').find('.date_span').text(events_date);
                             $.each(events, function() {
 
+                                this_event = this;
+
                                 $div = $("<div/>", {
                                     class: "panel-body",
                                     id: "return_event"+this.id
-                                }).css("background-color", "#ffe8e8");
-                                $div_row = $("<div/>", {class: "row"});
-                                //------------------------
-                                $div_locations = $('<div/>', {
-                                //    text: this.producer+' - '+this.recipient,
-                                    class: "col-md-3"
-                                });
+                                }).css("background-color", "#ffe8e8").css("borderTop", "1px solid #dddddd");
+
+                                $div_outer_col = $("<div/>", {class: "col-md-12"});
+                                $div_outer_row = $("<div/>", {class: "row"});
+
+                                // create a row for each transport object
                                 $.each(this.transports, function() {
-                                    $div_locations.append(this.start_location+' - '+this.end_location+'<br/>');
+                                    $div_inner_row = $("<div/>", {class: "row", id: "return_trans"+this.id});
+                                    //------------------------
+                                    $div_locations = $('<div/>', {
+                                        text: this.start_location+' - '+this.end_location,
+                                        class: "col-md-3",
+                                        name: "locations"
+                                    });
+                                    //------------------------
+                                    $div_products = $('<div/>', {class: "col-md-3", name: "products"});
+                                    var loads_len = this.loads.length;
+                                    var loads_names = "";
+                                    $.each(this.loads, function(index, element) {
+                                        loads_names = loads_names.concat(this.product);
+                                        if(loads_len > index + 1) {
+                                            loads_names = loads_names.concat(", ");
+                                        }
+                                    });
+                                    $div_products.text(loads_names);
+                                    //------------------------
+                                    $div_vehicle = $('<div/>', {class: "col-md-3", name: "vehicle"});
+                                    if(this_event.vehicle) {
+                                        $div_vehicle.text(this_event.vehicle.registration+' - '+this_event.vehicle.colour);
+                                    };
+                                    //------------------------
+                                    $div_buttons = $('<div/>', {
+                                        class: 'btn-group col-md-3',
+                                        name: 'buttons'
+                                    });
+
+                                    if(event_date < current_date) {
+                                        if(this.invoice != "") {
+                                            $div_company_name = $('<div/>', {class: 'row', text: this.invoice.company});
+                                            $div_invoice = $('<div/>', {class: 'row', text: "invoice nr: "+this.invoice.number});
+                                            $div_buttons.append($div_company_name).append($div_invoice);
+                                        } else {
+                                            $div_buttons.append('<button class="btn btn-sm btn-success add_invoice_button">add invoice</button>');
+                                        }
+                                    }
+
+                                    //------------------------
+                                    $div_inner_row.append($div_locations);
+                                    $div_inner_row.append($div_products);
+                                    $div_inner_row.append($div_vehicle);
+                                    $div_inner_row.append($div_buttons);
+                                    $div_outer_col.append($div_inner_row);
                                 });
-                                //------------------------
-                                $div_load = $('<div/>', {class: "col-md-3"});
-                                //$.each(this.loads, function() {
-                                //    $div_load.append(this.product.name+' - '+this.amount+'<br/>');
-                                //});
-                                //------------------------
-                                $div_buttons = $('<div/>', {
-                                    class: 'btn-group col-md-3'
-                                });
-                                //if(this.return_event == '') {
-                                //    $div_buttons.append('<button class="btn btn-sm btn-default add_return_button">add return</button>');
-                                //}
-                                event_date = new Date(events_date);
-                                current_date = new Date();
+
+                                // when event's date did not come yet put one edit and cancel buttons for it
                                 if(event_date >= current_date) {
-                                    $div_buttons.append('<button class="btn btn-sm btn-success edit_return_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
+                                    $div_outer_col.find("div[name=buttons]").remove();
+                                    $div_outer_col.find("div[name=products]").removeClass("col-md-3").addClass("col-md-4");
+                                    $div_outer_col.find("div[name=vehicle]").removeClass("col-md-3").addClass("col-md-4");
+                                    $div_outer_col.find("div[name=locations]").removeClass("col-md-3").addClass("col-md-4");
+                                    $div_outer_col.removeClass("col-md-12").addClass("col-md-9");
+
+                                    $div_buttons_col=$("<div/>", {class: "col-md-3 btn-group"});
+                                    $edit_button = $("<button/>", {class: "btn btn-sm btn-success edit_return_event_button", text: "edit"});
+                                    $cancel_button = $("<button/>", {class: "btn btn-sm btn-danger cancel_button", text: "cancel"});
+                                    //$div_buttons.append('<button class="btn btn-sm btn-success edit_return_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
+                                    $div_buttons_col.append($edit_button).append($cancel_button);
+                                    $div_outer_row.append($div_outer_col).append($div_buttons_col);
+                                } else {
+                                    $div_outer_row.append($div_outer_col);
                                 }
-                                //------------------------
-                                $div_vehicle = $('<div/>', {class: "col-md-3"});
-                                if(this.vehicle) {
-                                    $div_vehicle.text(this.vehicle.registration+' - '+this.vehicle.colour);
-                                };
-                                //------------------------
-                                $div_row.append($div_locations);
-                                $div_row.append($div_load);
-                                $div_row.append($div_vehicle);
-                                $div_row.append($div_buttons);
-                                $div.append($div_row);
+
+                                $div.append($div_outer_row);
 
                                 $('#'+row_id).find('td.events_details .panel').append($div);
                             });
@@ -382,49 +422,80 @@
             $('#calendar_table').on('click', 'div.icon_cross', function() {
                 parent_elem = $(this).parents(".events_row");
                 parent_elem.hide(animation_speed);
-            })
+            });
 
             $('#calendar_table').on('click', 'div.icon_add', function() {
                 date_val = $(this).parents(".row").find('.date_span').text();
                 $("#date_field").val(date_val);
                 $('#event_create_form').submit();
-            })
+            });
 
             $('#calendar_table').on('click', '.add_return_button', function() {
                 $parent = $(this).parents("div[id^=event]");
                 $event_id = $parent.attr('id').replace("event","");
                 window.location.replace("/events/create_return/?event_id="+$event_id);
-            })
+            });
 
             $('#calendar_table').on('click', '.edit_event_button', function() {
                 $parent = $(this).parents("div[id^=event]");
                 $event_id = $parent.attr('id').replace("event","");
                 window.location.replace("/events/edit/"+$event_id);
-            })
+            });
 
             $('#calendar_table').on('click', '.edit_return_event_button', function() {
                 $parent = $(this).parents("div[id^=return_event]");
                 $event_id = $parent.attr('id').replace("return_event","");
                 window.location.replace("/events/edit_return/"+$event_id);
-            })
+            });
+
+            $('#calendar_table').on('click', '.add_invoice_button', function() {
+                $("#invoice_return_event_id").val($(this).parent().parent().attr('id').replace("return_trans", ""));
+                $("#invoice_modal").modal('show');
+            });
+
+            $('#invoice_save_button').click(function() {
+                $.post(
+                    '/transports/return/set_invoice/',
+                    {
+                        'company': $('#invoice_company').val(),
+                        'transport_id': $("#invoice_return_event_id").val(),
+                        'invoice_number': $("#invoice_number").val()
+                    }
+                ).done(function(data) {
+                    if( data.status && data.status == "OK") {
+                        $("#invoice_return_event_id, #invoice_number").val("");
+                        $('#invoice_modal').modal('hide');
+                    } else {
+                        alert(data.status);
+                    }
+                }).fail(function(data) {
+                    $('#errors_div').html(data).show();
+                })
+
+            });
+
+            $("#invoice_close_button, #invoice_close_cross").click(function() {
+                $("#invoice_return_event_id, #invoice_number").val("");
+                $("#invoice_modal").modal('hide');
+            });
 
             $('#calendar_table').on('mouseover', '.event_div', function() {
                 event_id = $(this).attr("id");
                 connected_id = event_id.indexOf("return") == 0 ? event_id.replace("return", "") : "return"+event_id;
                 $("#"+event_id).css("border-width", "4px");
                 $("#"+connected_id).css("border-width", "4px");
-            })
+            });
 
             $('#calendar_table').on('mouseout', '.event_div', function() {
                 event_id = $(this).attr("id");
                 connected_id = event_id.indexOf("return") == 0 ? event_id.replace("return", "") : "return"+event_id;
                 $("#"+event_id).css("border-width", "2px");
                 $("#"+connected_id).css("border-width", "2px");
-            })
+            });
 
             $('#calendar_table').on('click', '#today_button', function() {
                 alert('today!');
-            })
+            });
 
             make_calendar();
             fetch_events();
@@ -453,4 +524,47 @@
     <form action="/events/create/" method="GET" id="event_create_form">
         <input type="hidden" id="date_field" name="date"/>
     </form>
+{% endblock %}
+
+{% block modals %}
+    <!-- Modal -->
+    <div class="modal fade" id="invoice_modal" tabindex="-1" role="dialog" aria-labelledby="invoice_modal_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="invoice_close_cross">&times;</button>
+            <h4 class="modal-title">Add invoice</h4>
+          </div>
+          <div class="modal-body">
+            <div class="col-md-12">
+                <div class="row">
+                    <input type="hidden" id="invoice_return_event_id"/>
+                    <div class="col-md-5">
+                        company:
+                    </div>
+                    <div class="col-md-6">
+                        <select id="invoice_company">
+                            {% for cmp_name, cmp_value in invoice_companies %}
+                            <option value="{{ cmp_value }}">{{ cmp_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5">
+                        invoice number:
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" id="invoice_number"/>
+                    </div>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="invoice_save_button">Save changes</button>
+            <button type="button" class="btn btn-default" id="invoice_close_button" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock %}

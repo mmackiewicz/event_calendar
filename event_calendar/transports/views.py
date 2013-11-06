@@ -1,9 +1,14 @@
 from django.http import Http404, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
+from django.shortcuts import get_object_or_404
+from tools.auth import is_in_roles
 from tools.http import JsonResponse
 from models import ReturnTransport, Transport
 from vehicles.models import Vehicle
 from loads.models import Load, ReturnLoad
+from invoices.views import create_invoice
+from workers.models import ROLE_ADMIN, ROLE_SECRETARY
 
 
 @require_POST
@@ -56,3 +61,23 @@ def get_return_transport_view(request, transport_id):
         return JsonResponse(data=ReturnTransport.objects.get(pk=transport_id))
     except Transport.DoesNotExist:
         return Http404
+
+
+@csrf_exempt
+@require_POST
+@is_in_roles([ROLE_ADMIN, ROLE_SECRETARY])
+def set_return_invoice(request):
+    transport_id = request.POST['transport_id']
+    transport = get_object_or_404(ReturnTransport, pk=transport_id)
+
+    number = request.POST['invoice_number']
+    company = request.POST['company']
+    invoice = create_invoice(number, company)
+
+    transport.invoice = invoice
+    transport.save()
+
+    return JsonResponse(data={'status': 'OK',
+                              'invoice': invoice.id})
+
+

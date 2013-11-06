@@ -19,7 +19,8 @@ class ReturnTransport(models.Model):
     invoice = models.ForeignKey(i_models.Invoice, null=True, unique=True)
 
     def serialize_to_json(self):
-        result_dict = {'start_location': self.start_location,
+        result_dict = {'id': self.id,
+                'start_location': self.start_location,
                 'end_location': self.end_location,
                 'loads': [return_load.serialize_to_json() for return_load in self.loads.all()],}
         if self.invoice:

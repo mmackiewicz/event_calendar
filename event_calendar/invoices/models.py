@@ -13,6 +13,7 @@ class Invoice(models.Model):
 
     def serialize_to_json(self):
         return {
+            'id': self.id,
             'number': self.number,
             'is_paid': self.is_paid,
             'company': self.company
