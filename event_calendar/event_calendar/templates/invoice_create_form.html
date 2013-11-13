@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+{% extends "common_template.html" %}
+
+{% block script %}
+    <script>
+        $(document).ready(function() {
+
+            $('#invoice_issue_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
+
+            $("#save_button").click(function() {
+                $("#product_form").submit();
+            });
+
+            $("#cancel_button").click(function() {
+                window.location.href = "/home/";
+            });
+
+            $('#invoice_save_button').click(function() {
+                $.post(
+                    '/transports/return/set_invoice/',
+                    {
+                        'company': $('#invoice_company').val(),
+                        'transport_id': $("#invoice_transport_id").val(),
+                        'invoice_number': $("#invoice_number").val(),
+                        'issue_date': $("#invoice_issue_date").find('input').val()
+                    }
+                ).done(function(data) {
+                    if( data.status && data.status == "OK") {
+                        window.location.href = "/home/";
+                    } else {
+                        alert(data.status);
+                    }
+                }).fail(function(data) {
+                    $('#errors_div').html(data).show();
+                })
+
+            });
+        });
+    </script>
+{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/static/datepicker.css" />
+{% endblock %}
+
+{% block jumbo-content %}
+    <div class="row">
+        <input type="hidden" id="invoice_transport_id" value="{{ transport_id }}"/>
+        <div class="col-md-5">
+            company:
+        </div>
+        <div class="col-md-6">
+            <select id="invoice_company">
+                {% for cmp_name, cmp_value in companies %}
+                <option value="{{ cmp_value }}">{{ cmp_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            invoice number:
+        </div>
+        <div class="col-md-6">
+            <input type="text" id="invoice_number"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            issue date:
+        </div>
+        <div class="col-md-6">
+            <div id="invoice_issue_date" class="input-append date" data-date="{% now YY-m-dd %}">
+                <input class="span2" size="16" type="text" value="{% now YY-m-dd %}">
+                <span class="add-on"><i class="icon icon_calendar"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <input class="btn btn-primary" type="submit" value="create" id="invoice_save_button"/>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-warning" id="cancel_button">cancel</button>
+        </div>
+    </div>
+
+{% endblock %}

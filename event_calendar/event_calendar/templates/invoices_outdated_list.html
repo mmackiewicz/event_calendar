@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% extends "common_template.html" %}
+
+{% block script %}
+    <script>
+        $(document).ready(function(){
+
+            $(".mark_paid_button").click(function(){
+                invoice_id = $(this).attr("id");
+                $.post("/invoices/mark_paid/"+invoice_id+"/",
+                    {}
+                ).done(function(data) {
+                    $parent_tr = $(this).parent().parent();
+                    $($parent_tr).find("td:nth-child(3)").text("").text("OK");
+                    $($parent_tr).find("td:nth-child(4)").empty();
+                }).fail(function(data) {
+                    $('#errors_div').html(data).show();
+                });
+            });
+
+        });
+    </script>
+{% endblock %}
+
+{% block jumbo-content %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <table class="table" id="invoices_table">
+                <thead>
+                    <tr>
+                        <th>company</th>
+                        <th>number</th>
+                        <th>issue date</th>
+                        <th>action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td name="company_name">{{ invoice.company }}</td>
+                        <td>{{ invoice.number }}</td>
+                        <td>{{ invoice.issue_date }}</td>
+                        <td><button id="{{ invoice.id }}" type="button" class="btn btn-warning btn-sm mark_paid_button">paid</button></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

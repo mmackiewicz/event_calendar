@@ -8,6 +8,8 @@ from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
+from invoices.views import outdated_invoices
+
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -33,7 +35,9 @@ def login_view(request):
 @require_GET
 @login_required
 def home_view(request):
-    return render(request, 'home.html', {'invoice_companies': settings.OWN_COMPANIES})
+    invoices_count = len(outdated_invoices())
+    return render(request, 'home.html', {'invoice_companies': settings.OWN_COMPANIES,
+                                         'outdated_invoices_count': invoices_count})
 
 @require_GET
 def logout_view(request):

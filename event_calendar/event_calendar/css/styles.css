@@ -40,6 +40,18 @@
     cursor: pointer;
 }
 
+.vehicle_icon_big {
+    background-color: transparent;
+    background-image: url("/static/car.png");
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    line-height: 32px;
+    margin-top: 1px;
+    vertical-align: text-top;
+}
+
 .rightMenu {
     position:relative;
     float:right;

@@ -10,6 +10,8 @@ from loads.models import Load, ReturnLoad
 from invoices.views import create_invoice
 from workers.models import ROLE_ADMIN, ROLE_SECRETARY
 
+from datetime import datetime
+
 
 @require_POST
 def create_transport_view(request):
@@ -72,7 +74,8 @@ def set_return_invoice(request):
 
     number = request.POST['invoice_number']
     company = request.POST['company']
-    invoice = create_invoice(number, company)
+    issue_date = datetime.strptime(request.POST['issue_date'], '%Y-%m-%d')
+    invoice = create_invoice(number, company, issue_date)
 
     transport.invoice = invoice
     transport.save()

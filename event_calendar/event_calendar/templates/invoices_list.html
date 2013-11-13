@@ -4,25 +4,91 @@
 {% block script %}
     <script>
         $(document).ready(function(){
-            $("table").on("click", ".mark_paid_button", function() {
-                invoice_id = $(this).attr("id");
-                alert("paying for invoice "+invoice_id);
+
+            var year = {{ year }};
+            var month = {{ month }};
+
+            $("#companies_list").change(function() {
+                showAppropriateInvoices();
             });
+
+            $(".prev_month").click(function() {
+                if(month == 1) {
+                    year = year - 1;
+                    month = 12;
+                } else {
+                    month = month - 1;
+                }
+                goToDate(year, month);
+            });
+
+            $(".next_month").click(function() {
+                if(month == 12) {
+                    year = year + 1;
+                    month = 1;
+                } else {
+                    month = month + 1;
+                }
+                goToDate(year, month);
+            });
+
+            function goToDate(year, month) {
+                window.location.href = "/invoices/list/"+year+"/"+month+"/";
+            }
+
+            $(".mark_paid_button").click(function(){
+                invoice_id = $(this).attr("id");
+                $.post("/invoices/mark_paid/"+invoice_id+"/",
+                    {}
+                ).done(function(data) {
+                    $parent_tr = $(this).parent().parent();
+                    $($parent_tr).find("td:nth-child(3)").text("").text("OK");
+                    $($parent_tr).find("td:nth-child(4)").empty();
+                }).fail(function(data) {
+                    $('#errors_div').html(data).show();
+                });
+            });
+
+            function showAppropriateInvoices() {
+                company_id = $("#companies_list").val();
+                $("#invoices_table tbody tr").hide();
+                $.each($("#invoices_table tbody tr"), function(element) {
+                    if($(this).find("td[name=company_name]").text() == company_id) {
+                        $(this).show();
+                    }
+                });
+            }
+
+            showAppropriateInvoices();
         });
     </script>
 {% endblock %}
 
 {% block jumbo-content %}
-    <!--<div class="row">
-        <div class="col-md-2 col-md-offset-10">
-            <button class="btn btn-primary add_product_button">add product</button>
+    <div class="row">
+        <div class="col-md-1 col-md-offset-2 prev_month" style="text-align: center;">
+            <div class="icon icon_left"></div>
         </div>
-    </div>-->
+        <div class="col-md-2" style="text-align: center;">
+            {{ year }}/{% if month >= 10 %}{{ month }}{% else %}0{{ month }}{% endif %}
+        </div>
+        <div class="col-md-1 next_month" style="text-align: center;">
+            <div class="icon icon_right"></div>
+        </div>
+        <div class="col-md-2 col-md-offset-3">
+            <select id="companies_list">
+                {% for company_id, company_name in companies %}
+                    <option value="{{ company_id }}">{{ company_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <table class="table">
+            <table class="table" id="invoices_table">
                 <thead>
                     <tr>
+                        <th>company</th>
                         <th>number</th>
                         <th>status</th>
                         <th>action</th>
@@ -31,9 +97,14 @@
                 <tbody>
                 {% for invoice in invoices %}
                     <tr>
+                        <td name="company_name">{{ invoice.company }}</td>
                         <td>{{ invoice.number }}</td>
-                        <td>{{ invoice.is_paid }}</td>
-                        <td><button id="{{ invoice.id }}" type="button" class="btn btn-warning btn-sm mark_paid_button">paid</button></td>
+                        <td>{{ invoice.status_str }}</td>
+                        {% if invoice.is_paid %}
+                            <td>{{ invoice.status_str }}</td>
+                        {% else %}
+                            <td><button id="{{ invoice.id }}" type="button" class="btn btn-warning btn-sm mark_paid_button">paid</button></td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>

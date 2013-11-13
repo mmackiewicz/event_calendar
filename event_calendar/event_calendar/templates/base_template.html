@@ -65,7 +65,7 @@
                 <li><a href="/products/all/">products</a></li>
                 {% endif %}
                 {% if user.get_profile.role == 'ADMIN' or user.get_profile.role == 'SECRETARY' %}
-                <li><a href="/invoices/list/{% now 'Y/m/' %}">invoices</a></li>
+                <li><a href="/invoices/list/{% now 'Y/m/' %}"><div id="outdated_invoices_badge" class="badge pull-right">{{ outdated_invoices_count }}</div>invoices</a></li>
                 {% endif %}
                 <li><a href="/logout/">Logout</a></li>
               </ul>
