@@ -16,6 +16,11 @@
 {% endblock %}
 
 {% block jumbo-content %}
+    <div class="row h3 jumbo_header">
+        <div class="col-md-8">
+        EDIT WORKER
+        </div>
+    </div>
     <form action="/workers/update/{{ user_entity.id }}/" method="POST">
         {% csrf_token %}
         <div class="row">

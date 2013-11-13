@@ -5,6 +5,10 @@
     font-size: 17px;
 }
 
+.jumbo_header {
+    margin-bottom: 35px;
+}
+
 .icon {
     background-image: url("/static/glyphicons-halflings.png");
     background-repeat: no-repeat;

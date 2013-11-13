@@ -16,6 +16,15 @@
 {% endblock %}
 
 {% block jumbo-content %}
+    <div class="row h3 jumbo_header">
+        <div class="col-md-8">
+    {% if product %}
+        EDIT PRODUCT
+    {% else %}
+        CREATE PRODUCT
+    {% endif %}
+        </div>
+    </div>
     {% if product %}
     <form action="/products/update/{{ product.id }}/" method="POST" id="product_form">
     {% else %}

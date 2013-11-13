@@ -16,6 +16,11 @@
 {% endblock %}
 
 {% block jumbo-content %}
+    <div class="row h3 jumbo_header">
+        <div class="col-md-8">
+        CREATE WORKER
+        </div>
+    </div>
     <form action="/workers/create/" method="POST" id="worker_form">
         {% csrf_token %}
         <div class="row">
