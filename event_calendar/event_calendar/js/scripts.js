@@ -20,3 +20,14 @@ function getWeekNumber(d) {
     // Return array of year and week number
     return [d.getFullYear(), weekNo];
 }
+
+function showErrorsDiv() {
+    $('#errors_div').show();
+}
+
+function createErrorMessage(message) {
+    $row = $("<div/>", {class: "row"});
+    $col = $("<div/>", {class: "col-md-12", text: message});
+    $row.append($col);
+    $('#errors_div').append($row);
+}

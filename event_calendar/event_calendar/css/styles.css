@@ -5,6 +5,10 @@
     font-size: 17px;
 }
 
+#errors_div {
+    font-size: 14px;
+}
+
 .icon {
     background-image: url("/static/glyphicons-halflings.png");
     background-repeat: no-repeat;
