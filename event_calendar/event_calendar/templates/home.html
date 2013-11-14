@@ -77,6 +77,13 @@
                         var day_number = $(this).find('.day_number').text();
                         day_number = day_number < 10 ? '0'+day_number : ''+day_number;
                         $(this).attr('id', year+'-'+month+'-'+day_number);
+                        $(this).droppable({
+                            drop: function( event, ui ) {
+                                event_id = ui.draggable.attr('id').replace("return", "");
+                                new_date = $(this).attr('id');
+                                set_vehicle_in_event(event_id, vehicle_id);
+                            }
+                        });
                     });
 
                 // add a column for week number in front of every row
@@ -139,7 +146,7 @@
                                     vehicle_id = ui.draggable.parent().attr('id').replace("vehicle", "");
                                     set_vehicle_in_event(event_id, vehicle_id);
                                 }
-                            });
+                            }).draggable({revert: true});
                         },
                         'json'
                 )
@@ -149,21 +156,14 @@
                 var container = $('#'+event.recipients_date+' div.events_container');
                 $div_event = $("<div/>", {class: "event_div", id: event.id});
                 $div_label = $("<div/>", {class: "pull-left", text: event.recipient});
+                $div_event.append($div_label);
+
                 $div_vehicle = $("<div/>", {class: "pull-right"});
                 if(event.vehicle) {
-                    $div_vehicle.text(event.vehicle.id);
+                    $div_vehicle.addClass("vehicle vehicle_small vehicle_small_"+event.vehicle.colour);
                 }
+                $div_event.append($div_vehicle);
 
-                /*
-                var text = event.recipient + " [";
-                $.each(event.loads, function() {
-                    text = text + this.product.name+",";
-                });
-                text = text + "]";
-                $div_label.text(text);
-                */
-
-                $div_event.append($div_label).append($div_vehicle);
                 container.append($div_event);
             }
 
@@ -173,12 +173,13 @@
                     var container = $('#'+revent.return_date+' div.events_container');
                     $div_event = $("<div/>", {class: "event_div return_event_div", id: "return"+event.id});
                     $div_label = $("<div/>", {class: "pull-left", text: event.recipient});
+                    $div_event.append($div_label);
+
                     $div_vehicle = $("<div/>", {class: "pull-right"});
                     if(event.vehicle) {
-                        $div_vehicle.text(revent.vehicle.id);
+                        $div_vehicle.addClass("vehicle vehicle_small vehicle_small_"+revent.vehicle.colour);
                     }
-
-                    $div_event.append($div_label).append($div_vehicle);
+                    $div_event.append($div_vehicle);
                     container.append($div_event);
                 }
             }
@@ -193,7 +194,7 @@
                             console.log(data);
                             vehicles = data['vehicles'];
                             $.each(vehicles, function() {
-                                $('#vehicles_list').append('<li id="vehicle'+this.id+'">'+this.registration+'<span class="badge draggable_vehicle" style="background-color: #'+this.colour+';">aaa</span></li>');
+                                $('#vehicles_list').append('<li id="vehicle'+this.id+'">'+this.registration+'<span class="vehicle vehicle_small vehicle_small_'+this.colour+' draggable_vehicle"></div></li>');
                             });
                             $('.draggable_vehicle').draggable({revert: true});
                         },
@@ -227,11 +228,9 @@
                                 //------------------------
                                 $div_vehicle = $("<div/>", {class: "col-md-2"});
                                 if(this.vehicle) {
-                                    $div_vehicle_background = $("<div/>", {class: "col-md-4"}).css("background-color", '#'+this.vehicle.colour);
-                                    $div_vehicle_image = $("<div/>", {class: "vehicle_icon_big"});
-                                    $div_vehicle_background.append($div_vehicle_image);
+                                    $div_vehicle_image = $("<div/>", {class: "col-md-4 vehicle vehicle_big vehicle_big_"+this.vehicle.colour});
                                     $div_vehicle_registration = $("<div/>", {class: "col-md-8", text: this.vehicle.registration});
-                                    $div_vehicle.append($div_vehicle_background).append($div_vehicle_registration);
+                                    $div_vehicle.append($div_vehicle_image).append($div_vehicle_registration);
                                 }
                                 //------------------------
                                 $div_locations = $('<div/>', {
@@ -421,6 +420,27 @@
                 })
             }
 
+            /**
+             * Change the date of specified event
+             * @param event_id
+             * @param new_date
+             */
+            function set_event_date(event_id, new_date) {
+                $.post(
+                    '/events/set_date/',
+                    {
+                        'event_id': event_id,
+                        'new_date': new_date
+                    }
+                ).done(function(data) {
+                    alert(data);
+                    make_calendar();
+                    fetch_events();
+                }).fail(function(data) {
+                    $('#errors_div').html(data).show();
+                })
+            }
+
             $('#calendar_table').on('click', '.next', function() {
                 $('#dp').data('datepicker').picker.find('.next:first').click();
                 make_calendar();
@@ -521,6 +541,7 @@
 
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/static/calendar_large.css" />
+    <link rel="stylesheet" type="text/css" href="/static/vehicles.css" />
 {% endblock %}
 
 {% block content %}

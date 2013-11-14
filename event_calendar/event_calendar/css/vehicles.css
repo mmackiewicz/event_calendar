@@ -1,0 +1,154 @@
+.vehicle {
+    background-color: transparent;
+    background-repeat: no-repeat;
+    display: inline-block;
+    margin-top: 1px;
+    vertical-align: text-top;
+}
+
+.vehicle_big {
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+}
+
+.vehicle_med {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+}
+
+.vehicle_small {
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.vehicle_big_9aff99 {
+    background-image: url("/static/cars/big_9aff99.png");
+}
+.vehicle_big_00009b {
+    background-image: url("/static/cars/big_00009b.png");
+}
+.vehicle_big_34ff34 {
+    background-image: url("/static/cars/big_34ff34.png");
+}
+.vehicle_big_3166ff {
+    background-image: url("/static/cars/big_3166ff.png");
+}
+.vehicle_big_6200c9 {
+    background-image: url("/static/cars/big_6200c9.png");
+}
+.vehicle_big_036400 {
+    background-image: url("/static/cars/big_036400.png");
+}
+.vehicle_big_656565 {
+    background-image: url("/static/cars/big_656565.png");
+}
+.vehicle_big_663234 {
+    background-image: url("/static/cars/big_663234.png");
+}
+.vehicle_big_986536 {
+    background-image: url("/static/cars/big_986536.png");
+}
+.vehicle_big_cd9934 {
+    background-image: url("/static/cars/big_cd9934.png");
+}
+.vehicle_big_f8ff00 {
+    background-image: url("/static/cars/big_f8ff00.png");
+}
+.vehicle_big_fd6864 {
+    background-image: url("/static/cars/big_fd6864.png");
+}
+.vehicle_big_ffce93 {
+    background-image: url("/static/cars/big_ffce93.png");
+}
+.vehicle_big_f8ff00 {
+    background-image: url("/static/cars/big_f8ff00.png");
+}
+
+.vehicle_med_9aff99 {
+    background-image: url("/static/cars/med_9aff99.png");
+}
+.vehicle_med_00009b {
+    background-image: url("/static/cars/med_00009b.png");
+}
+.vehicle_med_34ff34 {
+    background-image: url("/static/cars/med_34ff34.png");
+}
+.vehicle_med_3166ff {
+    background-image: url("/static/cars/med_3166ff.png");
+}
+.vehicle_med_6200c9 {
+    background-image: url("/static/cars/med_6200c9.png");
+}
+.vehicle_med_036400 {
+    background-image: url("/static/cars/med_036400.png");
+}
+.vehicle_med_656565 {
+    background-image: url("/static/cars/med_656565.png");
+}
+.vehicle_med_663234 {
+    background-image: url("/static/cars/med_663234.png");
+}
+.vehicle_med_986536 {
+    background-image: url("/static/cars/med_986536.png");
+}
+.vehicle_med_cd9934 {
+    background-image: url("/static/cars/med_cd9934.png");
+}
+.vehicle_med_f8ff00 {
+    background-image: url("/static/cars/med_f8ff00.png");
+}
+.vehicle_med_fd6864 {
+    background-image: url("/static/cars/med_fd6864.png");
+}
+.vehicle_med_ffce93 {
+    background-image: url("/static/cars/med_ffce93.png");
+}
+.vehicle_med_f8ff00 {
+    background-image: url("/static/cars/med_f8ff00.png");
+}
+
+.vehicle_small_9aff99 {
+    background-image: url("/static/cars/small_9aff99.png");
+}
+.vehicle_small_00009b {
+    background-image: url("/static/cars/small_00009b.png");
+}
+.vehicle_small_34ff34 {
+    background-image: url("/static/cars/small_34ff34.png");
+}
+.vehicle_small_3166ff {
+    background-image: url("/static/cars/small_3166ff.png");
+}
+.vehicle_small_6200c9 {
+    background-image: url("/static/cars/small_6200c9.png");
+}
+.vehicle_small_036400 {
+    background-image: url("/static/cars/small_036400.png");
+}
+.vehicle_small_656565 {
+    background-image: url("/static/cars/small_656565.png");
+}
+.vehicle_small_663234 {
+    background-image: url("/static/cars/small_663234.png");
+}
+.vehicle_small_986536 {
+    background-image: url("/static/cars/small_986536.png");
+}
+.vehicle_small_cd9934 {
+    background-image: url("/static/cars/small_cd9934.png");
+}
+.vehicle_small_f8ff00 {
+    background-image: url("/static/cars/small_f8ff00.png");
+}
+.vehicle_small_fd6864 {
+    background-image: url("/static/cars/small_fd6864.png");
+}
+.vehicle_small_ffce93 {
+    background-image: url("/static/cars/small_ffce93.png");
+}
+.vehicle_small_f8ff00 {
+    background-image: url("/static/cars/small_f8ff00.png");
+}

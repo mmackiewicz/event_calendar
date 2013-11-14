@@ -208,6 +208,16 @@ def set_vehicle_view(request):
         return JsonResponse(data={'status': 'Error'})
 
 @csrf_exempt
+@require_POST
+def set_event_date(request):
+    event = get_object_or_404(Event, pk=request.POST['event_id'])
+    new_date = datetime.strptime(request.POST['new_date'], '%Y-%m-%d')
+    event.recipients_date(new_date)
+    event.save()
+    return JsonResponse(data={'status': 'OK'})
+
+
+@csrf_exempt
 def create_return_event_view(request):
     if request.method == 'GET':
         event_id = request.GET.get('event_id', None)
