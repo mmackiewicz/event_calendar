@@ -8,6 +8,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from models import Event, ReturnEvent
+from tools.auth import is_authenticated
 from tools.http import JsonResponse
 from tools.utils import validate_date
 from loads import models as l_models
@@ -17,12 +18,14 @@ from transports import models as t_models
 from workers import models as w_models
 
 @require_GET
+@is_authenticated()
 def get_event_view(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return JsonResponse(data=event)
 
 @csrf_exempt
 @require_http_methods(['GET', 'POST'])
+@is_authenticated()
 def create_event_view(request):
     if request.method == 'POST':
         # read json and create event
@@ -80,6 +83,7 @@ def create_event_from_json(json_string):
 
 @csrf_exempt
 @require_http_methods(['GET', 'POST'])
+@is_authenticated()
 def edit_event_view(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     if request.method=='GET':
@@ -135,6 +139,7 @@ def update_event_from_json(event, json_string):
 
 
 @require_GET
+@is_authenticated()
 def monthly_events_view(request, year, month):
     start_date = datetime.strptime('-'.join((year,month,'01')), '%Y-%m-%d')
     end_date = (start_date + relativedelta(months=1)) + relativedelta(days=-1)
@@ -144,6 +149,7 @@ def monthly_events_view(request, year, month):
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
 
 @require_GET
+@is_authenticated()
 def monthly_return_events_view(request, year, month):
     start_date = datetime.strptime('-'.join((year,month,'01')), '%Y-%m-%d')
     end_date = (start_date + relativedelta(months=1)) + relativedelta(days=-1)
@@ -152,18 +158,8 @@ def monthly_return_events_view(request, year, month):
 
     return JsonResponse(data={'return_events': [event.serialize_to_json() for event in list(events)]})
 
-
-"""
 @require_GET
-def daily_events_view(request, year, month, day):
-    events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
-
-    events = Event.objects.filter(recipients_date=events_date)
-
-    return render_to_response('event.html', {'events': [event.serialize_to_json() for event in events]})
-"""
-
-@require_GET
+@is_authenticated()
 def daily_events_view_json(request, year, month, day):
     events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
 
@@ -171,17 +167,8 @@ def daily_events_view_json(request, year, month, day):
 
     return JsonResponse(data={'events': [event.serialize_to_json() for event in list(events)]})
 
-"""
 @require_GET
-def daily_return_events_view(request, year, month, day):
-    events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
-
-    events = ReturnEvent.objects.filter(return_date=events_date)
-
-    return render_to_response('event.html', {'return_events': [event.serialize_to_json() for event in events]})
-"""
-
-@require_GET
+@is_authenticated()
 def daily_return_events_view_json(request, year, month, day):
     events_date = datetime.strptime('-'.join((year,month,day)), '%Y-%m-%d')
 
@@ -191,6 +178,7 @@ def daily_return_events_view_json(request, year, month, day):
 
 @csrf_exempt
 @require_POST
+@is_authenticated()
 def set_vehicle_view(request):
     try:
         vehicle = get_object_or_404(v_models.Vehicle, pk=request.POST['vehicle_id'])
@@ -209,15 +197,17 @@ def set_vehicle_view(request):
 
 @csrf_exempt
 @require_POST
+@is_authenticated()
 def set_event_date(request):
     event = get_object_or_404(Event, pk=request.POST['event_id'])
     new_date = datetime.strptime(request.POST['new_date'], '%Y-%m-%d')
-    event.recipients_date(new_date)
+    event.recipients_date = new_date
     event.save()
     return JsonResponse(data={'status': 'OK'})
 
 
 @csrf_exempt
+@is_authenticated()
 def create_return_event_view(request):
     if request.method == 'GET':
         event_id = request.GET.get('event_id', None)
@@ -288,6 +278,7 @@ def create_return_event_from_json(json_string):
 
 @csrf_exempt
 @require_http_methods(['GET', 'POST'])
+@is_authenticated()
 def edit_return_event_view(request, event_id):
     revent = get_object_or_404(ReturnEvent, pk=event_id)
     if request.method=='GET':
@@ -356,3 +347,34 @@ def update_return_event_from_json(return_event, json_string):
     except:
         transaction.rollback()
         return None
+
+@csrf_exempt
+@require_POST
+@is_authenticated()
+def cancel_event(request):
+    event_id = request.POST['event_id']
+    event = get_object_or_404(Event, pk=event_id)
+    delete_event(event)
+    return JsonResponse(data={'status': 'OK'})
+
+@csrf_exempt
+@require_POST
+@is_authenticated()
+def cancel_return_event(request):
+    event_id = request.POST['event_id']
+    return_event = get_object_or_404(ReturnEvent, pk=event_id)
+    delete_return_event(return_event)
+    return JsonResponse(data={'status': 'OK'})
+
+
+def delete_event(event):
+    event.loads.all().delete()
+    if event.return_event:
+        delete_return_event(event.return_event)
+    event.delete()
+
+def delete_return_event(return_event):
+    for transport in return_event.transports.all():
+        transport.loads.all().delete()
+    return_event.transports.all().delete()
+    return_event.delete()

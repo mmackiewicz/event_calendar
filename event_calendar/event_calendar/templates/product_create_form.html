@@ -5,26 +5,40 @@
     <script>
         $(document).ready(function() {
             $("#save_button").click(function() {
+                if(!validate_product()) {
+                    showErrorsModal();
+                    return;
+                }
                 $("#product_form").submit();
             });
 
             $("#cancel_button").click(function() {
                 window.location.href = "/products/all/";
             });
+
+            function validate_product() {
+                valid = true;
+
+                if($('input[name=name]').val().trim() == '') {
+                    createErrorMessage('Product name empty. Please enter valid product name.');
+                    valid = false;
+                }
+
+                return valid;
+            }
         });
     </script>
 {% endblock %}
 
-{% block jumbo-content %}
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
+{% block jumbo-header %}
     {% if product %}
         EDIT PRODUCT
     {% else %}
         CREATE PRODUCT
     {% endif %}
-        </div>
-    </div>
+{% endblock %}
+
+{% block jumbo-content %}
     {% if product %}
     <form action="/products/update/{{ product.id }}/" method="POST" id="product_form">
     {% else %}

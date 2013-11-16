@@ -15,4 +15,6 @@ urlpatterns = patterns('',
     url(r'^json/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/$', views.daily_events_view_json),
     #url(r'^return/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/$', views.daily_return_events_view),
     url(r'^return/json/(?P<year>\d+)/(?P<month>\d+)/(?P<day>\d+)/$', views.daily_return_events_view_json),
+    url(r'^cancel/$', views.cancel_event),
+    url(r'^return/cancel/$', views.cancel_return_event),
 )

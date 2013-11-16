@@ -2,15 +2,37 @@
 {% extends "common_template.html" %}
 
 {% block script %}
+
     <script>
         $(document).ready(function() {
             $("#save_button").click(function() {
+                vali
                 $("#worker_form").submit();
             });
 
             $("#cancel_button").click(function() {
                 window.location.href = "/workers/all/";
             });
+
+            function validate_user() {
+                valid = true;
+                var usernameRegex = /^[a-zA-Z0-9]{5,15}$/;
+                username = $('input[name=username]').val().trim();
+                if(username == "" || !usernameRegex.test(username)) {
+                    createErrorMessage("Invalid username value. Username must be 5-15 characters long and consist of letters or/and numbers.");
+                    valid = false;
+                }
+                password = $('input[name=new_password]').val().trim();
+                password2 = $('input[name=new_password2]').val().trim();
+                if(!validate_password(password)) {
+                    valid = false;
+                } else if(password != password2) {
+                        createErrorMessage("Password and repeated password are different");
+                        valid = false;
+                }
+
+                return valid;
+            }
         });
     </script>
 {% endblock %}

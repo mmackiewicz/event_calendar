@@ -2,6 +2,7 @@
 {% extends "common_template.html" %}
 
 {% block script %}
+    <script type="text/javascript" src="/static/invoices_list_common.js"></script>
     <script>
         $(document).ready(function(){
 
@@ -36,18 +37,28 @@
                 window.location.href = "/invoices/list/"+year+"/"+month+"/";
             }
 
+            /*
             $(".mark_paid_button").click(function(){
                 invoice_id = $(this).attr("id");
                 $.post("/invoices/mark_paid/"+invoice_id+"/",
                     {}
                 ).done(function(data) {
-                    $parent_tr = $(this).parent().parent();
-                    $($parent_tr).find("td:nth-child(3)").text("").text("OK");
-                    $($parent_tr).find("td:nth-child(4)").empty();
+                    if(data.status && data.status == 'OK') {
+                        $parent_tr = $(this).parent().parent();
+                        $($parent_tr).find("td:nth-child(3)").text("").text("OK");
+                        $($parent_tr).find("td:nth-child(4)").empty();
+                    } else {
+                        $.each(data.errors, function() {
+                            createErrorMessage(this);
+                        });
+                        showErrorsModal();
+                    }
                 }).fail(function(data) {
-                    $('#errors_div').html(data).show();
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
                 });
             });
+            */
 
             function showAppropriateInvoices() {
                 company_id = $("#companies_list").val();
@@ -64,12 +75,11 @@
     </script>
 {% endblock %}
 
+{% block jumbo-header %}
+    INVOICES LIST
+{% endblock %}
+
 {% block jumbo-content %}
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
-        INVOICES LIST
-        </div>
-    </div>
     <div class="row">
         <div class="col-md-1 col-md-offset-2 prev_month" style="text-align: center;">
             <div class="icon icon_left"></div>

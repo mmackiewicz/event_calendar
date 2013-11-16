@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% extends "common_template.html" %}
 {% block script %}
+    <script type="text/javascript" src="/static/events_common.js"></script>
     <script>
     $(document).ready(function() {
 
@@ -24,10 +25,14 @@
 
 
         $("#add_product_button").click(function() {
-            $product_div = $("<div/>").addClass("panel-body").addClass("product_div").addClass("row");
-            $product_name = $("<div/>").addClass("product_name").addClass("col-md-7").text($("#products_list :selected").text()).attr("product_id", "product"+$("#products_list").val());
-            $product_amount = $("<div/>").addClass("product_amount").addClass("col-md-3").text($("#amount").val());
-            $remove_button = $("<button/>").addClass("btn").addClass("btn-default").addClass("btn-md").addClass("rm_product_button").text("remove");
+            if(!validate_add_product()) {
+                showErrorsModal();
+                return;
+            }
+            $product_div = $("<div/>").addClass("panel-body product_div row");
+            $product_name = $("<div/>").addClass("product_name col-md-7").text($("#products_list :selected").text()).attr("product_id", "product"+$("#products_list").val());
+            $product_amount = $("<div/>").addClass("product_amount col-md-3").text($("#amount").val());
+            $remove_button = $("<button/>").addClass("btn btn-default btn-md rm_product_button").text("remove");
             $product_div.append($product_name);
             $product_div.append($product_amount);
             $product_div.append($remove_button);
@@ -39,6 +44,11 @@
         });
 
         $('#create_button').click(function() {
+
+            if(!validate_create_event()) {
+                showErrorsModal();
+                return;
+            }
             var result = {
                 'producer': $('#producer').val(),
                 'recipient': $('#recipient').val(),
@@ -52,9 +62,15 @@
                 '/events/create/',
                 JSON.stringify(result)
             ).done(function(data) {
-                alert(data);
+                if(data.status && data.status != 'OK') {
+                    $.each(data.errors, function() {
+                        createErrorMessage(this);
+                    })
+                    showErrorsModal()
+                }
             }).fail(function(data) {
-                $('#errors_div').html(data).show();
+                createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                showErrorsModal();
             })
         });
 
@@ -65,18 +81,47 @@
         $("body").on('click', '.rm_product_button', function() {
             $(this).parent().remove();
         });
+
+        /*
+        function validate_add_product() {
+            valid = true;
+            if(!$('#products_list').val()) {
+                createErrorMessage("No product selected. Please choose a product or add products first.");
+                valid = false;
+            }
+            if(!validate_integer($('#amount').val())) {
+                createErrorMessage("Invalid value for amount.");
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        function validate_create_event() {
+            valid = true;
+            if(new Date($('#recipients_date').find('input').val()) < new Date()) {
+                createErrorMessage("Recipient's date is not valid. Choose present of future date");
+                valid = false;
+            }
+            if(new Date($('#production_date').find('input').val()) < new Date()) {
+                createErrorMessage("Production date is not valid. Choose present of future date");
+                valid = false;
+            }
+            return valid;
+        }
+        */
     });
     </script>
 {% endblock %}
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/static/datepicker.css" />
 {% endblock %}
+
+{% block jumbo-header %}
+    CREATE EVENT
+{% endblock %}
+
 {% block jumbo-content %}
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
-        CREATE EVENT
-        </div>
-    </div>
     <div class="row">
         <div class="col-md-4">
             <div class="col-md-5">producer: </div>
@@ -86,7 +131,7 @@
             <div class="col-md-6">production date: </div>
             <div class="col-md-6">
                 <div id="production_date" class="input-append date" data-date="{{ date }}">
-                    <input class="span2" size="16" type="text" value="{{ date }}">
+                    <input disabled class="span2" size="16" type="text" value="{{ date }}">
                     <span class="add-on"><i class="icon icon_calendar"></i></span>
                 </div>
             </div>
@@ -101,7 +146,7 @@
             <div class="col-md-6">recipient's date:</div>
             <div class="col-md-6">
                 <div id="recipients_date" class="input-append date" data-date="{{ date }}">
-                    <input class="span2" size="16" type="text" value="{{ date }}">
+                    <input disabled class="span2" size="16" type="text" value="{{ date }}">
                     <span class="add-on"><i class="icon icon_calendar"></i></span>
                 </div>
             </div>

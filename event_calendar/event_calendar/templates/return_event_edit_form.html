@@ -6,13 +6,12 @@
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="/static/datepicker.css" />
 {% endblock %}
-{% block jumbo-content %}
 
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
-        EDIT RETURN EVENT
-        </div>
-    </div>
+{% block jumbo-header %}
+    EDIT RETURN EVENT
+{% endblock %}
+
+{% block jumbo-content %}
     <div class="row">
         <input type="hidden" id="event_id" value="{{ event.id }}"/>
         {% if event.vehicle %}

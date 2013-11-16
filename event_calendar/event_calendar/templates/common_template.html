@@ -3,9 +3,12 @@
 
 {% block content %}
     <div class="jumbotron">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1 alert alert-danger" style="display: none;" id="errors_div"></div>
+    <div class="row h3" style="margin-bottom: 35px;">
+        <div class="col-md-8">
+        {% block jumbo-header %}{% endblock %}
         </div>
+    </div>
+
     {% block jumbo-content %}
         {% block local-dropdowns %}
         {% endblock %}

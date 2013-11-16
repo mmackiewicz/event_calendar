@@ -24,6 +24,9 @@
     line-height: 16px;
 }
 
+.vehicle_big_000000 {
+    background-image: url("/static/cars/big_000000.png");
+}
 .vehicle_big_9aff99 {
     background-image: url("/static/cars/big_9aff99.png");
 }
@@ -67,6 +70,9 @@
     background-image: url("/static/cars/big_f8ff00.png");
 }
 
+.vehicle_med_000000 {
+    background-image: url("/static/cars/med_000000.png");
+}
 .vehicle_med_9aff99 {
     background-image: url("/static/cars/med_9aff99.png");
 }
@@ -110,6 +116,9 @@
     background-image: url("/static/cars/med_f8ff00.png");
 }
 
+.vehicle_small_000000 {
+    background-image: url("/static/cars/small_000000.png");
+}
 .vehicle_small_9aff99 {
     background-image: url("/static/cars/small_9aff99.png");
 }

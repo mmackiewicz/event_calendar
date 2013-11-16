@@ -77,13 +77,6 @@
                         var day_number = $(this).find('.day_number').text();
                         day_number = day_number < 10 ? '0'+day_number : ''+day_number;
                         $(this).attr('id', year+'-'+month+'-'+day_number);
-                        $(this).droppable({
-                            drop: function( event, ui ) {
-                                event_id = ui.draggable.attr('id').replace("return", "");
-                                new_date = $(this).attr('id');
-                                set_vehicle_in_event(event_id, vehicle_id);
-                            }
-                        });
                     });
 
                 // add a column for week number in front of every row
@@ -140,6 +133,7 @@
                                 create_return_event_div(this);
                             });
                             $('.event_div').droppable({
+                                accept: '.vehicle',
                                 drop: function( event, ui ) {
                                     // event_id could be in fact event or return id
                                     event_id = $( this).attr('id').replace("return", "");
@@ -150,6 +144,17 @@
                         },
                         'json'
                 )
+            }
+
+            function bind_droppable_to_days() {
+                $('#calendar_table tbody tr td.day').droppable({
+                    accept: '.event_div',
+                    drop: function( event, ui ) {
+                        event_id = ui.draggable.attr('id');
+                        new_date = $(this).attr('id');
+                        set_event_date(event_id, new_date);
+                    }
+                });
             }
 
             function create_event_div(event) {
@@ -312,11 +317,9 @@
                                 // first column - vehicle
                                 $div_vehicle_col = $("<div/>", {class: "col-md-2"});
                                 if(this.vehicle) {
-                                    $div_vehicle_background = $("<div/>", {class: "col-md-4"}).css("background-color", '#'+this.vehicle.colour);
-                                    $div_vehicle_image = $("<div/>", {class: "vehicle_icon_big"});
-                                    $div_vehicle_background.append($div_vehicle_image);
+                                    $div_vehicle_image = $("<div/>", {class: "col-md-4 vehicle vehicle_big vehicle_big_"+this.vehicle.colour});
                                     $div_vehicle_registration = $("<div/>", {class: "col-md-8", text: this.vehicle.registration});
-                                    $div_vehicle_col.append($div_vehicle_background).append($div_vehicle_registration);
+                                    $div_vehicle_col.append($div_vehicle_image).append($div_vehicle_registration);
                                 }
 
                                 // create a row for each transport object
@@ -412,11 +415,19 @@
                         'vehicle_id': vehicle_id
                     }
                 ).done(function(data) {
-                    alert(data);
-                    make_calendar();
-                    fetch_events();
+                    if(data.status && data.status == 'OK') {
+                        make_calendar();
+                        bind_droppable_to_days();
+                        fetch_events();
+                    } else {
+                        $.each(data.errors, function() {
+                            createErrorMessage(this);
+                        })
+                        showErrorsModal()
+                    }
                 }).fail(function(data) {
-                    $('#errors_div').html(data).show();
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
                 })
             }
 
@@ -433,11 +444,19 @@
                         'new_date': new_date
                     }
                 ).done(function(data) {
-                    alert(data);
-                    make_calendar();
-                    fetch_events();
+                    if(data.status && data.status == 'OK') {
+                        make_calendar();
+                        bind_droppable_to_days();
+                        fetch_events();
+                    } else {
+                        $.each(data.errors, function() {
+                            createErrorMessage(this);
+                        })
+                        showErrorsModal()
+                    }
                 }).fail(function(data) {
-                    $('#errors_div').html(data).show();
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
                 })
             }
 
@@ -523,7 +542,32 @@
                 $('#dp').data('datepicker').viewDate = new Date("{% now YY-m-dd %}");
                 $('#dp').data('datepicker').fill();
                 make_calendar();
+                bind_droppable_to_days();
                 fetch_events();
+            });
+
+            $('#calendar_table').on('click', '.cancel_button', function() {
+                event_id = $(this).parents('.panel-body').attr('id').replace('event', '');
+                $.post(
+                    '/events/cancel/',
+                    {
+                        'event_id': event_id
+                    }
+                ).done(function(data) {
+                    if(data.status && data.status == 'OK') {
+                        make_calendar();
+                        bind_droppable_to_days();
+                        fetch_events();
+                    } else {
+                        $.each(data.errors, function() {
+                            createErrorMessage(this);
+                        })
+                        showErrorsModal()
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
             });
 
             $('#outdated_invoices_badge').click(function(event) {
@@ -532,6 +576,7 @@
             });
 
             make_calendar();
+            bind_droppable_to_days();
             fetch_events();
             fetch_vehicles();
 

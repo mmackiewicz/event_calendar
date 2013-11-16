@@ -2,9 +2,11 @@
 {% extends "common_template.html" %}
 
 {% block script %}
+    <script type="text/javascript" src="/static/invoices_list_common.js"></script>
     <script>
         $(document).ready(function(){
 
+            /*
             $(".mark_paid_button").click(function(){
                 invoice_id = $(this).attr("id");
                 $.post("/invoices/mark_paid/"+invoice_id+"/",
@@ -17,17 +19,16 @@
                     $('#errors_div').html(data).show();
                 });
             });
+            */
 
         });
     </script>
 {% endblock %}
 
+{% block jumbo-header %}
+    OUTDATED INVOICES LIST
+{% endblock %}
 {% block jumbo-content %}
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
-        OUTDATED INVOICES LIST
-        </div>
-    </div>
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <table class="table" id="invoices_table">

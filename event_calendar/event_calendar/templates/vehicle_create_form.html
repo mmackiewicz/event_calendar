@@ -24,30 +24,43 @@
             });
 
             $("#submit_button").click(function() {
+                if(!validate_vehicle()) {
+                    showErrorsModal();
+                    return;
+                }
                 $('#vehicle_form').submit();
             });
+
+            function validate_vehicle() {
+                valid = true;
+
+                if($('input[name=registration]').val().trim() == "") {
+                    createErrorMessage("Registration number empty. Please insert valid registration number.");
+                    valid = false;
+                }
+
+                return valid;
+            }
         });
-
-
 
     </script>
 {% endblock %}
+
+{% block jumbo-header %}
+    {% if vehicle %}
+        EDIT VEHICLE
+    {% else %}
+        CREATE VEHICLE
+    {% endif %}
+{% endblock %}
+
 {% block jumbo-content %}
     {% if vehicle %}
         <form action="/vehicles/update/{{ vehicle.id }}" method="POST" id="vehicle_form">
     {% else %}
         <form action="/vehicles/create/" method="POST" id="vehicle_form">
     {% endif %}
-        {% csrf_token %}
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
-        {% if vehicle %}
-            EDIT VEHICLE
-        {% else %}
-            CREATE VEHICLE
-        {% endif %}
-        </div>
-    </div>
+    {% csrf_token %}
     <div class="row">
         <div class="col-md-2">registration:</div>
         <div class="col-md-2 col-md-offset-1">

@@ -16,6 +16,10 @@
             });
 
             $('#invoice_save_button').click(function() {
+                if(!validate_invoice_data()) {
+                    showErrorsModal();
+                    return;
+                }
                 $.post(
                     '/transports/return/set_invoice/',
                     {
@@ -28,13 +32,28 @@
                     if( data.status && data.status == "OK") {
                         window.location.href = "/home/";
                     } else {
-                        alert(data.status);
+                        $.each(data.errors, function() {
+                            createErrorMessage(this);
+                        })
+                        showErrorsModal();
                     }
                 }).fail(function(data) {
-                    $('#errors_div').html(data).show();
-                })
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                });
 
             });
+
+            function validate_invoice_data() {
+                valid = true;
+
+                if($('#invoice_number').val().trim() == "") {
+                    createErrorMessage("Invoice number empty. Please insert valid invoice number.");
+                    valid = false;
+                }
+
+                return valid;
+            }
         });
     </script>
 {% endblock %}
@@ -43,11 +62,9 @@
 {% endblock %}
 
 {% block jumbo-content %}
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
+    {% block jumbo-header %}
         CREATE INVOICE
-        </div>
-    </div>
+    {% endblock %}
     <div class="row">
         <input type="hidden" id="invoice_transport_id" value="{{ transport_id }}"/>
         <div class="col-md-5">
@@ -75,7 +92,7 @@
         </div>
         <div class="col-md-6">
             <div id="invoice_issue_date" class="input-append date" data-date="{% now YY-m-dd %}">
-                <input class="span2" size="16" type="text" value="{% now YY-m-dd %}">
+                <input disabled class="span2" size="16" type="text" value="{% now YY-m-dd %}">
                 <span class="add-on"><i class="icon icon_calendar"></i></span>
             </div>
         </div>

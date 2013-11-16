@@ -5,6 +5,11 @@
  * Time: 2:35 PM
  */
 
+$(document).ready(function() {
+    $('button[id^=errors_modal_close]').click(function() {
+        closeErrorsModal();
+    });
+});
 
 function getWeekNumber(d) {
     // Copy date so don't modify original
@@ -21,13 +26,41 @@ function getWeekNumber(d) {
     return [d.getFullYear(), weekNo];
 }
 
-function showErrorsDiv() {
-    $('#errors_div').show();
+function showErrorsModal() {
+    $('#errors_modal').modal('show');
+}
+
+function closeErrorsModal() {
+    $('#errors_div').empty();
+    $('#errors_modal').modal('hide');
+}
+
+function validate_integer(value) {
+    var intRegex = /^\d+$/;
+    if(!intRegex.test(value)) {
+        return false;
+    }
+    return true;
 }
 
 function createErrorMessage(message) {
-    $row = $("<div/>", {class: "row"});
-    $col = $("<div/>", {class: "col-md-12", text: message});
-    $row.append($col);
-    $('#errors_div').append($row);
+    $col = $("<div/>", {class: "col-md-12 error_msg", text: message});
+    $('#errors_div').append($col);
+}
+
+function validate_password(password) {
+    passwordRegex = /^[a-zA-Z0-9]{8,15}$/;
+    containsNumberRegex = /^.*\d.*$/;
+    containsCapitalRegex = /^.*[A-Z].*$/;
+    if(passwordRegex.test(password)) {
+        createErrorMessage("Invalid password value. Password must be at least 8 characters long and consist of letters and numbers.")
+        return false;
+    } else if(!containsNumberRegex.test(password)) {
+        createErrorMessage("Password must contain at least one number.");
+        return false;
+    } else if(!containsCapitalRegex.test(password)) {
+        createErrorMessage("Password must contain at least one capital letter.");
+        return false;
+    }
+    return true;
 }

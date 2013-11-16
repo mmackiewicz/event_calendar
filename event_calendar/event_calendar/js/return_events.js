@@ -1,3 +1,4 @@
+
 $(document).ready(function() {
 
     $('#return_date').datepicker({format: 'yyyy-mm-dd', weekStart: 1});
@@ -70,9 +71,13 @@ $(document).ready(function() {
 
 
     $("body").on("click", "button[name=add_product_button]", function() {
+        if(!validate_add_product($(this))) {
+            showErrorsModal();
+            return;
+        }
         $product_div = $("<div/>", {class: "panel-body product_div row"});
-        $product_name = $("<div/>", {class: "product_name col-md-7", text: $(this).parent().parent().parent().find("input[name=product]").val()});
-        $product_amount = $("<div/>", {class: "product_amount col-md-3", text: $(this).parent().parent().parent().find("input[name=amount]").val()});
+        $product_name = $("<div/>", {class: "product_name col-md-7", text: $(this).parent().parent().find("input[name=product]").val()});
+        $product_amount = $("<div/>", {class: "product_amount col-md-3", text: $(this).parent().parent().find("input[name=amount]").val()});
         $remove_button = $("<button/>", {class: "btn btn-default btn-sm rm_product_button", text:"remove"});
         $product_div.append($product_name);
         $product_div.append($product_amount);
@@ -80,6 +85,23 @@ $(document).ready(function() {
 
         $(this).parent().parent().parent().find(".products_div").append($product_div).css("border", "inherit");
     });
+
+    function validate_add_product(button) {
+        valid = true;
+        product = button.parent().parent().find('input[name=product]').val();
+        amount = button.parent().parent().find('input[name=amount]').val();
+
+        if(product.trim() == "") {
+            createErrorMessage('Product name empty. Please enter valid product name.');
+            valid = false;
+        }
+        if(!validate_integer(amount)) {
+            createErrorMessage('Invalid value for amount.');
+            valid = false;
+        }
+
+        return valid;
+    }
 
     function prepare_request_content() {
         var result = {
@@ -93,24 +115,69 @@ $(document).ready(function() {
         return result;
     }
 
+    function validate_event_data() {
+        var valid = true;
+
+        if(new Date($('#return_date').find('input').val()) < new Date()) {
+            createErrorMessage('Return date in the past. Please enter valid return date.');
+            valid = false;
+        }
+        $.each($('.transport_div').find('input[name=from]'), function() {
+            if($(this).val().trim() == "") {
+                createErrorMessage('Empty from value. Please enter valid from value.');
+                valid = false;
+                return;
+            }
+        });
+        $.each($('.transport_div').find('input[name=to]'), function() {
+            if($(this).val().trim() == "") {
+                createErrorMessage('Empty to value. Please enter valid to value.');
+                valid = false;
+                return;
+            }
+        });
+
+        return valid;
+    }
+
     $('#save_button').click(function() {
+        if(!validate_event_data()) {
+            showErrorsModal();
+            return;
+        }
         $.post(
             "/events/edit_return/"+$('#event_id').val()+"/",
             JSON.stringify(prepare_request_content())
         ).done(function(data) {
-            alert(data);
+            if(data.status && data.status != 'OK') {
+                $.each(data.errors, function () {
+                    createErrorMessage(this);
+                });
+                showErrorsModal();
+            }
         }).fail(function(data) {
-            $('#errors_div').html(data).show();
+            createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+            showErrorsModal();
         })
     });
     $('#create_button').click(function() {
+        if(!validate_event_data()) {
+            showErrorsModal();
+            return;
+        }
         $.post(
             '/events/create_return/',
             JSON.stringify(prepare_request_content())
         ).done(function(data) {
-            alert(data);
+            if(data.status && data.status != 'OK') {
+                $.each(data.errors, function () {
+                    createErrorMessage(this);
+                });
+                showErrorsModal();
+            }
         }).fail(function(data) {
-            $('#errors_div').html(data).show();
+            createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+            showErrorsModal();
         })
     });
 

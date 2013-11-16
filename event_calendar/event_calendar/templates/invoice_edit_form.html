@@ -2,6 +2,7 @@
 {% extends "common_template.html" %}
 
 {% block script %}
+    <script type="text/javascript" src="/static/invoices_common.js"></script>
     <script>
         $(document).ready(function() {
 
@@ -12,6 +13,10 @@
             });
 
             $('#invoice_save_button').click(function() {
+                if(!validate_invoice_data()) {
+                    showErrorsModal();
+                    return;
+                }
                 $.post(
                     '/invoices/edit/{{ invoice.id }}/',
                     {
@@ -24,13 +29,28 @@
                     if( data.status && data.status == "OK") {
                         window.location.href = "/home/";
                     } else {
-                        alert(data.status);
+                        $.each(data.errors, function() {
+                            createErrorMessage(this);
+                        })
+                        showErrorsModal();
                     }
                 }).fail(function(data) {
-                    $('#errors_div').html(data).show();
-                })
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                });
 
             });
+
+            function validate_invoice_data() {
+                valid = true;
+
+                if($('#invoice_number').val().trim() == "") {
+                    createErrorMessage("Invoice number empty. Please insert valid invoice number.");
+                    valid = false;
+                }
+
+                return valid;
+            }
         });
     </script>
 {% endblock %}

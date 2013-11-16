@@ -5,22 +5,46 @@
     <script>
         $(document).ready(function() {
             $("#save_button").click(function() {
+                if(!validate_user()) {
+                    showErrorsModal();
+                    return;
+                }
                 $("#worker_form").submit();
             });
 
             $("#cancel_button").click(function() {
                 window.location.href = "/workers/all/";
             });
+
+            function validate_user() {
+                valid = true;
+                var usernameRegex = /^[a-zA-Z0-9]{5,15}$/;
+                username = $('input[name=username]').val().trim();
+                if(username == "" || !usernameRegex.test(username)) {
+                    createErrorMessage("Invalid username value. Username must be 5-15 characters long and consist of letters or/and numbers.");
+                    valid = false;
+                }
+                password = $('input[name=password]').val().trim();
+                password2 = $('input[name=password2]').val().trim();
+                if(!validate_password(password)) {
+                    valid = false;
+                } else if(password != password2) {
+                        createErrorMessage("Password and repeated password are different");
+                        valid = false;
+                }
+
+                return valid;
+            }
+
         });
     </script>
 {% endblock %}
 
+{% block jumbo-header %}
+    CREATE WORKER
+{% endblock %}
+
 {% block jumbo-content %}
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
-        CREATE WORKER
-        </div>
-    </div>
     <form action="/workers/create/" method="POST" id="worker_form">
         {% csrf_token %}
         <div class="row">
@@ -30,6 +54,10 @@
         <div class="row">
             <div class="col-md-3">password:</div>
             <div class="col-md-5"><input type="password" name="password"/></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">password2:</div>
+            <div class="col-md-5"><input type="password" name="password2"/></div>
         </div>
         <div class="row">
             <div class="col-md-3">role:</div>

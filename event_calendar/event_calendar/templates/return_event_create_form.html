@@ -9,19 +9,17 @@
     <link rel="stylesheet" type="text/css" href="/static/datepicker.css" />
 {% endblock %}
 
-{% block jumbo-content %}
+{% block jumbo-header %}
+    CREATE RETURN EVENT
+{% endblock %}
 
-    <div class="row h3" style="margin-bottom: 35px;">
-        <div class="col-md-8">
-        CREATE RETURN EVENT
-        </div>
-    </div>
+{% block jumbo-content %}
     <div class="row">
         <input type="hidden" id="event_id" value="{{ event.id }}"/>
         {% if event.vehicle %}
             <div class="col-md-4">
                 <div class="col-md-5">vehicle: </div>
-                <div class="col-md-6">{{ event.vehicle.registration }} <span style="background-color: #{{ event.vehicle.colour }}; width: 30px;">&nbsp</span></div>
+                <div class="col-md-6">{{ event.vehicle.registration }} <div class="vehicle vehicle_med vehicle_med_{{ event.vehicle.colour }}"></div></div>
             </div>
             <input type="hidden" id="vehicle_id" value="{{ event.vehicle.id }}"/>
         {% else %}
@@ -37,7 +35,7 @@
             <div class="col-md-4">return date:</div>
             <div class="col-md-6">
                 <div id="return_date" class="input-append date" data-date="{{ event.recipients_date }}">
-                    <input class="span2" size="16" type="text" value="{{ event.recipients_date }}">
+                    <input disabled class="span2" size="16" type="text" value="{{ event.recipients_date }}">
                     <span class="add-on"><i class="icon icon_calendar"></i></span>
                 </div>
             </div>
