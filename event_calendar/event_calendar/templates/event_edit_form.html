@@ -67,6 +67,8 @@
                         createErrorMessage(this);
                     })
                     showErrorsModal()
+                } else {
+                    window.location.href = '/home/';
                 }
             }).fail(function(data) {
                 createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
@@ -104,7 +106,7 @@
             <div class="col-md-6">production date:</div>
             <div class="col-md-6">
                 <div id="production_date" class="input-append date" data-date="{{ event.production_date }}">
-                    <input class="span2" size="16" type="text" value="{{ event.production_date }}">
+                    <input disabled class="span2" size="16" type="text" value="{{ event.production_date }}">
                     <span class="add-on"><i class="icon icon_calendar"></i></span>
                 </div>
             </div>
@@ -119,7 +121,7 @@
             <div class="col-md-6">recipient's date:</div>
             <div class="col-md-6">
                 <div id="recipients_date" class="input-append date" data-date="{{ event.recipients_date }}">
-                    <input class="span2" size="16" type="text" value="{{ event.recipients_date }}">
+                    <input disabled class="span2" size="16" type="text" value="{{ event.recipients_date }}">
                     <span class="add-on"><i class="icon icon_calendar"></i></span>
                 </div>
             </div>

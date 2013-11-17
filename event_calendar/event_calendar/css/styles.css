@@ -80,10 +80,43 @@
 .right
 {
     position:absolute;
-
 }
 
 .product_div {
     padding-bottom: 8px;
     padding-top: 8px;
+}
+
+.transport_div {
+    margin-bottom: 20px;
+    padding-bottom: 10px
+}
+
+.sign {
+    background-color: transparent;
+    background-repeat: no-repeat;
+    display: inline-block;
+    margin-top: 1px;
+    vertical-align: text-top;
+}
+
+.warning_sign_med {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    background-image: url("/static/warning_32.png");
+}
+
+.warning_sign_big {
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+    background-image: url("/static/warning_48.png");
+}
+
+.ok_sign_med {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    background-image: url("/static/ok_32.png");
 }

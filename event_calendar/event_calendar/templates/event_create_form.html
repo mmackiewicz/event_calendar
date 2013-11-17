@@ -67,6 +67,8 @@
                         createErrorMessage(this);
                     })
                     showErrorsModal()
+                } else {
+                    window.location.href = '/home/';
                 }
             }).fail(function(data) {
                 createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);

@@ -54,7 +54,10 @@ $(document).ready(function() {
         $products_div = $("<div/>", {class: "panel products_div col-md-10 col-md-offset-1"}).css("border", "0px");
 
         $product_inputs_row = $("<div/>", {class: "row"});
-        $product_inputs = $("<div/>", {class: "col-md-10"}).append("product: <input type='text' name='product'/> amount: <input type='text' name='amount' size=14/>");
+        $product_inputs = $("<div/>", {class: "col-md-10"});
+        $product_input_product = $("<div/>", {class: "col-md-6"}).append("product: <input type='text' name='product'/>");
+        $product_input_amount = $("<div/>", {class: "col-md-6"}).append("amount: <input type='text' name='amount' size=14/>");
+        $product_inputs.append($product_input_product).append($product_input_amount);
 
         $product_button = $("<div/>", {class: "col-md-2"}).append(" <button class='btn btn-primary btn-md' name='add_product_button'>add</button>");
 
@@ -154,6 +157,8 @@ $(document).ready(function() {
                     createErrorMessage(this);
                 });
                 showErrorsModal();
+            } else {
+                window.location.href = '/home/';
             }
         }).fail(function(data) {
             createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
@@ -174,6 +179,8 @@ $(document).ready(function() {
                     createErrorMessage(this);
                 });
                 showErrorsModal();
+            } else {
+                window.location.href = '/home/';
             }
         }).fail(function(data) {
             createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);

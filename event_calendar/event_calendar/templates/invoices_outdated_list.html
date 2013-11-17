@@ -45,7 +45,7 @@
                     <tr>
                         <td name="company_name">{{ invoice.company }}</td>
                         <td>{{ invoice.number }}</td>
-                        <td>{{ invoice.issue_date }}</td>
+                        <td>{{ invoice.issue_date|date:"Y-m-d" }}</td>
                         <td><button id="{{ invoice.id }}" type="button" class="btn btn-warning btn-sm mark_paid_button">paid</button></td>
                     </tr>
                 {% endfor %}

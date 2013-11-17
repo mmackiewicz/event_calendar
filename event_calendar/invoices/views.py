@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 from tools.auth import is_in_roles
 from tools.http import JsonResponse
-from models import Invoice, INVOICE_TIMEOUT
+from models import Invoice, INVOICE_TIMEOUT, INVOICE_OUTDATED
 from products.models import Product
 from workers.models import ROLE_ADMIN, ROLE_SECRETARY
 
@@ -63,7 +63,8 @@ def get_invoices_list(request, year, month):
     return render(request, "invoices_list.html", {'invoices': invoices,
                                                   'year': year,
                                                   'month': month,
-                                                  'companies': settings.OWN_COMPANIES})
+                                                  'companies': settings.OWN_COMPANIES,
+                                                  'outdated': INVOICE_OUTDATED,})
 
 @csrf_exempt
 @require_POST
@@ -77,7 +78,8 @@ def mark_as_paid(request, invoice_id):
 @require_GET
 @is_in_roles([ROLE_ADMIN, ROLE_SECRETARY])
 def outdated_invoices_view(request):
-    return render(request, 'invoices_outdated_list.html', {'invoices': outdated_invoices()})
+    return render(request, 'invoices_outdated_list.html', {'invoices': outdated_invoices(),
+                                                           'outdated': INVOICE_OUTDATED})
 
 def outdated_invoices():
     border_date = datetime.now() - relativedelta(days=INVOICE_TIMEOUT)
