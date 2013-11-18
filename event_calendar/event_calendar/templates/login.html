@@ -17,38 +17,39 @@
 
   <body>
     <div class="container">
-    <form action="/login/" method="post">
-        {% csrf_token %}
-        <div class="row">
-          <div class="col-md-2 col-md-offset-3">
-              <label for="username">username</label>
-          </div>
-          <div class="col-md-3">
-              <input type="text" name="username" class="form-control" id="username" placeholder="Username">
-          </div>
-        </div>
-        <div class="row">
-            <div class="col-md-2 col-md-offset-3">
-              <label for="password">password</label>
+        <div class="panel auth_container">
+        <form action="/login/" method="post">
+            {% csrf_token %}
+            <div class="row panel-body">
+              <div class="col-md-4 col-md-offset-1">
+                  <label for="username">username</label>
+              </div>
+              <div class="col-md-5">
+                  <input type="text" name="username" class="form-control" id="username" placeholder="Username">
+              </div>
             </div>
-            <div class="col-md-3">
-              <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+            <div class="row panel-body">
+                <div class="col-md-4 col-md-offset-1">
+                  <label for="password">password</label>
+                </div>
+                <div class="col-md-5">
+                  <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                </div>
             </div>
-        </div>
-        {% if state %}
-        <div class="row">
-            <div class="alert alert-warning col-md-5 col-md-offset-3">
-                {{ state }}
+            {% if state %}
+            <div class="row panel-body">
+                <div class="alert alert-warning col-md-8 col-md-offset-2">
+                    {{ state }}
+                </div>
             </div>
-        </div>
-        {% endif %}
-        <div class="row">
-            <div class="col-md-1 col-md-offset-7">
-              <button type="submit" class="btn btn-primary">Submit</button>
+            {% endif %}
+            <div class="row panel-body">
+                <div class="col-md-3 col-md-offset-7">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
             </div>
+        </form>
         </div>
-
-    </form>
     </div>
   </body>
 </html>
