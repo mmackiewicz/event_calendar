@@ -51,7 +51,7 @@
         <tr>
             <th>username</th>
             <th>role</th>
-            <th>action</th>
+            <th>action {{ user.get_profile.id }}</th>
         </tr>
     </thead>
     {% for worker in workers %}
@@ -61,7 +61,7 @@
             <td>
                 <div class="btn-group">
                   <button type="button" class="btn btn-warning worker_edit_button" action="{{ worker.get_absolute_url }}">edit</button>
-                {% if worker.id != request.user.id %}
+                {% if worker.id != user.get_profile.id %}
                   <button type="button" class="btn btn-danger worker_delete_button" id="worker_delete_{{ worker.id }}">delete</button>
                 {% endif %}
                 </div>

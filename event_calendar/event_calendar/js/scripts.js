@@ -191,7 +191,7 @@ function validate_password(password) {
     passwordRegex = /^[a-zA-Z0-9]{8,15}$/;
     containsNumberRegex = /^.*\d.*$/;
     containsCapitalRegex = /^.*[A-Z].*$/;
-    if(passwordRegex.test(password)) {
+    if(!passwordRegex.test(password)) {
         createErrorMessage("Invalid password value. Password must be at least 8 characters long and consist of letters and numbers.")
         return false;
     } else if(!containsNumberRegex.test(password)) {
