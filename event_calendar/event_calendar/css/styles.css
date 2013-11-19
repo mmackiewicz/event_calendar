@@ -128,3 +128,7 @@
     line-height: 32px;
     background-image: url("/static/ok_32.png");
 }
+
+.datepicker-days .holiday {
+    background-color: #FB9651;
+}

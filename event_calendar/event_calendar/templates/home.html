@@ -6,45 +6,6 @@
 
         var animation_speed = 200;
 
-        $.extend($.fn.datepicker.defaults, {
-            onRender: function(date) {
-                if(date.getDay() == 6 || date.getDay() == 0) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 1 && date.getDate() == 1) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 1 && date.getDate() == 6) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 5 && date.getDate() == 1) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 5 && date.getDate() == 3) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 5 && date.getDate() == 19) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 8 && date.getDate() == 15) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 11 && date.getDate() == 1) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 11 && date.getDate() == 11) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 12 && date.getDate() == 25) {
-                    return 'holiday';
-                }
-                if(date.getMonth()+1 == 12 && date.getDate() == 26) {
-                    return 'holiday';
-                }
-                return '';
-            }
-        });
-
         $(document).ready(function(){
 
             function make_calendar() {
