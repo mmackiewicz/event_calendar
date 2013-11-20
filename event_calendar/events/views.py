@@ -374,7 +374,9 @@ def delete_event(event):
     event.delete()
 
 def delete_return_event(return_event):
-    return_event.event_set.clear()
+    event = return_event.event
+    event.return_event = None
+    event.save()
     for transport in return_event.transports.all():
         transport.loads.all().delete()
     return_event.transports.all().delete()
