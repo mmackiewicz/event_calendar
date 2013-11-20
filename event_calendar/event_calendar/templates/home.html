@@ -54,7 +54,7 @@
                     }
                 });
 
-                // create rows for displaying events for day
+                // create rows for displaying events details for day
                 $.each($('#calendar_table tbody tr'), function() {
                     $events_row = $("<tr/>", {
                                     class: "events_row",
@@ -82,6 +82,11 @@
                 });
             }
 
+            /**
+             * Fetches events for currently visited year and month.
+             * Populates appropriate .events_container elements with events
+             * and return events.
+             */
             function fetch_events() {
                 var year = $('#dp').data('datepicker').viewDate.getUTCFullYear();
                 var month = $('#dp').data('datepicker').viewDate.getMonth()+1;
@@ -107,6 +112,9 @@
                 )
             }
 
+            /**
+             * Binds droppable functionality to .day elements
+             */
             function bind_droppable_to_days() {
                 $('#calendar_table tbody tr td.day').droppable({
                     accept: '.event_div',
@@ -118,6 +126,10 @@
                 });
             }
 
+            /**
+             * Creates div in .day.events_div for the event passed in as parameter
+             * @param event object deserialized from JSON
+             */
             function create_event_div(event) {
                 var container = $('#'+event.recipients_date+' div.events_container');
                 $div_event = $("<div/>", {class: "event_div", id: event.id});
@@ -133,6 +145,11 @@
                 container.append($div_event);
             }
 
+            /**
+             * Creates div in .day.events_div for the return event
+             * of the event passed in as parameter
+             * @param event object deserialized from JSON
+             */
             function create_return_event_div(event) {
                 if(event.return_event!='') {
                     revent = event.return_event
@@ -168,9 +185,9 @@
                 )
             }
 
-            /*
-               Fetches events for given date.
-               @param date string in format YYYY-MM-DD
+            /**
+             * Fetches events for given date.
+             * @param date string in format YYYY-MM-DD
              */
             function fetch_daily_events(events_date) {
                 row_id = 'row'+getWeekNumber(events_date)[1];
@@ -180,63 +197,81 @@
                         '/events/json/'+events_date.replace(/-/g,'/')+'/',
                         function(data) {
                             events = data['events'];
+                            current_date = new Date();
+
+                            // hide adding events for past dates
+                            if(new Date(events_date) < new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate())) {
+                                $('#'+row_id).find('.icon_add').hide();
+                            } else {
+                                $('#'+row_id).find('.icon_add').show();
+                            }
+
                             $('#'+row_id).find('td:nth-child(2)').find('.date_span').text(events_date);
                             $.each(events, function() {
-                                $div = $table = $row = $td_locations = $td_load = $td_buttons = $div_buttons = '';
-
-                                $div = $("<div/>", {
-                                    class: "panel-body",
-                                    id: "event"+this.id
-                                }).css("background-color", "#F8F8F8").css("borderTop", "1px solid #dddddd");
-
-                                $div_row = $("<div/>", {class: "row"});
-
-                                //------------------------
-                                $div_vehicle = $("<div/>", {class: "col-md-2"});
-                                if(this.vehicle) {
-                                    $div_vehicle_image = $("<div/>", {class: "col-md-4 vehicle vehicle_big vehicle_big_"+this.vehicle.colour});
-                                    $div_vehicle_registration = $("<div/>", {class: "col-md-8", text: this.vehicle.registration});
-                                    $div_vehicle.append($div_vehicle_image).append($div_vehicle_registration);
-                                }
-                                //------------------------
-                                $div_locations = $('<div/>', {
-                                    text: this.producer+' - '+this.recipient,
-                                    class: "col-md-4"
-                                });
-                                //------------------------
-                                $div_load = $('<div/>', {class: "col-md-3"});
-                                $.each(this.loads, function() {
-                                    $div_load_row = $("<div/>", {class: "row"});
-                                    $div_load_name = $("<div/>", {class: "col-md-8", text: this.product.name});
-                                    $div_load_amount = $("<div/>", {class: "col-md-4", text: this.amount});
-                                    $div_load_row.append($div_load_name).append($div_load_amount);
-                                    $div_load.append($div_load_row);
-                                });
-                                //------------------------
-                                $div_buttons = $('<div/>', {
-                                    class: 'btn-group col-md-3'
-                                });
-                                if(this.return_event == '') {
-                                    $div_buttons.append('<button class="btn btn-sm btn-default add_return_button">add return</button>');
-                                }
-                                event_date = new Date(events_date);
-                                current_date = new Date();
-                                if(event_date >= current_date) {
-                                    $div_buttons.append('<button class="btn btn-sm btn-success edit_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
-                                }
-                                //------------------------
-                                $div_row.append($div_vehicle);
-                                $div_row.append($div_locations);
-                                $div_row.append($div_load);
-                                $div_row.append($div_buttons);
-                                $div.append($div_row);
-
-                                $('#'+row_id).find('td.events_details .panel').append($div);
+                                create_event_details_row(this, events_date);
                             });
                             $('#'+row_id).show(animation_speed);
                         },
                         'json'
                 )
+            }
+
+            /**
+             * Creates event details row from the event passed in as parameter
+             * @param event object deserialized from JSON
+             * @param events_date date of the event in format YYYY-mm-dd
+             */
+            function create_event_details_row(event, events_date) {
+                $div = $table = $row = $td_locations = $td_load = $td_buttons = $div_buttons = '';
+
+                $div = $("<div/>", {
+                    class: "panel-body",
+                    id: "event"+event.id
+                }).css("background-color", "#F8F8F8").css("borderTop", "1px solid #dddddd");
+
+                $div_row = $("<div/>", {class: "row"});
+
+                //------------------------
+                $div_vehicle = $("<div/>", {class: "col-md-2"});
+                if(event.vehicle) {
+                    $div_vehicle_image = $("<div/>", {class: "col-md-4 vehicle vehicle_big vehicle_big_"+event.vehicle.colour});
+                    $div_vehicle_registration = $("<div/>", {class: "col-md-8", text: event.vehicle.registration});
+                    $div_vehicle.append($div_vehicle_image).append($div_vehicle_registration);
+                }
+                //------------------------
+                $div_locations = $('<div/>', {
+                    text: event.producer+' - '+event.recipient,
+                    class: "col-md-4"
+                });
+                //------------------------
+                $div_load = $('<div/>', {class: "col-md-3"});
+                $.each(event.loads, function() {
+                    $div_load_row = $("<div/>", {class: "row"});
+                    $div_load_name = $("<div/>", {class: "col-md-8", text: this.product.name});
+                    $div_load_amount = $("<div/>", {class: "col-md-4", text: this.amount});
+                    $div_load_row.append($div_load_name).append($div_load_amount);
+                    $div_load.append($div_load_row);
+                });
+                //------------------------
+                $div_buttons = $('<div/>', {
+                    class: 'btn-group col-md-3'
+                });
+                if(event.return_event == '') {
+                    $div_buttons.append('<button class="btn btn-sm btn-default add_return_button">add return</button>');
+                }
+                event_date = new Date(events_date);
+                current_date = new Date();
+                if(event_date >= current_date) {
+                    $div_buttons.append('<button class="btn btn-sm btn-success edit_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
+                }
+                //------------------------
+                $div_row.append($div_vehicle);
+                $div_row.append($div_locations);
+                $div_row.append($div_load);
+                $div_row.append($div_buttons);
+                $div.append($div_row);
+
+                $('#'+row_id).find('td.events_details .panel').append($div);
             }
 
             /*
@@ -265,102 +300,110 @@
                             events = data['return_events'];
                             $('#'+row_id).find('td:nth-child(2)').find('.date_span').text(events_date);
                             $.each(events, function() {
-
-                                this_event = this;
-
-                                $div = $("<div/>", {
-                                    class: "panel-body",
-                                    id: "return_event"+this.id
-                                }).css("background-color", "#ffe8e8").css("borderTop", "1px solid #dddddd");
-
-                                $div_outer_row = $("<div/>", {class: "row"});
-
-                                // first column - vehicle
-                                $div_vehicle_col = $("<div/>", {class: "col-md-2"});
-                                if(this.vehicle) {
-                                    $div_vehicle_image = $("<div/>", {class: "col-md-4 vehicle vehicle_big vehicle_big_"+this.vehicle.colour});
-                                    $div_vehicle_registration = $("<div/>", {class: "col-md-8", text: this.vehicle.registration});
-                                    $div_vehicle_col.append($div_vehicle_image).append($div_vehicle_registration);
-                                }
-
-                                // create a row for each transport object
-                                $div_data_col = $("<div/>", {class: event_class});
-                                $.each(this.transports, function() {
-                                    $div_inner_row = $("<div/>", {class: "row", id: "return_trans"+this.id});
-                                    //------------------------
-                                    $div_locations = $('<div/>', {
-                                        text: this.start_location+' - '+this.end_location,
-                                        class: old_event ? "col-md-4" : "col-md-6"
-                                    });
-                                    $div_inner_row.append($div_locations);
-                                    //------------------------
-                                    $div_products = $('<div/>', {class: old_event ? "col-md-4" : "col-md-6"});
-                                    var loads_len = this.loads.length;
-                                    var loads_names = "";
-                                    $.each(this.loads, function(index, element) {
-                                        loads_names = loads_names.concat(this.product);
-                                        if(loads_len > index + 1) {
-                                            loads_names = loads_names.concat(", ");
-                                        }
-                                    });
-                                    $div_products.text(loads_names);
-                                    $div_inner_row.append($div_products);
-                                    //------------------------
-                                    // add button group for invoice if event date passed
-                                    if(old_event) {
-                                        $div_buttons = $('<div/>', {
-                                            class: 'btn-group col-md-3',
-                                            name: 'buttons'
-                                        });
-
-                                        if(this.invoice != "") {
-                                            $div_invoice_row = $('<div/>', {class: "row"});
-                                            $div_invoice_data = $('<div/>', {class: "col-md-8"});
-                                            $div_invoice_edit = $('<div/>', {class: "col-md-4"});
-
-                                            $div_company_name = $('<div/>', {class: 'row', text: this.invoice.company});
-                                            $div_invoice = $('<div/>', {class: 'row', text: "invoice nr: "+this.invoice.number});
-                                            $button_invoice_edit = $('<button/>', {id: "edit_invoice_"+this.invoice.id, class: "btn btn-sm btn-success edit_invoice_button", text: "edit"});
-
-                                            $div_invoice_data.append($div_company_name).append($div_invoice);
-                                            $div_invoice_edit.append($button_invoice_edit);
-                                            $div_invoice_row.append($div_invoice_data);
-                                            if(!this.invoice.is_paid) {
-                                                $div_invoice_row.append($div_invoice_edit);
-                                            }
-                                            $div_buttons.append($div_invoice_row);
-                                        } else {
-                                            $div_buttons.append('<button class="btn btn-sm btn-success add_invoice_button">add invoice</button>');
-                                        }
-                                        $div_inner_row.append($div_buttons);
-                                    }
-
-                                    //------------------------
-
-                                    $div_data_col.append($div_inner_row);
-                                });
-
-                                $div_outer_row.append($div_vehicle_col).append($div_data_col)
-
-                                // if event date has not yet passed add column with edit/cancel buttons
-                                if(!old_event) {
-                                    $div_buttons_col=$("<div/>", {class: "col-md-3 btn-group"});
-                                    $edit_button = $("<button/>", {class: "btn btn-sm btn-success edit_return_event_button", text: "edit"});
-                                    $cancel_button = $("<button/>", {class: "btn btn-sm btn-danger cancel_button", text: "cancel"});
-                                    //$div_buttons.append('<button class="btn btn-sm btn-success edit_return_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
-                                    $div_buttons_col.append($edit_button).append($cancel_button);
-                                    $div_outer_row.append($div_buttons_col);
-                                }
-
-
-                                $div.append($div_outer_row);
-
-                                $('#'+row_id).find('td.events_details .panel').append($div);
+                                create_return_event_details_row(this, old_event);
                             });
                             $('#'+row_id).show(animation_speed);
                         },
                         'json'
                 )
+            }
+
+            /**
+             *
+             * @param event
+             * @param is_old_event
+             */
+            function create_return_event_details_row(event, is_old_event) {
+                this_event = event;
+
+                $div = $("<div/>", {
+                    class: "panel-body",
+                    id: "return_event"+event.id
+                }).css("background-color", "#ffe8e8").css("borderTop", "1px solid #dddddd");
+
+                $div_outer_row = $("<div/>", {class: "row"});
+
+                // first column - vehicle
+                $div_vehicle_col = $("<div/>", {class: "col-md-2"});
+                if(event.vehicle) {
+                    $div_vehicle_image = $("<div/>", {class: "col-md-4 vehicle vehicle_big vehicle_big_"+event.vehicle.colour});
+                    $div_vehicle_registration = $("<div/>", {class: "col-md-8", text: event.vehicle.registration});
+                    $div_vehicle_col.append($div_vehicle_image).append($div_vehicle_registration);
+                }
+
+                // create a row for each transport object
+                $div_data_col = $("<div/>", {class: event_class});
+                $.each(event.transports, function() {
+                    $div_inner_row = $("<div/>", {class: "row", id: "return_trans"+this.id});
+                    //------------------------
+                    $div_locations = $('<div/>', {
+                        text: this.start_location+' - '+this.end_location,
+                        class: is_old_event ? "col-md-4" : "col-md-6"
+                    });
+                    $div_inner_row.append($div_locations);
+                    //------------------------
+                    $div_products = $('<div/>', {class: is_old_event ? "col-md-4" : "col-md-6"});
+                    var loads_len = this.loads.length;
+                    var loads_names = "";
+                    $.each(this.loads, function(index, element) {
+                        loads_names = loads_names.concat(this.product);
+                        if(loads_len > index + 1) {
+                            loads_names = loads_names.concat(", ");
+                        }
+                    });
+                    $div_products.text(loads_names);
+                    $div_inner_row.append($div_products);
+                    //------------------------
+                    // add button group for invoice if event date passed
+                    if(is_old_event) {
+                        $div_buttons = $('<div/>', {
+                            class: 'btn-group col-md-3',
+                            name: 'buttons'
+                        });
+
+                        if(this.invoice != "") {
+                            $div_invoice_row = $('<div/>', {class: "row"});
+                            $div_invoice_data = $('<div/>', {class: "col-md-8"});
+                            $div_invoice_edit = $('<div/>', {class: "col-md-4"});
+
+                            $div_company_name = $('<div/>', {class: 'row', text: this.invoice.company});
+                            $div_invoice = $('<div/>', {class: 'row', text: "invoice nr: "+this.invoice.number});
+                            $button_invoice_edit = $('<button/>', {id: "edit_invoice_"+this.invoice.id, class: "btn btn-sm btn-success edit_invoice_button", text: "edit"});
+
+                            $div_invoice_data.append($div_company_name).append($div_invoice);
+                            $div_invoice_edit.append($button_invoice_edit);
+                            $div_invoice_row.append($div_invoice_data);
+                            if(!this.invoice.is_paid) {
+                                $div_invoice_row.append($div_invoice_edit);
+                            }
+                            $div_buttons.append($div_invoice_row);
+                        } else {
+                            $div_buttons.append('<button class="btn btn-sm btn-success add_invoice_button">add invoice</button>');
+                        }
+                        $div_inner_row.append($div_buttons);
+                    }
+
+                    //------------------------
+
+                    $div_data_col.append($div_inner_row);
+                });
+
+                $div_outer_row.append($div_vehicle_col).append($div_data_col)
+
+                // if event date has not yet passed add column with edit/cancel buttons
+                if(!is_old_event) {
+                    $div_buttons_col=$("<div/>", {class: "col-md-3 btn-group"});
+                    $edit_button = $("<button/>", {class: "btn btn-sm btn-success edit_return_event_button", text: "edit"});
+                    $cancel_button = $("<button/>", {class: "btn btn-sm btn-danger cancel_button", text: "cancel"});
+                    //$div_buttons.append('<button class="btn btn-sm btn-success edit_return_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
+                    $div_buttons_col.append($edit_button).append($cancel_button);
+                    $div_outer_row.append($div_buttons_col);
+                }
+
+
+                $div.append($div_outer_row);
+
+                $('#'+row_id).find('td.events_details .panel').append($div);
             }
 
             /**
