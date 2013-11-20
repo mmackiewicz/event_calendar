@@ -121,7 +121,8 @@ $(document).ready(function() {
     function validate_event_data() {
         var valid = true;
 
-        if(new Date($('#return_date').find('input').val()) < new Date()) {
+        current_date = new Date();
+        if(new Date($('#return_date').find('input').val()) < new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate())) {
             createErrorMessage('Return date in the past. Please enter valid return date.');
             valid = false;
         }
