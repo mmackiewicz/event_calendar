@@ -132,3 +132,9 @@
 .datepicker-days .holiday {
     background-color: #FB9651;
 }
+
+textarea {
+    height: 200px;
+    margin-bottom: 15px;
+    width: 500px;
+}
