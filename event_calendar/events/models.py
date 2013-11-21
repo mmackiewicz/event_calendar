@@ -16,7 +16,9 @@ class ReturnEvent(models.Model):
         result_dict = {'id': self.id,
                     'return_date': self.return_date.strftime('%Y-%m-%d'),
                     'transports': [transport.serialize_to_json() for transport in self.transports.all()],
-                    'comment': self.comment,}
+                    'comment': self.comment,
+                    'event_id': self.event.id,
+                    'recipients_date': self.event.recipients_date.strftime('%Y-%m-%d'),}
         if self.vehicle:
             result_dict['vehicle'] = self.vehicle.serialize_to_json()
         else:
@@ -43,13 +45,15 @@ class Event(models.Model):
                     'production_date': self.production_date.strftime('%Y-%m-%d'),
                     'recipients_date': self.recipients_date.strftime('%Y-%m-%d'),
                     'loads': [load.serialize_to_json() for load in self.loads.all()],
-                    'comment': self.comment}
+                    'comment': self.comment,}
         if self.vehicle:
             event_dict['vehicle'] = self.vehicle.serialize_to_json()
 
         if self.return_event:
             event_dict['return_event'] = self.return_event.serialize_to_json()
+            event_dict['return_date'] = self.return_event.return_date.strftime('%Y-%m-%d')
         else:
             event_dict['return_event'] = ''
+            event_dict['return_date'] = ''
 
         return event_dict
