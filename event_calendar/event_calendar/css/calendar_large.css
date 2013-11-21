@@ -99,3 +99,7 @@ td.holiday div.day_number {
     margin-bottom: 0px;
 }
 
+.disabled_td {
+    opacity: 0.5;
+    filter: alpha(opacity = 60); /*MSIE*/
+}

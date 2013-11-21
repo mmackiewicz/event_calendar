@@ -106,7 +106,24 @@
                                     vehicle_id = ui.draggable.parent().attr('id').replace("vehicle", "");
                                     set_vehicle_in_event(event_id, vehicle_id);
                                 }
-                            }).draggable({revert: true});
+                            }).draggable({
+                                    revert: true,
+                                    start: function() {
+                                        //event_date = $(this).parent().parent().attr('id');
+                                        current_date = new Date();
+                                        trimmed_date = new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate());
+                                        $('#calendar_table .day:not([id])').addClass('disabled_td');
+                                        $.each($('.day[id]'), function() {
+                                            day_date = new Date($(this).attr('id'));
+                                            if(day_date < trimmed_date) {
+                                                $(this).addClass('disabled_td');
+                                            }
+                                        });
+                                    },
+                                    stop: function() {
+                                        $('.disabled_td').removeClass('disabled_td');
+                                    }
+                                });
                         },
                         'json'
                 )
@@ -119,9 +136,17 @@
                 $('#calendar_table tbody tr td.day').droppable({
                     accept: '.event_div',
                     drop: function( event, ui ) {
+                        if($(this).hasClass('disabled_td') || ui.draggable.parents('.day').is($(this))) {
+                            return;
+                        }
                         event_id = ui.draggable.attr('id');
                         new_date = $(this).attr('id');
-                        set_event_date(event_id, new_date);
+                        if(new_date) {
+                            set_event_date(event_id, new_date);
+                        } else {
+                            createErrorMessage("Cannot move events between months. Please choose a date within current month.");
+                            showErrorsModal();
+                        }
                     }
                 });
             }
