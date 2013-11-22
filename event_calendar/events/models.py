@@ -17,8 +17,12 @@ class ReturnEvent(models.Model):
                     'return_date': self.return_date.strftime('%Y-%m-%d'),
                     'transports': [transport.serialize_to_json() for transport in self.transports.all()],
                     'comment': self.comment,
-                    'event_id': self.event.id,
-                    'recipients_date': self.event.recipients_date.strftime('%Y-%m-%d'),}
+                    'event': {
+                        'id': self.event.id,
+                        'recipients_date': self.event.recipients_date.strftime('%Y-%m-%d'),
+                        'recipient': self.event.recipient,
+                        },
+                    }
         if self.vehicle:
             result_dict['vehicle'] = self.vehicle.serialize_to_json()
         else:

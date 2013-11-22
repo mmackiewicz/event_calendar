@@ -84,8 +84,7 @@
 
             /**
              * Fetches events for currently visited year and month.
-             * Populates appropriate .events_container elements with events
-             * and return events.
+             * Populates appropriate .events_container elements with events.
              */
             function fetch_events() {
                 var year = $('#dp').data('datepicker').viewDate.getUTCFullYear();
@@ -96,37 +95,63 @@
                             events = data['events'];
                             $.each(events, function() {
                                 create_event_div(this);
-                                create_return_event_div(this);
                             });
-                            $('.event_div').droppable({
-                                accept: '.vehicle',
-                                drop: function( event, ui ) {
-                                    // event_id could be in fact event or return id
-                                    event_id = $( this).attr('id').replace("return", "");
-                                    vehicle_id = ui.draggable.parent().attr('id').replace("vehicle", "");
-                                    set_vehicle_in_event(event_id, vehicle_id);
-                                }
-                            }).draggable({
-                                    revert: true,
-                                    start: function() {
-                                        //event_date = $(this).parent().parent().attr('id');
-                                        current_date = new Date();
-                                        trimmed_date = new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate());
-                                        $('#calendar_table .day:not([id])').addClass('disabled_td');
-                                        $.each($('.day[id]'), function() {
-                                            day_date = new Date($(this).attr('id'));
-                                            if(day_date < trimmed_date) {
-                                                $(this).addClass('disabled_td');
-                                            }
-                                        });
-                                    },
-                                    stop: function() {
-                                        $('.disabled_td').removeClass('disabled_td');
-                                    }
-                                });
+                            bind_interactions_to_events();
                         },
                         'json'
                 )
+            }
+
+            /**
+             * Fetches return events for currently visited year and month.
+             * Populates appropriate .events_container elements with return events.
+             */
+            function fetch_return_events() {
+                var year = $('#dp').data('datepicker').viewDate.getUTCFullYear();
+                var month = $('#dp').data('datepicker').viewDate.getMonth()+1;
+                jQuery.get(
+                        '/events/return/'+year+'/'+month+'/',
+                        function(data) {
+                            events = data['return_events'];
+                            $.each(events, function() {
+                                create_return_event_div(this);
+                            });
+                            bind_interactions_to_events();
+                        },
+                        'json'
+                )
+            }
+
+            /**
+             * Adds droppable and draggable interactions for .event_div elements.
+             */
+            function bind_interactions_to_events() {
+                $('.event_div').droppable({
+                    accept: '.vehicle',
+                    drop: function( event, ui ) {
+                        // event_id could be in fact event or return id
+                        event_id = $( this).attr('id').replace("return", "");
+                        vehicle_id = ui.draggable.parent().attr('id').replace("vehicle", "");
+                        set_vehicle_in_event(event_id, vehicle_id);
+                    }
+                }).draggable({
+                        revert: true,
+                        start: function() {
+                            //event_date = $(this).parent().parent().attr('id');
+                            current_date = new Date();
+                            trimmed_date = new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate());
+                            $('#calendar_table .day:not([id])').addClass('disabled_td');
+                            $.each($('.day[id]'), function() {
+                                day_date = new Date($(this).attr('id'));
+                                if(day_date < trimmed_date) {
+                                    $(this).addClass('disabled_td');
+                                }
+                            });
+                        },
+                        stop: function() {
+                            $('.disabled_td').removeClass('disabled_td');
+                        }
+                    });
             }
 
             /**
@@ -176,20 +201,17 @@
              * @param event object deserialized from JSON
              */
             function create_return_event_div(event) {
-                if(event.return_event!='') {
-                    revent = event.return_event
-                    var container = $('#'+revent.return_date+' div.events_container');
-                    $div_event = $("<div/>", {class: "event_div return_event_div", id: "return"+event.id});
-                    $div_label = $("<div/>", {class: "pull-left", text: event.recipient});
+                    var container = $('#'+event.return_date+' div.events_container');
+                    $div_event = $("<div/>", {class: "event_div return_event_div", id: "return"+event.event.id});
+                    $div_label = $("<div/>", {class: "pull-left", text: event.event.recipient});
                     $div_event.append($div_label);
 
                     $div_vehicle = $("<div/>", {class: "pull-right"});
                     if(event.vehicle) {
-                        $div_vehicle.addClass("vehicle vehicle_small vehicle_small_"+revent.vehicle.colour);
+                        $div_vehicle.addClass("vehicle vehicle_small vehicle_small_"+event.vehicle.colour);
                     }
                     $div_event.append($div_vehicle);
                     container.append($div_event);
-                }
             }
 
             /**
@@ -448,6 +470,7 @@
                         make_calendar();
                         bind_droppable_to_days();
                         fetch_events();
+                        fetch_return_events();
                     } else {
                         $.each(data.errors, function() {
                             createErrorMessage(this);
@@ -477,6 +500,7 @@
                         make_calendar();
                         bind_droppable_to_days();
                         fetch_events();
+                        fetch_return_events();
                     } else {
                         $.each(data.errors, function() {
                             createErrorMessage(this);
@@ -493,12 +517,14 @@
                 $('#dp').data('datepicker').picker.find('.next:first').click();
                 make_calendar();
                 fetch_events();
+                fetch_return_events();
             });
 
             $('#calendar_table').on('click', '.prev', function() {
                 $('#dp').data('datepicker').picker.find('.prev:first').click();
                 make_calendar();
                 fetch_events();
+                fetch_return_events();
             });
 
             $('#calendar_div').on('click','.day .day_number', function(){
@@ -573,6 +599,7 @@
                 make_calendar();
                 bind_droppable_to_days();
                 fetch_events();
+                fetch_return_events();
             });
 
             $('#calendar_table').on('click', '.cancel_button', function() {
@@ -595,6 +622,7 @@
                         make_calendar();
                         bind_droppable_to_days();
                         fetch_events();
+                        fetch_return_events();
                     } else {
                         $.each(data.errors, function() {
                             createErrorMessage(this);
@@ -615,6 +643,7 @@
             make_calendar();
             bind_droppable_to_days();
             fetch_events();
+            fetch_return_events();
             fetch_vehicles();
 
         });
