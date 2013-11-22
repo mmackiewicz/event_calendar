@@ -205,6 +205,19 @@ def set_event_date(request):
     event.save()
     return JsonResponse(data={'status': 'OK'})
 
+@csrf_exempt
+@require_POST
+@is_authenticated()
+def set_return_event_date(request):
+    event = get_object_or_404(Event, pk=request.POST['event_id'])
+    if event.return_event:
+        new_date = datetime.strptime(request.POST['new_date'], '%Y-%m-%d')
+        event.return_event.return_date = new_date
+        event.return_event.save()
+        return JsonResponse(data={'status': 'OK'})
+    else:
+        return JsonResponse(data={'status': 'ERROR', 'errors': ['No return event for event with id = '+event.id]})
+
 
 @csrf_exempt
 @is_authenticated()

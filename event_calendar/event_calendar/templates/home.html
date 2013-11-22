@@ -137,16 +137,26 @@
                 }).draggable({
                         revert: true,
                         start: function() {
-                            //event_date = $(this).parent().parent().attr('id');
                             current_date = new Date();
                             trimmed_date = new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate());
                             $('#calendar_table .day:not([id])').addClass('disabled_td');
-                            $.each($('.day[id]'), function() {
-                                day_date = new Date($(this).attr('id'));
-                                if(day_date < trimmed_date) {
-                                    $(this).addClass('disabled_td');
-                                }
-                            });
+                            // if element has 'event_date' attribute then it is a return event
+                            if($(this).attr('event_date')) {
+                                event_date = new Date($(this).attr('event_date'));
+                                $.each($('.day[id]'), function() {
+                                    day_date = new Date($(this).attr('id'));
+                                    if(day_date < trimmed_date || day_date < event_date) {
+                                        $(this).addClass('disabled_td');
+                                    }
+                                });
+                            } else {
+                                $.each($('.day[id]'), function() {
+                                    day_date = new Date($(this).attr('id'));
+                                    if(day_date < trimmed_date) {
+                                        $(this).addClass('disabled_td');
+                                    }
+                                });
+                            }
                         },
                         stop: function() {
                             $('.disabled_td').removeClass('disabled_td');
@@ -166,11 +176,11 @@
                         }
                         event_id = ui.draggable.attr('id');
                         new_date = $(this).attr('id');
-                        if(new_date) {
+                        if(event_id.indexOf('return')==-1) {
                             set_event_date(event_id, new_date);
                         } else {
-                            createErrorMessage("Cannot move events between months. Please choose a date within current month.");
-                            showErrorsModal();
+                            event_id = event_id.replace('return', '');
+                            set_return_event_date(event_id, new_date);
                         }
                     }
                 });
@@ -202,7 +212,7 @@
              */
             function create_return_event_div(event) {
                     var container = $('#'+event.return_date+' div.events_container');
-                    $div_event = $("<div/>", {class: "event_div return_event_div", id: "return"+event.event.id});
+                    $div_event = $("<div/>", {class: "event_div return_event_div", id: "return"+event.event.id, event_date: event.event.recipients_date});
                     $div_label = $("<div/>", {class: "pull-left", text: event.event.recipient});
                     $div_event.append($div_label);
 
@@ -221,7 +231,6 @@
                 jQuery.get(
                         '/vehicles/all_extended/',
                         function(data) {
-                            console.log(data);
                             vehicles = data['vehicles'];
                             $.each(vehicles, function() {
                                 $('#vehicles_list').append('<li id="vehicle'+this.id+'">'+this.registration+'<span class="vehicle vehicle_small vehicle_small_'+this.colour+' draggable_vehicle"></div></li>');
@@ -513,9 +522,40 @@
                 })
             }
 
+            /**
+             * Change the date of return event assigned to event specified by id
+             * @param event_id Identifier of the event
+             * @param new_date Date to which the return event should be moved
+             */
+            function set_return_event_date(event_id, new_date) {
+                $.post(
+                    '/events/return/set_date/',
+                    {
+                        'event_id': event_id,
+                        'new_date': new_date
+                    }
+                ).done(function(data) {
+                    if(data.status && data.status == 'OK') {
+                        make_calendar();
+                        bind_droppable_to_days();
+                        fetch_events();
+                        fetch_return_events();
+                    } else {
+                        $.each(data.errors, function() {
+                            createErrorMessage(this);
+                        })
+                        showErrorsModal()
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
+            }
+
             $('#calendar_table').on('click', '.next', function() {
                 $('#dp').data('datepicker').picker.find('.next:first').click();
                 make_calendar();
+                bind_droppable_to_days();
                 fetch_events();
                 fetch_return_events();
             });
@@ -523,6 +563,7 @@
             $('#calendar_table').on('click', '.prev', function() {
                 $('#dp').data('datepicker').picker.find('.prev:first').click();
                 make_calendar();
+                bind_droppable_to_days();
                 fetch_events();
                 fetch_return_events();
             });
