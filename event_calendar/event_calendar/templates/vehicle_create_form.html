@@ -28,7 +28,12 @@
                     showErrorsModal();
                     return;
                 }
-                $('#vehicle_form').submit();
+
+                {% if vehicle %}
+                    validate_vehicle_update();
+                {% else %}
+                    validate_vehicle_create();
+                {% endif %}
             });
 
             function validate_vehicle() {
@@ -41,6 +46,61 @@
 
                 return valid;
             }
+
+            function validate_vehicle_create() {
+                $.post(
+                    '/vehicles/create/validate/',
+                    {
+                        'registration': $('input[name=registration]').val(),
+                        'colour': $('input[name=colour]').val()
+                    }
+                ).done(function(data) {
+                    if(data.status) {
+                        if(data.status == 'OK') {
+                            submit_form();
+                        }
+                        else {
+                            $.each(data.errors, function() {
+                                createErrorMessage(this);
+                            })
+                            showErrorsModal()
+                        }
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
+            }
+
+            function validate_vehicle_update() {
+                $.post(
+                    '/vehicles/update/validate/{{ vehicle.id }}/',
+                    {
+                        'registration': $('input[name=registration]').val(),
+                        'colour': $('input[name=colour]').val()
+                    }
+                ).done(function(data) {
+                    if(data.status) {
+                        if(data.status == 'OK') {
+                            submit_form();
+                        }
+                        else {
+                            $.each(data.errors, function() {
+                                createErrorMessage(this);
+                            })
+                            showErrorsModal()
+                        }
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
+            }
+
+            function submit_form() {
+                $("#vehicle_form").submit();
+            }
+
         });
 
     </script>

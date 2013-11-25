@@ -12,7 +12,7 @@ from models import Worker, ROLES
 @is_admin()
 def create_worker_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        username = request.POST['username'].strip()
         password = request.POST['password']
         role = request.POST['role']
         create_worker(username, password, role,)
@@ -22,6 +22,15 @@ def create_worker_view(request):
 
     return render(request,'worker_create_form.html', {'roles': ROLES})
 
+@csrf_exempt
+@require_POST
+@is_admin()
+def validate_worker_create(request):
+    username = request.POST['username'].strip()
+    if User.objects.filter(username=username):
+        return JsonResponse(data={'status': 'ERROR',
+                                  'errors': ['User with username %s already exists.'%username]})
+    return JsonResponse(data={'status': 'OK'})
 
 def create_worker(username, password, role,):
     user = User.objects.create_user(username, password=None)
@@ -33,13 +42,14 @@ def create_worker(username, password, role,):
 
     return worker.id
 
-def update_worker(user, username, password, role):
+def update_worker(user, username, role, password=None):
     worker = user.get_profile()
     worker.role = role
     worker.save()
 
     user.username = username
-    user.set_password(password)
+    if password:
+        user.set_password(password)
     user.save()
 
     return worker.id
@@ -57,15 +67,28 @@ def update_worker_view(request, worker_id):
                                                          'worker': worker})
 
     else:
-        username = request.POST['username']
+        username = request.POST['username'].strip()
         password1 = request.POST['new_password1']
         password2 = request.POST['new_password2']
         role = request.POST['role']
-        update_worker(user, username, password1, role)
+        if password1 and password2:
+            update_worker(user, username, password1, role)
+        else:
+            update_worker(user, username, role)
 
         workers = Worker.objects.all()
         return render(request, "workers_list.html", {'workers': workers})
 
+@csrf_exempt
+@require_POST
+@is_admin()
+def validate_worker_update(request, worker_id):
+    username = request.POST['username'].strip()
+    users = User.objects.filter(username=username)
+    if users and not users[0].id == worker_id:
+        return JsonResponse(data={'status': 'ERROR',
+                                  'errors': ['User with username %s already exists.'%username]})
+    return JsonResponse(data={'status': 'OK'})
 
 @require_GET
 @is_admin()
@@ -86,14 +109,3 @@ def delete_worker_view(request, worker_id):
     worker = get_object_or_404(Worker, pk=worker_id)
     worker.delete()
     return JsonResponse(data={'status': 'OK'})
-
-"""
-@require_POST
-@is_admin()
-@csrf_exempt
-def toggle_worker_status(request, worker_id):
-    worker = get_object_or_404(Worker, pk=worker_id)
-    worker.user.is_active = not worker.user.is_active
-    worker.user.save()
-    return JsonResponse(data={'status': 'OK'})
-"""

@@ -9,7 +9,7 @@
                     showErrorsModal();
                     return;
                 }
-                $("#worker_form").submit();
+                validate_worker_create();
             });
 
             $("#cancel_button").click(function() {
@@ -34,6 +34,36 @@
                 }
 
                 return valid;
+            }
+
+            function validate_worker_create() {
+                $.post(
+                    '/workers/create/validate/',
+                    {
+                        'username': $('input[name=username]').val(),
+                        'password': $('input[name=password]').val(),
+                        'role': $('input[name=role]').val()
+                    }
+                ).done(function(data) {
+                    if(data.status) {
+                        if(data.status == 'OK') {
+                            submit_form();
+                        }
+                        else {
+                            $.each(data.errors, function() {
+                                createErrorMessage(this);
+                            })
+                            showErrorsModal()
+                        }
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
+            }
+
+            function submit_form() {
+                $("#worker_form").submit();
             }
 
         });

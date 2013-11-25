@@ -9,7 +9,11 @@
                     showErrorsModal();
                     return;
                 }
-                $("#product_form").submit();
+                {% if product %}
+                    validate_product_update();
+                {% else %}
+                    validate_product_create();
+                {% endif %}
             });
 
             $("#cancel_button").click(function() {
@@ -26,6 +30,59 @@
 
                 return valid;
             }
+
+            function validate_product_create() {
+                $.post(
+                    '/products/create/validate/',
+                    {
+                        'name': $('input[name=name]').val()
+                    }
+                ).done(function(data) {
+                    if(data.status) {
+                        if(data.status == 'OK') {
+                            submit_form();
+                        }
+                        else {
+                            $.each(data.errors, function() {
+                                createErrorMessage(this);
+                            })
+                            showErrorsModal()
+                        }
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
+            }
+
+            function validate_product_update() {
+                $.post(
+                    '/products/update/validate/{{ product.id }}/',
+                    {
+                        'name': $('input[name=name]').val()
+                    }
+                ).done(function(data) {
+                    if(data.status) {
+                        if(data.status == 'OK') {
+                            submit_form();
+                        }
+                        else {
+                            $.each(data.errors, function() {
+                                createErrorMessage(this);
+                            })
+                            showErrorsModal()
+                        }
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
+            }
+
+            function submit_form() {
+                $("#product_form").submit();
+            }
+
         });
     </script>
 {% endblock %}

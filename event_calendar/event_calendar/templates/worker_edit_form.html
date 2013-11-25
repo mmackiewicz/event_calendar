@@ -6,8 +6,11 @@
     <script>
         $(document).ready(function() {
             $("#save_button").click(function() {
-                vali
-                $("#worker_form").submit();
+                if(!validate_user()) {
+                    showErrorsModal();
+                    return;
+                }
+                validate_worker_update();
             });
 
             $("#cancel_button").click(function() {
@@ -22,16 +25,48 @@
                     createErrorMessage("Invalid username value. Username must be 5-15 characters long and consist of letters or/and numbers.");
                     valid = false;
                 }
-                password = $('input[name=new_password]').val().trim();
-                password2 = $('input[name=new_password2]').val().trim();
-                if(!validate_password(password)) {
-                    valid = false;
-                } else if(password != password2) {
-                        createErrorMessage("Password and repeated password are different");
+                password = $('input[name=new_password1]').val();
+                password2 = $('input[name=new_password2]').val();
+                if(password || password2) {
+                    if(!validate_password(password)) {
                         valid = false;
+                    } else if(password != password2) {
+                            createErrorMessage("Password and repeated password are different");
+                            valid = false;
+                    }
                 }
 
                 return valid;
+            }
+
+            function validate_worker_update() {
+                $.post(
+                    '/workers/update/validate/{{ user_entity.id }}/',
+                    {
+                        'username': $('input[name=username]').val(),
+                        'password': $('input[name=new_password1]').val(),
+                        'role': $('input[name=role]').val()
+                    }
+                ).done(function(data) {
+                    if(data.status) {
+                        if(data.status == 'OK') {
+                            submit_form();
+                        }
+                        else {
+                            $.each(data.errors, function() {
+                                createErrorMessage(this);
+                            })
+                            showErrorsModal()
+                        }
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
+            }
+
+            function submit_form() {
+                $("#worker_form").submit();
             }
         });
     </script>
