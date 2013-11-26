@@ -317,7 +317,8 @@
                 }
                 event_date = new Date(events_date);
                 current_date = new Date();
-                if(event_date >= current_date) {
+                trimmed_date = new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate());
+                if(event_date >= trimmed_date) {
                     $div_buttons.append('<button class="btn btn-sm btn-success edit_event_button">edit</button><button class="btn btn-sm btn-danger cancel_button">cancel</button>');
                 }
                 //------------------------
@@ -341,11 +342,12 @@
 
                 event_date = new Date(events_date);
                 current_date = new Date();
+                trimmed_date = new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate());
 
                 event_class = "col-md-7";
                 old_event = false;
                 // change variables values if event has not yet passed
-                if(event_date < current_date) {
+                if(event_date < trimmed_date) {
                     event_class = "col-md-10";
                     old_event = true;
                 }
