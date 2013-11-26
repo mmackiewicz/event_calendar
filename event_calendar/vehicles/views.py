@@ -94,7 +94,8 @@ def get_vehicle_view(request, vehicle_id):
 @require_GET
 @is_in_roles([ROLE_ADMIN, ROLE_DISPATCHER])
 def get_all_vehicles_view(request):
-    return render(request, 'vehicles_list.html', {'vehicles': Vehicle.objects.all()})
+    return render(request, 'vehicles_list.html', {'vehicles': Vehicle.objects.all(),
+                                                  'RENTAL_ID': RENTAL_ID})
 
 @require_GET
 def get_vehicles_list_json(request):

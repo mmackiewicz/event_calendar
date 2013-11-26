@@ -1,7 +1,7 @@
 [
   {
     "model": "vehicles.Vehicle",
-    "pk": 0,
+    "pk": 1,
     "fields": {
       "registration": "RENTAL",
       "colour": "000000"

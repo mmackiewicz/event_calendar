@@ -1,7 +1,7 @@
 from django.db import models
 
 
-RENTAL_ID = 0
+RENTAL_ID = 1
 RENTAL_REGISTRATION = 'RENTAL'
 RENTAL_COLOUR = '000000'
 

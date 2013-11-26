@@ -34,7 +34,7 @@
         </tr>
     </thead>
     {% for vehicle in vehicles %}
-        {% if vehicle.id != 0 %}
+        {% if vehicle.id != RENTAL_ID %}
         <tr>
             <td>{{ vehicle.registration }}</td>
             <td><div style="background-color: #{{ vehicle.colour }}; width:60px;">&nbsp</div></td>
