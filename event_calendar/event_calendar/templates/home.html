@@ -648,7 +648,7 @@
             $('#calendar_table').on('click', '.cancel_button', function() {
                 var url = '';
                 event_id = $(this).parents('.panel-body').attr('id');
-                if(event_id.indexOf('event') == 1) {
+                if(event_id.indexOf('event') == 0) {
                     url = '/events/cancel/';
                     event_id = event_id.replace('event', '');
                 } else {
