@@ -36,6 +36,16 @@
                 {% endif %}
             });
 
+            // "hack": clicking on color picker icon to populate the colors list
+            $('#vehicle-colour-picker img').click();
+            $('#jquery-colour-picker').hide();
+
+            {% if vehicle %}
+            $('#jquery-colour-picker').find('a[rel={{ vehicle.colour }}]').click();
+            {% else %}
+            $('#jquery-colour-picker').find('a').get(0).click();
+            {% endif %}
+
             function validate_vehicle() {
                 valid = true;
 
@@ -133,7 +143,7 @@
             <div id="vehicle-colour-picker">
                 <p>
                     <select name="colour">
-                        <option value="9aff99" selected="selected">#9aff99</option>
+                        <option value="9aff99">#9aff99</option>
                         <option value="00009b">#00009b</option>
                         <option value="34ff34">#34ff34</option>
                         <option value="3166ff">#3166ff</option>
