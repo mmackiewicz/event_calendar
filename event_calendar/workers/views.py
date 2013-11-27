@@ -72,7 +72,7 @@ def update_worker_view(request, worker_id):
         password2 = request.POST['new_password2']
         role = request.POST['role']
         if password1 and password2:
-            update_worker(user, username, password1, role)
+            update_worker(user, username, role, password1)
         else:
             update_worker(user, username, role)
 
