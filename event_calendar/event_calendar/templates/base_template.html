@@ -58,9 +58,13 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                {% if user.get_profile.role == 'ADMIN' or user.get_profile.role == 'DISPATCHER' %}
+                {% if user.get_profile.role == 'ADMIN' %}
                 <li><a href="/events/create/">add event</a></li>
                 <li><a href="/workers/all/">users</a></li>
+                <li><a href="/vehicles/all/">vehicles</a></li>
+                <li><a href="/products/all/">products</a></li>
+                {% elif user.get_profile.role == 'DISPATCHER' %}
+                <li><a href="/events/create/">add event</a></li>
                 <li><a href="/vehicles/all/">vehicles</a></li>
                 <li><a href="/products/all/">products</a></li>
                 {% endif %}
