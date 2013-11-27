@@ -85,7 +85,7 @@ def update_worker_view(request, worker_id):
 def validate_worker_update(request, worker_id):
     username = request.POST['username'].strip()
     users = User.objects.filter(username=username)
-    if users and not users[0].id == worker_id:
+    if users and not users[0].id == int(worker_id):
         return JsonResponse(data={'status': 'ERROR',
                                   'errors': ['User with username %s already exists.'%username]})
     return JsonResponse(data={'status': 'OK'})

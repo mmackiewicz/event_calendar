@@ -78,7 +78,7 @@
         EDIT WORKER
         </div>
     </div>
-    <form action="/workers/update/{{ user_entity.id }}/" method="POST">
+    <form id="worker_form" action="/workers/update/{{ user_entity.id }}/" method="POST">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-3">username:</div>
