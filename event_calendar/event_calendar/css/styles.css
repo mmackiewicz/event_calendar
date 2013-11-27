@@ -143,7 +143,7 @@ textarea {
     width: 500px;
 }
 
-#vehicles_list li {
+.vehicle_li {
     margin-left: 5px;
     margin-right: 5px;
 }

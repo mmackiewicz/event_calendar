@@ -233,7 +233,7 @@
                         function(data) {
                             vehicles = data['vehicles'];
                             $.each(vehicles, function() {
-                                $('#vehicles_list').append('<li id="vehicle'+this.id+'">'+this.registration+'<span class="vehicle vehicle_small vehicle_small_'+this.colour+' draggable_vehicle pull-right"></span></li>');
+                                $('#vehicles_list').append('<li id="vehicle'+this.id+'" class="vehicle_li">'+this.registration+'<span class="vehicle vehicle_small vehicle_small_'+this.colour+' draggable_vehicle pull-right"></span></li>');
                             });
                             $('.draggable_vehicle').draggable({revert: true});
                         },
