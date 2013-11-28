@@ -126,7 +126,7 @@
 
 {% block jumbo-content %}
     {% if vehicle %}
-        <form action="/vehicles/update/{{ vehicle.id }}" method="POST" id="vehicle_form">
+        <form action="/vehicles/update/{{ vehicle.id }}/" method="POST" id="vehicle_form">
     {% else %}
         <form action="/vehicles/create/" method="POST" id="vehicle_form">
     {% endif %}
