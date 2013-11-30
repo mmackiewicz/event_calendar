@@ -32,6 +32,7 @@
             }
 
             function validate_product_create() {
+                blockUX();
                 $.post(
                     '/products/create/validate/',
                     {
@@ -52,10 +53,12 @@
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
-                })
+                });
+                unblockUX;
             }
 
             function validate_product_update() {
+                blockUX();
                 $.post(
                     '/products/update/validate/{{ product.id }}/',
                     {
@@ -69,14 +72,15 @@
                         else {
                             $.each(data.errors, function() {
                                 createErrorMessage(this);
-                            })
+                            });
                             showErrorsModal()
                         }
                     }
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
-                })
+                });
+                unblockUX;
             }
 
             function submit_form() {

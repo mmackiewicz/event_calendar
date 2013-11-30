@@ -9,6 +9,7 @@ $(document).ready(function() {
 
     $(".mark_paid_button").click(function(){
         invoice_id = $(this).attr("id");
+        blockUX();
         $.post("/invoices/mark_paid/"+invoice_id+"/",
             {}
         ).done(function(data) {
@@ -26,6 +27,7 @@ $(document).ready(function() {
             createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
             showErrorsModal();
         });
+        unblockUX;
     });
 
 });

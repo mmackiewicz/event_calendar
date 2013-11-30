@@ -12,6 +12,7 @@
     <script type="text/javascript" src="/static/bootstrap.min.js"></script>
     <script type="text/javascript" src="/static/bootstrap-datepicker.js"></script>
     <script type="text/javascript" src="/static/jquery.colourPicker.js"></script>
+    <script type="text/javascript" src="/static/jquery.blockUI.js"></script>
     <script type="text/javascript" src="/static/scripts.js"></script>
     <script type="text/javascript" src="/static/jquery-ui-1.10.3.custom.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/static/bootstrap.min.css" />
@@ -103,6 +104,12 @@
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
+
+    <div class="modal fade" id="busy_modal">
+        <div class="busy_modal_icon">
+            <img src="/static/busy.gif"/>
+        </div>
+    </div>
 
       {% block modals %}{% endblock %}
   </body>

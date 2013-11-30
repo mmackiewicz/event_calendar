@@ -2,6 +2,7 @@
 {% extends "common_template.html" %}
 
 {% block script %}
+    <script type="text/javascript" src="/static/datepicker_extend.js"></script>
     <script type="text/javascript" src="/static/invoices_common.js"></script>
     <script>
         $(document).ready(function() {
@@ -17,6 +18,7 @@
                     showErrorsModal();
                     return;
                 }
+                blockUX();
                 $.post(
                     '/invoices/edit/{{ invoice.id }}/',
                     {
@@ -38,6 +40,7 @@
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
                 });
+                unblockUX;
 
             });
 

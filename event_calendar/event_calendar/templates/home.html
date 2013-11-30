@@ -2,6 +2,7 @@
 {% extends "base_template.html" %}
 
 {% block script %}
+    <script type="text/javascript" src="/static/datepicker_extend.js"></script>
     <script>
 
         var animation_speed = 200;
@@ -470,6 +471,7 @@
              * @param vehicle_id
              */
             function set_vehicle_in_event(event_id, vehicle_id) {
+                blockUX();
                 $.post(
                     '/events/set_vehicle/',
                     {
@@ -486,11 +488,13 @@
                         $.each(data.errors, function() {
                             createErrorMessage(this);
                         })
-                        showErrorsModal()
+                        showErrorsModal();
                     }
+                    $("#busy_modal").modal("hide");
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
+                    $("#busy_modal").modal("hide");
                 })
             }
 
@@ -500,6 +504,7 @@
              * @param new_date
              */
             function set_event_date(event_id, new_date) {
+                blockUX();
                 $.post(
                     '/events/set_date/',
                     {
@@ -516,11 +521,13 @@
                         $.each(data.errors, function() {
                             createErrorMessage(this);
                         })
-                        showErrorsModal()
+                        showErrorsModal();
+                        $("#busy_modal").modal("hide");
                     }
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
+                    $("#busy_modal").modal("hide");
                 })
             }
 
@@ -530,6 +537,7 @@
              * @param new_date Date to which the return event should be moved
              */
             function set_return_event_date(event_id, new_date) {
+                blockUX();
                 $.post(
                     '/events/return/set_date/',
                     {
@@ -546,33 +554,41 @@
                         $.each(data.errors, function() {
                             createErrorMessage(this);
                         })
-                        showErrorsModal()
+                        showErrorsModal();
+                        $("#busy_modal").modal("hide");
                     }
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
+                    $("#busy_modal").modal("hide");
                 })
             }
 
             $('#calendar_table').on('click', '.next', function() {
                 $('#dp').data('datepicker').picker.find('.next:first').click();
+                blockUX();
                 make_calendar();
                 bind_droppable_to_days();
                 fetch_events();
                 fetch_return_events();
+                unblockUX();
             });
 
             $('#calendar_table').on('click', '.prev', function() {
                 $('#dp').data('datepicker').picker.find('.prev:first').click();
+                blockUX();
                 make_calendar();
                 bind_droppable_to_days();
                 fetch_events();
                 fetch_return_events();
+                unblockUX();
             });
 
             $('#calendar_div').on('click','.day .day_number', function(){
+                blockUX();
                 fetch_daily_events($(this).parent().attr('id'));
                 fetch_daily_return_events($(this).parent().attr('id'));
+                unblockUX();
             });
 
             $('#calendar_div').on('mouseover', '.day_number', function() {
@@ -639,10 +655,12 @@
             $('#calendar_table').on('click', '#today_button', function() {
                 $('#dp').data('datepicker').viewDate = new Date("{% now YY-m-dd %}");
                 $('#dp').data('datepicker').fill();
+                blockUX();
                 make_calendar();
                 bind_droppable_to_days();
                 fetch_events();
                 fetch_return_events();
+                unblockUX();
             });
 
             $('#calendar_table').on('click', '.cancel_button', function() {
@@ -655,6 +673,7 @@
                     url = '/events/return/cancel/';
                     event_id = event_id.replace('return_event', '');
                 }
+                blockUX();
                 $.post(
                     url,
                     {
@@ -670,11 +689,13 @@
                         $.each(data.errors, function() {
                             createErrorMessage(this);
                         })
-                        showErrorsModal()
+                        showErrorsModal();
+                        $("#busy_modal").modal("hide");
                     }
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
+                    $("#busy_modal").modal("hide");
                 })
             });
 
@@ -683,12 +704,13 @@
                 window.location.href = "/invoices/outdated/";
             });
 
+            blockUX();
             make_calendar();
             bind_droppable_to_days();
             fetch_events();
             fetch_return_events();
             fetch_vehicles();
-
+            unblockUX();
         });
     </script>
 {% endblock %}

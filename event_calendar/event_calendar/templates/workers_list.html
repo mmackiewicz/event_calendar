@@ -7,6 +7,7 @@
             $('body').on('click', '.worker_delete_button', function() {
                 var id = $(this).attr('id').replace('worker_delete_', '');
                 var that = $(this);
+                blockUX();
                 $.post(
                     '/workers/delete/'+id+'/',
                     {},
@@ -19,6 +20,7 @@
                             });
                             showErrorsModal();
                         }
+                        $("#busy_modal").modal("hide");
                     },
                     'json'
                 );

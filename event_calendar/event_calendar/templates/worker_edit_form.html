@@ -40,6 +40,7 @@
             }
 
             function validate_worker_update() {
+                blockUX();
                 $.post(
                     '/workers/update/validate/{{ user_entity.id }}/',
                     {
@@ -58,11 +59,13 @@
                             })
                             showErrorsModal()
                         }
+                        $("#busy_modal").modal("hide");
                     }
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
-                })
+                    $("#busy_modal").modal("hide");
+                });
             }
 
             function submit_form() {

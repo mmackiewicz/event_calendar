@@ -149,6 +149,7 @@ $(document).ready(function() {
             showErrorsModal();
             return;
         }
+        blockUX();
         $.post(
             "/events/edit_return/"+$('#event_id').val()+"/",
             JSON.stringify(prepare_request_content())
@@ -164,13 +165,15 @@ $(document).ready(function() {
         }).fail(function(data) {
             createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
             showErrorsModal();
-        })
+        });
+        unblockUX;
     });
     $('#create_button').click(function() {
         if(!validate_event_data()) {
             showErrorsModal();
             return;
         }
+        blockUX();
         $.post(
             '/events/create_return/',
             JSON.stringify(prepare_request_content())
@@ -186,7 +189,8 @@ $(document).ready(function() {
         }).fail(function(data) {
             createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
             showErrorsModal();
-        })
+        });
+        unblockUX;
     });
 
     $('#cancel_button').click(function() {

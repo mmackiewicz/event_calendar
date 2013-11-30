@@ -37,6 +37,7 @@
             }
 
             function validate_worker_create() {
+                blockUX();
                 $.post(
                     '/workers/create/validate/',
                     {
@@ -55,11 +56,13 @@
                             })
                             showErrorsModal()
                         }
+                        $("#busy_modal").modal("hide");
                     }
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
-                })
+                    $("#busy_modal").modal("hide");
+                });
             }
 
             function submit_form() {

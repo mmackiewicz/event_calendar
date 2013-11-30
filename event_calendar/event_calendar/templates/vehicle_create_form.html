@@ -58,6 +58,7 @@
             }
 
             function validate_vehicle_create() {
+                blockUX();
                 $.post(
                     '/vehicles/create/validate/',
                     {
@@ -74,15 +75,18 @@
                                 createErrorMessage(this);
                             })
                             showErrorsModal()
+                            $("#busy_modal").modal("hide");
                         }
                     }
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
-                })
+                    $("#busy_modal").modal("hide");
+                });
             }
 
             function validate_vehicle_update() {
+                blockUX();
                 $.post(
                     '/vehicles/update/validate/{{ vehicle.id }}/',
                     {
@@ -97,14 +101,17 @@
                         else {
                             $.each(data.errors, function() {
                                 createErrorMessage(this);
-                            })
-                            showErrorsModal()
+                            });
+                            showErrorsModal();
                         }
                     }
+                    $("#busy_modal").modal("hide");
                 }).fail(function(data) {
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
-                })
+                    $("#busy_modal").modal("hide");
+                });
+
             }
 
             function submit_form() {

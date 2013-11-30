@@ -3,6 +3,7 @@
 
 {% block script %}
     <script type="text/javascript" src="/static/events_common.js"></script>
+    <script type="text/javascript" src="/static/datepicker_extend.js"></script>
     <script>
     $(document).ready(function() {
 
@@ -58,6 +59,7 @@
                 'comment': $('#comment').val()
             }
 
+            blockUX();
             $.post(
                 '/events/edit/{{ event.id }}/',
                 JSON.stringify(result)
@@ -74,6 +76,7 @@
                 createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                 showErrorsModal();
             })
+            unblockUX;
         });
 
         $("#cancel_button").click(function() {

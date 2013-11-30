@@ -147,3 +147,10 @@ textarea {
     margin-left: 5px;
     margin-right: 5px;
 }
+
+.busy_modal_icon {
+    width: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 150px;
+}
