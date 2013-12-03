@@ -27,7 +27,12 @@ $(document).ready(function() {
             createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
             showErrorsModal();
         });
-        unblockUX;
+        $('#busy_modal').modal('hide');
+    });
+
+    $(".edit_button").click(function(){
+        invoice_id = $(this).attr("id").replace('edit_', '');
+        window.location.href = "/invoices/edit/"+invoice_id+"/";
     });
 
 });

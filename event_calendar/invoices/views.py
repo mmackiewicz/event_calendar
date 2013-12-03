@@ -21,10 +21,50 @@ def create_invoice_view(request, transport_id):
     return render(request, 'invoice_create_form.html', {'companies': settings.OWN_COMPANIES,
                                                         'transport_id': transport_id})
 
+@csrf_exempt
+@require_POST
+@is_in_roles([ROLE_ADMIN, ROLE_SECRETARY])
+def validate_create_invoice(request):
+    invoice_number = request.POST['invoice_number']
+    company = request.POST['company']
+    issue_date = datetime.strptime(request.POST['issue_date'], '%Y-%m-%d')
+    invoice = Invoice.objects.filter(number=invoice_number,
+                                     company=company,
+                                     issue_date__year=issue_date.year,
+                                     issue_date__month=issue_date.month)
+    if invoice:
+        return JsonResponse(data={'status': 'ERROR',
+                                  'errors': ['Invoice with number %s already exists for %s in %d-%d'%(invoice_number,
+                                                                                                      company,
+                                                                                                      issue_date.month,
+                                                                                                      issue_date.year)]})
+    return JsonResponse(data={'status': 'OK'})
+
+@csrf_exempt
+@require_POST
+@is_in_roles([ROLE_ADMIN, ROLE_SECRETARY])
+def validate_update_invoice(request, invoice_id):
+    invoice_number = request.POST['invoice_number']
+    company = request.POST['company']
+    issue_date = datetime.strptime(request.POST['issue_date'], '%Y-%m-%d')
+    invoice = Invoice.objects.filter(number=invoice_number,
+                                     company=company,
+                                     issue_date__year=issue_date.year,
+                                     issue_date__month=issue_date.month)
+    if invoice and invoice[0].id != int(invoice_id):
+        return JsonResponse(data={'status': 'ERROR',
+                                  'errors': ['Invoice with number %s already exists for %s in %d-%d'%(invoice_number,
+                                                                                                      company,
+                                                                                                      issue_date.month,
+                                                                                                      issue_date.year)]})
+
+    return JsonResponse(data={'status': 'OK'})
+
 def create_invoice(number, company, issue_date, is_paid=False):
     invoice = Invoice.objects.create(number=number, company=company, issue_date=issue_date, is_paid=is_paid)
     return invoice
 
+@csrf_exempt
 @require_http_methods(['GET', 'POST'])
 @is_in_roles([ROLE_ADMIN, ROLE_SECRETARY])
 def edit_invoice_view(request, invoice_id):

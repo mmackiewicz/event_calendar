@@ -54,7 +54,7 @@
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
                 });
-                unblockUX;
+                $('#busy_modal').modal('hide');
             }
 
             function validate_product_update() {
@@ -80,7 +80,7 @@
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
                 });
-                unblockUX;
+                $('#busy_modal').modal('hide');
             }
 
             function submit_form() {

@@ -13,12 +13,47 @@
                 window.location.href = "/home/";
             });
 
+            function validate_invoice_update() {
+                blockUX();
+                $.post(
+                    '/invoices/update/validate/{{ invoice.id }}/',
+                    {
+                        'company': $('#invoice_company').val(),
+                        'transport_id': $("#invoice_transport_id").val(),
+                        'invoice_number': $("#invoice_number").val(),
+                        'issue_date': $("#invoice_issue_date").find('input').val()
+                    }
+                ).done(function(data) {
+                    if(data.status) {
+                        if(data.status == 'OK') {
+                            submit_invoice_update();
+                        }
+                        else {
+                            $.each(data.errors, function() {
+                                createErrorMessage(this);
+                            })
+                            showErrorsModal()
+                        }
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                });
+                $('#busy_modal').modal('hide');
+            }
+
             $('#invoice_save_button').click(function() {
                 if(!validate_invoice_data()) {
                     showErrorsModal();
                     return;
                 }
                 blockUX();
+                validate_invoice_update();
+                $('#busy_modal').modal('hide');
+            });
+
+            function submit_invoice_update() {
+
                 $.post(
                     '/invoices/edit/{{ invoice.id }}/',
                     {
@@ -29,7 +64,7 @@
                     }
                 ).done(function(data) {
                     if( data.status && data.status == "OK") {
-                        window.location.href = "/home/";
+                        window.location.href = "/invoices/list/{% now "Y/m" %}/";
                     } else {
                         $.each(data.errors, function() {
                             createErrorMessage(this);
@@ -40,9 +75,7 @@
                     createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
                     showErrorsModal();
                 });
-                unblockUX;
-
-            });
+            }
 
             function validate_invoice_data() {
                 valid = true;

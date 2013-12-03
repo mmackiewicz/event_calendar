@@ -125,7 +125,8 @@
                         {% endif %}
                         <td>
                             {% if not invoice.is_paid %}
-                            <button id="{{ invoice.id }}" type="button" class="btn btn-warning btn-sm mark_paid_button">paid</button>
+                            <button id="edit_{{ invoice.id }}" type="button" class="btn btn-warning btn-sm edit_button">edit</button>
+                            <button id="{{ invoice.id }}" type="button" class="btn btn-success btn-sm mark_paid_button">paid</button>
                             {% endif %}
                         </td>
                     </tr>
