@@ -585,6 +585,10 @@
             });
 
             $('#calendar_div').on('click','.day .day_number', function(){
+                parent = $(this).parent();
+                if(parent.hasClass("new") || parent.hasClass("old")) {
+                    return;
+                }
                 blockUX();
                 fetch_daily_events($(this).parent().attr('id'));
                 fetch_daily_return_events($(this).parent().attr('id'));
