@@ -564,6 +564,30 @@
                 })
             }
 
+            function cancel_event(url, event_id) {
+                $.post(
+                    url,
+                    {
+                        'event_id': event_id
+                    }
+                ).done(function(data) {
+                    if(data.status && data.status == 'OK') {
+                        make_calendar();
+                        bind_droppable_to_days();
+                        fetch_events();
+                        fetch_return_events();
+                    } else {
+                        $.each(data.errors, function() {
+                            createErrorMessage(this);
+                        })
+                        showErrorsModal();
+                    }
+                }).fail(function(data) {
+                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
+                    showErrorsModal();
+                })
+            }
+
             $('#calendar_table').on('click', '.next', function() {
                 $('#dp').data('datepicker').picker.find('.next:first').click();
                 blockUX();
@@ -677,30 +701,27 @@
                     url = '/events/return/cancel/';
                     event_id = event_id.replace('return_event', '');
                 }
+                $('#cancel_url').val(url);
+                $('#cancel_event_id').val(event_id);
+                $('#event_cancel_modal').modal('show');
+                //blockUX();
+                //cancel_event(url, event_id);
+                //$("#busy_modal").modal("hide");
+            });
+
+            $('#event_cancel_modal_close1, #event_cancel_modal_close2').click(function() {
+                $('#cancel_url').val("");
+                $('#cancel_event_id').val("");
+                $('#event_cancel_modal').modal('hide');
+            });
+
+            $('#event_cancel_modal_ok').click(function() {
                 blockUX();
-                $.post(
-                    url,
-                    {
-                        'event_id': event_id
-                    }
-                ).done(function(data) {
-                    if(data.status && data.status == 'OK') {
-                        make_calendar();
-                        bind_droppable_to_days();
-                        fetch_events();
-                        fetch_return_events();
-                    } else {
-                        $.each(data.errors, function() {
-                            createErrorMessage(this);
-                        })
-                        showErrorsModal();
-                        $("#busy_modal").modal("hide");
-                    }
-                }).fail(function(data) {
-                    createErrorMessage('status: '+data.status+', statusTEXT: '+data.statusText);
-                    showErrorsModal();
-                    $("#busy_modal").modal("hide");
-                })
+                $('#event_cancel_modal').modal('hide');
+                cancel_event($("#cancel_url").val(), $("#cancel_event_id").val());
+                $('#cancel_url').val("");
+                $('#cancel_event_id').val("");
+                $("#busy_modal").modal("hide");
             });
 
             $('#outdated_invoices_badge').click(function(event) {

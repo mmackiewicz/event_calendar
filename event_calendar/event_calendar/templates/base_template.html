@@ -105,6 +105,28 @@
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
+    <div class="modal fade" id="event_cancel_modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="event_cancel_modal_close1">&times;</button>
+            <h4 class="modal-title">Cancel event</h4>
+          </div>
+          <div class="modal-body">
+              <input type="hidden" id="cancel_event_id" value=""/>
+              <input type="hidden" id="cancel_url" value=""/>
+            <div class="row alert alert-danger">
+                Are you sure you want to cancel this event?
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" id="event_cancel_modal_close2">Cancel</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" id="event_cancel_modal_ok">OK</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
     <div class="modal fade" id="busy_modal">
         <div class="busy_modal_icon">
             <img src="/static/download.gif"/>
