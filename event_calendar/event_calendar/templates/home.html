@@ -693,7 +693,7 @@
 
             $('#calendar_table').on('click', '.cancel_button', function() {
                 var url = '';
-                event_id = $(this).parents('.panel-body').attr('id');
+                var event_id = $(this).parents('.panel-body').attr('id');
                 if(event_id.indexOf('event') == 0) {
                     url = '/events/cancel/';
                     event_id = event_id.replace('event', '');
@@ -704,9 +704,6 @@
                 $('#cancel_url').val(url);
                 $('#cancel_event_id').val(event_id);
                 $('#event_cancel_modal').modal('show');
-                //blockUX();
-                //cancel_event(url, event_id);
-                //$("#busy_modal").modal("hide");
             });
 
             $('#event_cancel_modal_close1, #event_cancel_modal_close2').click(function() {
@@ -763,20 +760,23 @@
 {% endblock %}
 
 {% block modals %}
-    <div class="modal fade" id="confirm_cancel_modal">
+    <div class="modal fade" id="event_cancel_modal">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <button type="button" class="close confirm_cancel_modal_no" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Are you sure you want to cancel this event?</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="event_cancel_modal_close1">&times;</button>
+            <h4 class="modal-title">Cancel event</h4>
           </div>
-          <!--<div class="modal-body">
-            <div class="row alert alert-danger" id="errors_div">
+          <div class="modal-body">
+              <input type="hidden" id="cancel_event_id" value=""/>
+              <input type="hidden" id="cancel_url" value=""/>
+            <div class="row alert alert-danger">
+                Are you sure you want to cancel this event?
             </div>
-          </div>-->
+          </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default confirm_cancel_modal_yes" data-dismiss="modal">Yes</button>
-            <button type="button" class="btn btn-default confirm_cancel_modal_no" data-dismiss="modal">No</button>
+            <button type="button" class="btn btn-warning" data-dismiss="modal" id="event_cancel_modal_close2">Cancel</button>
+            <button type="button" class="btn btn-success" data-dismiss="modal" id="event_cancel_modal_ok">OK</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
