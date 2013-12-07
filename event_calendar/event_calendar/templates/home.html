@@ -588,6 +588,12 @@
                 })
             }
 
+            function addapt_day_number_size() {
+                $.each($('#calendar_table tbody tr').not('.events_row'), function() {
+                    $(this).find('.day_number').css('height', $(this).css('height'));
+                });
+            }
+
             $('#calendar_table').on('click', '.next', function() {
                 $('#dp').data('datepicker').picker.find('.next:first').click();
                 blockUX();
@@ -731,6 +737,7 @@
             bind_droppable_to_days();
             fetch_events();
             fetch_return_events();
+            addapt_day_number_size();
             fetch_vehicles();
             unblockUX();
         });
