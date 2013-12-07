@@ -633,7 +633,7 @@
             });
 
             $('#calendar_table').on('click', 'div.icon_add', function() {
-                date_val = $(this).parents(".row").find('.date_span').text();
+                date_val = $(this).parents(".row").find('.date_span:visible').text();
                 $("#date_field").val(date_val);
                 $('#event_create_form').submit();
             });
