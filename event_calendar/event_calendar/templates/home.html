@@ -90,17 +90,18 @@
             function fetch_events() {
                 var year = $('#dp').data('datepicker').viewDate.getUTCFullYear();
                 var month = $('#dp').data('datepicker').viewDate.getMonth()+1;
-                jQuery.get(
-                        '/events/'+year+'/'+month+'/',
-                        function(data) {
+                jQuery.ajax({
+                        url: '/events/'+year+'/'+month+'/',
+                        success: function(data) {
                             events = data['events'];
                             $.each(events, function() {
                                 create_event_div(this);
                             });
                             bind_interactions_to_events();
                         },
-                        'json'
-                )
+                        dataType: 'json',
+                        async: false
+                })
             }
 
             /**
@@ -110,17 +111,18 @@
             function fetch_return_events() {
                 var year = $('#dp').data('datepicker').viewDate.getUTCFullYear();
                 var month = $('#dp').data('datepicker').viewDate.getMonth()+1;
-                jQuery.get(
-                        '/events/return/'+year+'/'+month+'/',
-                        function(data) {
+                jQuery.ajax({
+                        url: '/events/return/'+year+'/'+month+'/',
+                        success: function(data) {
                             events = data['return_events'];
                             $.each(events, function() {
                                 create_return_event_div(this);
                             });
                             bind_interactions_to_events();
                         },
-                        'json'
-                )
+                        dataType: 'json',
+                        async: false
+                })
             }
 
             /**
