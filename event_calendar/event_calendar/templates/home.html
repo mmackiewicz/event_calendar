@@ -591,6 +591,10 @@
             }
 
             function addapt_day_number_size() {
+                // addapting day_number elements should be done only for FF
+                if(!$.browser.mozilla) {
+                    return;
+                }
                 $.each($('#calendar_table tbody tr').not('.events_row'), function() {
                     $(this).find('.day_number').css('height', $(this).css('height'));
                 });
